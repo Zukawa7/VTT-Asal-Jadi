@@ -2,18 +2,29 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Character Sheet - VTT Asal Jadi</title>
 
-  <link rel="stylesheet" href="/styles/variables.css?v=7">
-  <link rel="stylesheet" href="/styles/animations.css?v=7">
-  <link rel="stylesheet" href="/styles/components.css?v=7">
-  <link rel="stylesheet" href="/styles/theme.css?v=7">
-  <link rel="stylesheet" href="/styles/responsive.css?v=7">
+  <link rel="stylesheet" href="/styles/variables.css?v=8">
+  <link rel="stylesheet" href="/styles/animations.css?v=8">
+  <link rel="stylesheet" href="/styles/components.css?v=8">
+  <link rel="stylesheet" href="/styles/theme.css?v=8">
+  <link rel="stylesheet" href="/styles/responsive.css?v=8">
   
   <script src="/socket.io/socket.io.js"></script>
   <style>
-    /* Polyport Theme Overrides */
+    /* P1: Overflow horizontal & layout resets */
+    html, body {
+      overflow-x: hidden;
+      max-width: 100vw;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* Polyport Theme Background */
     body { 
       background-image: radial-gradient(circle at top center, var(--bg-main-light) 0%, var(--bg-main-dark) 100%), url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h40v40H0z" fill="none"/><path d="M0 0h10v10H0zm20 20h10v10H20z" fill="%23000000" fill-opacity="0.05"/></svg>');
       background-color: var(--bg-main-dark);
@@ -23,35 +34,65 @@
     .polyport-card { 
       background-color: var(--bg-secondary);
       border: 1px solid var(--border-primary); 
-      border-radius: var(--radius-xl); /* ~12-16px */
+      border-radius: var(--radius-xl); 
       padding: var(--space-md); 
       position: relative;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.5), var(--shadow-sm);
       margin-bottom: var(--space-md);
+      width: 100%;
+      overflow: hidden; /* prevent child overflow */
     }
     
     /* Corner bracket ornament (gold, L-shape) */
     .polyport-card::before, .polyport-card::after {
       content: ''; position: absolute; width: 12px; height: 12px; 
-      border: 2px solid var(--border-accent); opacity: 0.6;
+      border: 2px solid var(--border-accent); opacity: 0.6; pointer-events: none;
     }
     .polyport-card::before { top: 6px; left: 6px; border-right: none; border-bottom: none; }
     .polyport-card::after { bottom: 6px; right: 6px; border-left: none; border-top: none; }
 
-    .header-sticky {
-      position: sticky; top: 0; z-index: 100;
-      background-color: rgba(20, 15, 12, 0.95);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border-accent);
+    /* P2: Fixed Header */
+    .header-main {
+      background-color: var(--bg-main-dark);
+      border-bottom: 1px solid var(--border-primary);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 16px;
+      width: 100%;
+      z-index: 100;
+      /* Remove sticky to prevent overlapping if scrolling breaks */
+      position: relative; 
+    }
+
+    /* P3 & P4: Profile Card Layout */
+    .profile-layout {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+    }
+    .profile-avatar {
+      width: 96px; height: 96px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border-accent);
+      flex-shrink: 0;
+      background-color: var(--bg-tertiary);
+    }
+    .profile-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .badge-level {
       background: linear-gradient(to bottom, #7a2b2b, #5c2020);
-      color: #fbd38d; /* pale pink/gold */
+      color: #fbd38d; 
       border: 1px solid #b7791f;
       padding: 2px 8px; border-radius: 999px;
       font-weight: bold; font-size: 0.75rem; text-transform: uppercase;
       font-family: var(--font-heading);
+      white-space: nowrap;
     }
     
     .hp-box {
@@ -59,20 +100,22 @@
       border-radius: var(--radius-md);
       position: relative; padding: 12px; text-align: center;
       background: var(--bg-tertiary);
+      flex: 1;
+      min-width: 0;
     }
     .hp-box::before, .hp-box::after {
-      content: ''; position: absolute; width: 6px; height: 6px; border: 1px solid var(--border-accent); opacity: 0.5;
+      content: ''; position: absolute; width: 6px; height: 6px; border: 1px solid var(--border-accent); opacity: 0.5; pointer-events: none;
     }
     .hp-box::before { top: 4px; left: 4px; border-right: none; border-bottom: none; }
     .hp-box::after { bottom: 4px; right: 4px; border-left: none; border-top: none; }
     
-    .hp-label { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--bg-tertiary); padding: 0 8px; font-size: 0.7rem; color: var(--text-secondary); font-family: var(--font-heading); font-weight: bold; }
+    .hp-label { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--bg-tertiary); padding: 0 8px; font-size: 0.7rem; color: var(--text-secondary); font-family: var(--font-heading); font-weight: bold; white-space: nowrap; border-radius: 4px; }
     .hp-bar-bg { width: 100%; background: #1a140f; border-radius: 4px; height: 6px; margin-top: 8px; overflow: hidden; border: 1px solid var(--border-primary); }
     .hp-bar-fill { height: 100%; background: linear-gradient(90deg, #2ea559, #3ecb6e); transition: width 0.3s; }
 
     .stat-box { 
       text-align: center; background: var(--bg-tertiary); border: 1px solid var(--border-primary); 
-      border-radius: var(--radius-sm); padding: 8px 4px; position: relative;
+      border-radius: var(--radius-sm); padding: 8px 4px; position: relative; width: 100%;
     }
     
     .currency-badge { 
@@ -86,42 +129,53 @@
     .pp { background: radial-gradient(circle at 30% 30%, #f5f5f5, #a9a9a9); color: #1a140f; text-shadow: none; }
 
     .ability-card { 
-      text-align: center; padding: 12px 8px; background: var(--bg-tertiary);
+      text-align: center; padding: 12px 2px; background: var(--bg-tertiary);
       border: 1px solid var(--border-primary); border-radius: var(--radius-md) var(--radius-md) var(--radius-xl) var(--radius-xl); 
       position: relative; cursor: pointer; transition: all 0.2s; 
+      display: flex; flex-direction: column; align-items: center;
     }
     .ability-card:hover { border-color: var(--secondary-dark); box-shadow: 0 0 8px rgba(212,165,68,0.3); }
     .ability-score { 
       position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); 
       background: var(--bg-primary); border: 1px solid var(--border-accent); 
-      border-radius: 999px; padding: 0 12px; font-weight: bold; font-size: 0.8rem; 
+      border-radius: 999px; padding: 0 10px; font-weight: bold; font-size: 0.75rem; 
       color: var(--text-secondary); 
     }
 
-    .prof-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--text-secondary); display: inline-block; margin-right: 8px; }
+    .prof-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--text-secondary); display: inline-block; margin-right: 8px; flex-shrink: 0; }
     .prof-dot.active { background: var(--text-secondary); }
-    .skill-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-primary); }
+    .skill-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-primary); width: 100%; }
     .skill-row:last-child { border-bottom: none; }
     
+    /* P6: Filter Chips Consistent Gold/Amber Theme */
     .filter-chip {
       background: var(--bg-tertiary); border: 1px solid var(--border-primary); color: var(--text-tertiary);
-      padding: 4px 12px; border-radius: 999px; font-size: 0.75rem; cursor: pointer; white-space: nowrap;
+      padding: 6px 12px; border-radius: 999px; font-size: 0.75rem; cursor: pointer; white-space: nowrap;
+      transition: all 0.2s;
     }
-    .filter-chip.active { background: var(--bg-quaternary); color: var(--text-primary); border-color: var(--text-secondary); }
+    .filter-chip.active { 
+      background: var(--primary-dark) !important; 
+      color: #fff !important; 
+      border-color: var(--primary) !important; 
+    }
 
     /* Action Buttons (Heal/Damage, VTT) */
-    .btn-heal { background: linear-gradient(to bottom, #4a7fb8, #3b6ea5); border: 1px solid #2b4b70; color: white; }
-    .btn-vtt { background: linear-gradient(to bottom, #b84a4a, #a53b3b); border: 1px solid #6b2626; color: white; }
+    .btn-heal { background: linear-gradient(to bottom, #4a7fb8, #3b6ea5); border: 1px solid #2b4b70; color: white; border-radius: 4px; }
+    .btn-vtt { background: linear-gradient(to bottom, #b84a4a, #a53b3b); border: 1px solid #6b2626; color: white; border-radius: 4px; }
 
-    /* Multiple FABs */
-    .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; z-index: 50; }
+    /* P11: Multiple FABs Hierarchy */
+    .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 12px; z-index: 50; }
     .fab-item {
-      width: 50px; height: 50px; border-radius: 50%; background: var(--primary-dark); color: white;
-      box-shadow: var(--shadow-lg), inset 0 1px 2px rgba(255,255,255,0.3);
+      width: 50px; height: 50px; border-radius: 50%; 
       display: flex; align-items: center; justify-content: center;
-      font-size: 20px; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border-accent);
+      font-size: 20px; cursor: pointer; transition: all 0.2s; 
+      box-shadow: var(--shadow-lg), inset 0 1px 2px rgba(255,255,255,0.3);
     }
-    .fab-item:hover { transform: scale(1.05); background: var(--primary); }
+    .fab-secondary { background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border-accent); }
+    .fab-secondary:hover { background: var(--bg-quaternary); color: var(--text-primary); }
+    
+    .fab-primary { background: var(--primary-dark); color: white; border: 1px solid var(--border-accent); }
+    .fab-primary:hover { background: var(--primary); transform: scale(1.05); }
 
     /* Quick Nav Menu Overlay */
     .nav-overlay {
@@ -142,13 +196,28 @@
     .nav-btn:hover { border-color: var(--secondary-dark); color: var(--secondary-dark); }
     
     /* Utility */
-    .section-title { font-family: var(--font-heading); font-size: 1.25rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-primary); padding-bottom: 4px; margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase; }
+    .section-title { font-family: var(--font-heading); font-size: 1.1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-primary); padding-bottom: 6px; margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase; }
+    .flex-row-center { display: flex; align-items: center; justify-content: space-between; }
+    
+    /* P9: Notes Textarea */
+    .notes-textarea {
+      width: 100%; background: var(--bg-primary); border: 1px solid var(--border-accent); 
+      color: var(--text-primary); padding: 12px; border-radius: var(--radius-md); 
+      min-height: 120px; font-family: var(--font-serif); resize: vertical;
+    }
+    .notes-textarea::placeholder { color: var(--text-tertiary); opacity: 0.7; }
+    
+    /* Custom Scrollbar for chips container */
+    .chips-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; }
+    .chips-container::-webkit-scrollbar { height: 4px; }
+    .chips-container::-webkit-scrollbar-track { background: transparent; }
+    .chips-container::-webkit-scrollbar-thumb { background: var(--border-primary); border-radius: 4px; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans">
 
-  <!-- 1. Header bar (sticky top) -->
-  <header class="header-sticky p-3 flex justify-between items-center w-full">
+  <!-- 1. Header bar (P2 Fixed) -->
+  <header class="header-main">
     <div class="flex items-center gap-2">
       <span class="text-xl">🎲</span>
       <span class="font-heading font-bold text-lg text-primary tracking-widest">VTT</span>
@@ -156,31 +225,33 @@
     <div class="flex items-center gap-4">
       <button class="text-text-secondary">🔍</button>
       <div class="w-8 h-8 rounded-full bg-bg-tertiary border border-border-primary overflow-hidden">
-         <img src="https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png" class="w-full h-full object-cover">
+         <img id="header-avatar" src="" class="w-full h-full object-cover" style="display:none;" alt="Av">
       </div>
       <button class="text-text-secondary" onclick="location.href='/dashboard'">☰</button>
     </div>
   </header>
 
-  <main class="flex-1 w-full max-w-3xl mx-auto p-4 flex flex-col" id="content" style="display:none">
+  <main class="flex-1 w-full max-w-3xl mx-auto p-3 flex flex-col" id="content" style="display:none">
     
     <!-- 2. Profile Summary Card -->
-    <div class="polyport-card flex gap-4 items-center">
-      <img id="avatar" src="" class="w-20 h-20 rounded-full border-2 object-cover" style="border-color: var(--secondary-dark);" alt="Avatar">
-      <div class="flex-1 min-w-0">
-        <h1 id="name" class="text-2xl font-heading font-bold truncate text-primary tracking-wider uppercase">Name</h1>
-        <p id="meta" class="text-xs text-text-tertiary truncate">Race · Class</p>
-        <div class="flex gap-2 items-center mt-2 flex-wrap">
-          <span id="level" class="badge-level">LEVEL 1</span>
-          <span id="alignment" class="text-xs text-text-tertiary">True Neutral</span>
-          <span id="xp" class="text-[10px] text-text-disabled">0 XP</span>
+    <div class="polyport-card">
+      <div class="profile-layout">
+        <img id="avatar" src="" class="profile-avatar" alt="Avatar">
+        <div class="profile-info">
+          <h1 id="name" class="text-2xl font-heading font-bold text-primary tracking-wider uppercase truncate m-0 leading-tight">Name</h1>
+          <p id="meta" class="text-xs text-text-primary mt-1 mb-2">Race · Class</p>
+          <div class="flex gap-2 items-center flex-wrap">
+            <span id="level" class="badge-level">LEVEL 1</span>
+            <span id="alignment" class="text-[10px] text-text-tertiary whitespace-nowrap">True Neutral</span>
+            <span id="xp" class="text-[10px] text-text-disabled whitespace-nowrap">0 XP</span>
+          </div>
         </div>
       </div>
     </div>
     
-    <!-- HP & Manage (Part of Profile conceptually, visually right below or merged) -->
-    <div class="polyport-card flex justify-between items-center gap-4">
-      <div class="hp-box flex-1 cursor-pointer" onclick="openHpModal()">
+    <!-- HP & Manage (P10) -->
+    <div class="polyport-card flex-row-center gap-4">
+      <div class="hp-box cursor-pointer" onclick="openHpModal()">
         <div class="hp-label">HIT POINTS</div>
         <div class="flex justify-center items-baseline gap-1 mt-2">
           <span id="hp-current" class="text-3xl font-serif font-bold text-text-primary">0</span>
@@ -190,53 +261,53 @@
         <div class="hp-bar-bg"><div id="hp-bar" class="hp-bar-fill" style="width:0%"></div></div>
         <div id="hp-temp" class="absolute top-2 right-2 text-[10px] text-text-secondary"></div>
       </div>
-      <div class="flex flex-col gap-2">
-         <button class="btn btn-ghost text-xs border border-border-primary" onclick="location.href='/dashboard'">MANAGE</button>
-         <button class="btn btn-ghost text-xs border border-border-primary text-text-secondary">INSPIRATION</button>
+      <div class="flex flex-col gap-2 flex-shrink-0">
+         <button class="btn btn-ghost text-[10px] font-bold border border-border-primary rounded px-3 py-1" onclick="location.href='/dashboard'">MANAGE</button>
+         <button class="btn btn-ghost text-[10px] font-bold border border-border-primary text-text-secondary rounded px-3 py-1">INSPIRATION</button>
       </div>
     </div>
 
     <!-- 3. Quick-Stats Row -->
-    <div class="flex flex-col md:flex-row gap-4 mb-4">
-      <div class="grid grid-cols-4 gap-2 flex-1">
-        <div class="flex flex-col items-center">
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mb-1">Proficiency</div>
-          <div class="stat-box w-full"><div id="prof" class="text-xl font-serif font-bold text-text-primary">+2</div></div>
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mt-1">Bonus</div>
+    <div class="flex flex-col md:flex-row gap-4 mb-4 w-full">
+      <div class="grid grid-cols-4 gap-2 flex-1 w-full">
+        <div class="flex flex-col items-center w-full">
+          <div class="text-[9px] text-text-tertiary uppercase font-bold mb-1 text-center">Proficiency</div>
+          <div class="stat-box"><div id="prof" class="text-lg font-serif font-bold text-text-primary">+2</div></div>
+          <div class="text-[9px] text-text-tertiary uppercase font-bold mt-1 text-center">Bonus</div>
         </div>
-        <div class="flex flex-col items-center">
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mb-1">Walking</div>
-          <div class="stat-box w-full"><div id="speed" class="text-xl font-serif font-bold text-text-primary">30</div></div>
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mt-1">Speed</div>
+        <div class="flex flex-col items-center w-full">
+          <div class="text-[9px] text-text-tertiary uppercase font-bold mb-1 text-center">Walking</div>
+          <div class="stat-box"><div id="speed" class="text-lg font-serif font-bold text-text-primary">30</div></div>
+          <div class="text-[9px] text-text-tertiary uppercase font-bold mt-1 text-center">Speed</div>
         </div>
-        <div class="flex flex-col items-center">
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mb-1">Initiative</div>
-          <div class="stat-box w-full cursor-pointer hover:bg-bg-hover" onclick="rollStat('Initiative', 'dex')"><div id="initiative" class="text-xl font-serif font-bold text-text-primary">+0</div></div>
+        <div class="flex flex-col items-center w-full">
+          <div class="text-[9px] text-text-tertiary uppercase font-bold mb-1 text-center">Initiative</div>
+          <div class="stat-box cursor-pointer hover:bg-bg-hover" onclick="rollStat('Initiative', 'dex')"><div id="initiative" class="text-lg font-serif font-bold text-text-primary">+0</div></div>
         </div>
-        <div class="flex flex-col items-center">
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mb-1">Armor</div>
-          <div class="stat-box w-full"><div id="armor" class="text-xl font-serif font-bold text-text-primary">10</div></div>
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mt-1">Class</div>
+        <div class="flex flex-col items-center w-full">
+          <div class="text-[9px] text-text-tertiary uppercase font-bold mb-1 text-center">Armor</div>
+          <div class="stat-box"><div id="armor" class="text-lg font-serif font-bold text-text-primary">10</div></div>
+          <div class="text-[9px] text-text-tertiary uppercase font-bold mt-1 text-center">Class</div>
         </div>
       </div>
       <!-- Desktop Defenses/Conditions -->
       <div class="hidden md:flex flex-col gap-2 justify-center">
-        <button class="btn btn-ghost text-xs border border-border-primary w-24">Defenses</button>
-        <button class="btn btn-ghost text-xs border border-border-primary w-24">Conditions</button>
+        <button class="btn btn-ghost text-xs border border-border-primary w-24 rounded">Defenses</button>
+        <button class="btn btn-ghost text-xs border border-border-primary w-24 rounded">Conditions</button>
       </div>
     </div>
 
     <!-- 4. Currency & Quick Action Card -->
     <div class="polyport-card">
-      <div class="flex justify-between items-center mb-4 px-2">
-        <div class="flex flex-col items-center"><span class="currency-badge cp">0</span><span class="text-[9px] text-text-tertiary mt-1">CP</span></div>
-        <div class="flex flex-col items-center"><span class="currency-badge sp">0</span><span class="text-[9px] text-tertiary mt-1">SP</span></div>
-        <div class="flex flex-col items-center"><span class="currency-badge gp">0</span><span class="text-[9px] text-tertiary mt-1">GP</span></div>
-        <div class="flex flex-col items-center"><span class="currency-badge pp">0</span><span class="text-[9px] text-tertiary mt-1">PP</span></div>
+      <div class="flex justify-between items-center mb-4 px-4 w-full">
+        <div class="flex flex-col items-center"><span class="currency-badge cp">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">CP</span></div>
+        <div class="flex flex-col items-center"><span class="currency-badge sp">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">SP</span></div>
+        <div class="flex flex-col items-center"><span class="currency-badge gp">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">GP</span></div>
+        <div class="flex flex-col items-center"><span class="currency-badge pp">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">PP</span></div>
       </div>
-      <div class="grid grid-cols-2 gap-3">
-        <button class="btn btn-heal py-3 text-sm font-bold tracking-wider" onclick="openHpModal()">HEAL / DAMAGE</button>
-        <button class="btn btn-vtt py-3 text-sm font-bold tracking-wider" onclick="location.href='/vtt?room=character-'+character.id">OPEN VTT</button>
+      <div class="grid grid-cols-2 gap-3 w-full">
+        <button class="btn btn-heal py-3 text-xs font-bold tracking-wider" onclick="openHpModal()">HEAL / DMG</button>
+        <button class="btn btn-vtt py-3 text-xs font-bold tracking-wider" onclick="location.href='/vtt?room=character-'+character.id">OPEN VTT</button>
       </div>
     </div>
 
@@ -245,34 +316,35 @@
     <!-- Ability Scores -->
     <div id="section-abilities" class="polyport-card">
       <h2 class="section-title">Ability Scores</h2>
-      <div id="abilities" class="grid grid-cols-3 md:grid-cols-6 gap-3 mt-4 mb-2"></div>
+      <!-- P8: Text wrapping for Ability Scores -->
+      <div id="abilities" class="grid grid-cols-3 md:grid-cols-6 gap-2 mt-4 mb-2"></div>
     </div>
 
     <!-- Saving Throws -->
     <div id="section-saves" class="polyport-card">
       <h2 class="section-title">Saving Throws</h2>
-      <div id="saves" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6"></div>
+      <div id="saves" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 w-full"></div>
     </div>
 
     <!-- Senses -->
     <div id="section-senses" class="polyport-card">
        <h2 class="section-title">Passive Senses</h2>
-       <div id="senses" class="flex justify-around gap-2 text-center mt-4"></div>
+       <div id="senses" class="flex justify-around gap-2 text-center mt-4 w-full"></div>
     </div>
 
     <!-- Skills -->
     <div id="section-skills" class="polyport-card">
       <h2 class="section-title">Skills</h2>
-      <div id="skills"></div>
+      <div id="skills" class="w-full"></div>
     </div>
 
     <!-- Actions -->
     <div id="section-actions" class="polyport-card">
       <h2 class="section-title flex justify-between items-center">
-        Actions
-        <span id="spell-attack-header" class="text-xs text-text-primary bg-bg-primary px-2 py-1 rounded border border-border-primary">ATK +0 | DC 10</span>
+        <span>Actions</span>
+        <span id="spell-attack-header" class="text-[10px] text-text-primary bg-bg-primary px-2 py-1 rounded border border-border-primary whitespace-nowrap">ATK +0 | DC 10</span>
       </h2>
-      <div class="flex gap-2 overflow-x-auto pb-2 mb-2 no-scrollbar">
+      <div class="chips-container">
         <div class="filter-chip active">All</div>
         <div class="filter-chip">Attack</div>
         <div class="filter-chip">Action</div>
@@ -287,18 +359,18 @@
     <!-- Inventory -->
     <div id="section-inventory" class="polyport-card">
       <h2 class="section-title">Inventory</h2>
-      <div class="flex gap-2 overflow-x-auto pb-2 mb-2 no-scrollbar">
+      <div class="chips-container">
         <div class="filter-chip active">All</div>
         <div class="filter-chip">Equipment</div>
         <div class="filter-chip">Backpack</div>
       </div>
-      <div id="equipment" class="space-y-2 mt-2"></div>
+      <div id="equipment" class="space-y-1 mt-2 w-full"></div>
     </div>
 
     <!-- Features & Traits -->
     <div id="section-features" class="polyport-card">
       <h2 class="section-title">Features & Traits</h2>
-      <div class="flex gap-2 overflow-x-auto pb-2 mb-2 no-scrollbar">
+      <div class="chips-container">
         <div class="filter-chip active">All</div>
         <div class="filter-chip">Class Features</div>
         <div class="filter-chip">Species Traits</div>
@@ -325,28 +397,28 @@
       <div class="text-sm text-text-tertiary">Acolyte (Background details imported from DDB)</div>
     </div>
 
-    <!-- Notes -->
+    <!-- Notes (P9 Fixed) -->
     <div id="section-notes" class="polyport-card">
       <h2 class="section-title">Notes</h2>
-      <textarea id="charNotes" class="w-full bg-bg-primary border border-border-primary text-text-primary p-3 rounded-md min-h-[100px] font-serif" placeholder="Add character biography or notes here..."></textarea>
-      <button class="btn btn-ghost border border-border-primary w-full mt-2" id="saveNotesBtn">Save Notes</button>
+      <textarea id="charNotes" class="notes-textarea" placeholder="Add character biography or notes here..."></textarea>
+      <button class="btn w-full mt-3 font-bold uppercase tracking-wider" style="background: var(--bg-tertiary); border: 1px solid var(--primary); color: var(--primary);" id="saveNotesBtn">Save Notes</button>
     </div>
 
     <!-- Padding for bottom FABs -->
-    <div style="height: 100px;"></div>
+    <div style="height: 100px; width: 100%;"></div>
 
   </main>
 
-  <div id="loading" class="text-center p-20 text-xl font-heading text-secondary animate-pulse">Loading character sheet...</div>
-  <div id="error" class="hidden text-center p-20 text-xl text-danger"></div>
+  <div id="loading" class="text-center p-20 text-xl font-heading text-secondary animate-pulse w-full">Loading character sheet...</div>
+  <div id="error" class="hidden text-center p-20 text-xl text-danger w-full"></div>
 
-  <!-- 7. Floating Action Buttons -->
+  <!-- 7. Floating Action Buttons (P11 Fixed Hierarchy) -->
   <div class="fab-container">
-    <div class="fab-item" onclick="VTT.Notification.info('Dice roller overlay not yet implemented.')" title="Dice Roller">🎲</div>
-    <div class="fab-item" id="fabMenuBtn" title="Quick Nav">
+    <div class="fab-item fab-secondary" onclick="VTT.Notification.info('Dice roller overlay not yet implemented.')" title="Dice Roller">🎲</div>
+    <div class="fab-item fab-primary" id="fabMenuBtn" title="Quick Nav">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
     </div>
-    <div class="fab-item" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll Top">▲</div>
+    <div class="fab-item fab-secondary" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll Top">▲</div>
   </div>
 
   <!-- 5. Quick-Navigation Menu (Overlay) -->
@@ -458,6 +530,8 @@
       
       // Basic Info
       document.getElementById('avatar').src = c.avatarUrl || '';
+      document.getElementById('header-avatar').src = c.avatarUrl || '';
+      document.getElementById('header-avatar').style.display = 'block';
       document.getElementById('name').textContent = c.name;
       document.getElementById('meta').textContent = c.race+' · '+c.classes.map(x=>x.name).join(' / ');
       document.getElementById('level').textContent = 'LEVEL '+c.level;
@@ -495,8 +569,8 @@
       // Abilities
       document.getElementById('abilities').innerHTML = keys.map(k =>
         `<div class="ability-card" onclick="rollStat('${labels[k]}','${k}')">
-          <div class="text-[9px] text-text-tertiary font-bold uppercase tracking-wider mb-2">${labels[k]}</div>
-          <div class="text-3xl font-serif font-bold text-text-primary my-2">${signed(c.modifiers[k])}</div>
+          <div style="font-size: 0.55rem; color: var(--text-tertiary); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.1; margin-bottom: 2px; text-align: center; width: 100%; white-space: normal; word-break: break-word;">${labels[k]}</div>
+          <div class="text-2xl font-serif font-bold text-text-primary my-1">${signed(c.modifiers[k])}</div>
           <div class="ability-score">${c.stats[k]}</div>
         </div>`
       ).join('');
@@ -506,18 +580,22 @@
         let isProf = c.proficiencies?.saves?.includes(k);
         let mod = c.modifiers[k] + (isProf ? profBonus : 0);
         return `<div class="skill-row" onclick="sendRoll('1d20${signed(mod)}', '${labels[k]} Save')">
-          <span class="text-sm text-text-primary flex items-center"><span class="prof-dot ${isProf?'active':''}"></span>${labels[k]}</span>
+          <span class="text-sm text-text-primary flex items-center w-full"><span class="prof-dot ${isProf?'active':''}"></span>${labels[k]}</span>
           <span class="border border-border-primary bg-bg-primary px-3 py-1 rounded text-sm font-bold text-text-secondary">${signed(mod)}</span>
         </div>`;
       }).join('');
       
-      // Skills
+      // Skills (P5 Fixed: visual separation between ability tag and skill name)
       document.getElementById('skills').innerHTML = Object.entries(skillMap).map(([s,k]) => {
         let isProf = c.proficiencies?.skills?.includes(s);
         let mod = c.modifiers[k] + (isProf ? profBonus : 0);
         return `<div class="skill-row" onclick="sendRoll('1d20${signed(mod)}', '${s} Check')">
-          <span class="text-sm text-text-primary flex items-center"><span class="prof-dot ${isProf?'active':''}"></span><span class="text-[9px] text-text-disabled uppercase mr-2 w-6 text-right">${k}</span>${s}</span>
-          <span class="border border-border-primary bg-bg-primary px-3 py-1 rounded text-sm font-bold text-text-secondary">${signed(mod)}</span>
+          <span class="text-sm text-text-primary flex items-center w-full min-w-0">
+            <span class="prof-dot ${isProf?'active':''}"></span>
+            <span style="font-size: 0.6rem; color: var(--text-disabled); text-transform: uppercase; margin-right: 8px; width: 28px; display: inline-block; text-align: right; font-weight: bold;">${k}</span>
+            <span class="truncate pr-2">${s}</span>
+          </span>
+          <span class="border border-border-primary bg-bg-primary px-3 py-1 rounded text-sm font-bold text-text-secondary flex-shrink-0">${signed(mod)}</span>
         </div>`;
       }).join('');
       
@@ -527,25 +605,29 @@
         ['INVESTIGATION', 10 + c.modifiers.int + (c.proficiencies?.skills?.includes('Investigation')?profBonus:0)],
         ['INSIGHT', 10 + c.modifiers.wis + (c.proficiencies?.skills?.includes('Insight')?profBonus:0)]
       ].map(x => `
-        <div class="flex flex-col items-center">
-          <div class="w-14 h-14 rounded-full border border-border-primary flex items-center justify-center text-xl font-serif font-bold bg-bg-tertiary text-text-primary shadow-sm mb-1">${x[1]}</div>
-          <div class="text-[9px] font-bold text-text-tertiary uppercase">${x[0]}</div>
+        <div class="flex flex-col items-center flex-1">
+          <div class="w-12 h-12 md:w-14 md:h-14 rounded-full border border-border-primary flex items-center justify-center text-lg md:text-xl font-serif font-bold bg-bg-tertiary text-text-primary shadow-sm mb-1">${x[1]}</div>
+          <div class="text-[8px] md:text-[9px] font-bold text-text-tertiary uppercase text-center">${x[0]}</div>
         </div>
       `).join('');
       
-      // Equipment
+      // Equipment (P7 Fixed: Grid format)
       const items = c.equipment||[];
       const totalWeight = items.reduce((sum,item)=>sum+Number(item.weight||0)*Number(item.quantity||1),0);
       const capacity = Number(c.stats.str||10)*15;
       
       document.getElementById('equipment').innerHTML = (items.length ?
-        `<div class="mb-2 text-xs text-text-tertiary">Total weight: ${totalWeight.toFixed(1)} / ${capacity} lb</div>` +
+        `<div class="mb-3 text-xs text-text-tertiary font-bold">TOTAL WEIGHT: ${totalWeight.toFixed(1)} / ${capacity} lb</div>
+         <div class="flex justify-between items-center pb-1 mb-1 border-b border-border-primary text-[10px] text-text-disabled uppercase font-bold">
+           <div style="flex:1;">Name</div>
+           <div style="width:40px; text-align:center;">Qty</div>
+           <div style="width:60px; text-align:right;">Weight</div>
+         </div>` +
         items.map((item,index) =>
-          `<div class="flex justify-between items-center py-2 border-b border-border-primary last:border-b-0">
-             <div>
-               <b class="text-text-secondary text-sm">${item.name}</b>
-               <div class="text-[10px] text-text-tertiary">Qty ${item.quantity} · ${(Number(item.weight||0)*Number(item.quantity||1)).toFixed(1)} lb</div>
-             </div>
+          `<div class="flex justify-between items-center py-2 border-b border-border-primary last:border-b-0 text-sm w-full">
+             <div style="flex:1; text-align:left; font-weight:bold; color:var(--text-secondary); word-break:break-word; padding-right:8px;">${item.name}</div>
+             <div style="width:40px; text-align:center; color:var(--text-primary); font-size:0.8rem;">${item.quantity}</div>
+             <div style="width:60px; text-align:right; color:var(--text-tertiary); font-size:0.75rem;">${(Number(item.weight||0)*Number(item.quantity||1)).toFixed(1)} lb</div>
            </div>`
         ).join('') : '<div class="text-text-disabled italic text-sm">No equipment found.</div>');
 
@@ -584,7 +666,7 @@
           <div class="flex gap-4">
             <div class="flex-1">
               <label class="text-xs font-bold text-text-tertiary block mb-1">Amount</label>
-              <input type="number" id="hpAmount" class="input w-full bg-bg-primary border-border-primary text-text-primary text-center text-lg p-2 rounded" value="1" min="1">
+              <input type="number" id="hpAmount" class="w-full bg-bg-primary border border-border-primary text-text-primary text-center text-lg p-2 rounded" value="1" min="1">
             </div>
           </div>
           <div class="flex gap-2 mt-2">
