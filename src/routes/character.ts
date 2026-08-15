@@ -49,6 +49,14 @@ export function createCharacterRouter(db: DatabaseService, jwtSecret: string, dd
       const character = JSON.parse(row.character_data) as Character;
       if (req.body?.hp && typeof req.body.hp.current === 'number') character.hp.current = Math.max(0, Math.min(character.hp.max, req.body.hp.current));
       if (req.body?.hp && typeof req.body.hp.temp === 'number') character.hp.temp = Math.max(0, req.body.hp.temp);
+      if (Array.isArray(req.body?.equipment)) {
+        if (req.body.equipment.length > 200) { res.status(400).json({ error: 'Equipment limit exceeded' }); return; }
+        character.equipment = req.body.equipment.map((item: Record<string, unknown>) => ({
+          id: String(item.id ?? ''), name: String(item.name ?? 'Unknown Item'),
+          quantity: Math.max(1, Number(item.quantity ?? 1)), weight: Math.max(0, Number(item.weight ?? 0)),
+          equipped: Boolean(item.equipped), attuned: Boolean(item.attuned), imageUrl: typeof item.imageUrl === 'string' ? item.imageUrl : undefined,
+        })).filter((item: { id: string }) => item.id.length > 0);
+      }
       await db.run('UPDATE character_sheets SET character_data = ?, last_synced = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?', [JSON.stringify(character), req.params.id, userId]);
       onUpdate?.(character);
       res.json(character);

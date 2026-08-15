@@ -1,4 +1,4 @@
-import type { Character, DndBeyondCharacterResponse } from '../types/character.js';
+import type { Character, DndBeyondCharacterResponse, EquipmentItem } from '../types/character.js';
 
 const DEFAULT_AVATAR = 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png';
 
@@ -21,14 +21,17 @@ export class DnDBeyondService {
       str: Math.floor((values.str - 10) / 2), dex: Math.floor((values.dex - 10) / 2), con: Math.floor((values.con - 10) / 2),
       int: Math.floor((values.int - 10) / 2), wis: Math.floor((values.wis - 10) / 2), cha: Math.floor((values.cha - 10) / 2),
     };
-    const classes = ((data.classes as Array<{ level: number; definition?: { name?: string } }> | undefined) ?? []).map((item) => ({ name: item.definition?.name ?? 'Unknown', level: item.level }));
+    const classes = ((data.classes as Array<{ level: number; definition?: { name?: string } }> | undefined) ?? [])
+      .map((item) => ({ name: item.definition?.name ?? 'Unknown', level: item.level }));
+    const equipment: EquipmentItem[] = ((data.inventory as Array<{ id?: number; quantity?: number; equipped?: boolean; isAttuned?: boolean; definition?: { name?: string; weight?: number } }> | undefined) ?? [])
+      .map((item) => ({ id: item.id, name: item.definition?.name ?? 'Unknown Item', quantity: item.quantity ?? 1, weight: item.definition?.weight ?? 0, equipped: item.equipped ?? false, attuned: item.isAttuned ?? false }));
     const level = classes.reduce((total, item) => total + item.level, 0);
     const maxHp = Number(data.overrideHitPoints ?? data.baseHitPoints ?? 0);
     return {
       id: String(data.id), name: String(data.name ?? 'Unnamed Character'),
       avatarUrl: String(data.avatarUrl ?? (data.decorations as { avatarUrl?: string } | undefined)?.avatarUrl ?? DEFAULT_AVATAR),
       race: String((data.race as { fullName?: string } | undefined)?.fullName ?? 'Unknown Race'),
-      classes, level, hp: { current: maxHp - Number(data.removedHitPoints ?? 0), max: maxHp, temp: Number(data.temporaryHitPoints ?? 0) }, stats: values, modifiers,
+      classes, level, hp: { current: maxHp - Number(data.removedHitPoints ?? 0), max: maxHp, temp: Number(data.temporaryHitPoints ?? 0) }, stats: values, modifiers, equipment,
     };
   }
 }

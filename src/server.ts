@@ -26,7 +26,6 @@ async function start(): Promise<void> {
   const config = loadConfig();
   // The legacy server remains the HTTP/socket compatibility layer while typed
   // routes are mounted under /api/v2 during the migration.
-  // @ts-expect-error Legacy JavaScript module is typed by the migration boundary.
   const legacy = await import('../server-legacy.js');
   legacy.app.use(securityMiddleware);
 

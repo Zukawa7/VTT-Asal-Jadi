@@ -21,6 +21,15 @@ export interface HitPoints {
   temp: number;
 }
 
+export interface EquipmentItem {
+  id?: string | number;
+  name: string;
+  quantity?: number;
+  weight?: number;
+  equipped?: boolean;
+  attuned?: boolean;
+}
+
 export interface Character {
   id: string | number;
   name: string;
@@ -31,6 +40,7 @@ export interface Character {
   hp: HitPoints;
   stats: AbilityScores;
   modifiers: AbilityScores;
+  equipment?: EquipmentItem[];
 }
 
 export interface DndBeyondCharacterResponse {
