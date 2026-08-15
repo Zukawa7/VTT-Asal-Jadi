@@ -55,6 +55,14 @@ export class DatabaseService {
         FOREIGN KEY (session_id) REFERENCES game_sessions(id),
         FOREIGN KEY (user_id) REFERENCES users(id)
       );
+      CREATE TABLE IF NOT EXISTS characters (
+        id TEXT PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        data TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      );
       CREATE TABLE IF NOT EXISTS character_sheets (
         id TEXT PRIMARY KEY,
         user_id INTEGER NOT NULL,
@@ -62,6 +70,13 @@ export class DatabaseService {
         last_synced TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       );
+    `);
+
+    // Backfill characters imported by the legacy runtime into the typed store.
+    await this.exec(`
+      INSERT OR IGNORE INTO character_sheets (id, user_id, character_data, last_synced)
+      SELECT id, user_id, data, COALESCE(created_at, CURRENT_TIMESTAMP)
+      FROM characters
     `);
   }
 

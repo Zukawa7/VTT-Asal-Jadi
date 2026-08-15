@@ -28,7 +28,7 @@ export function createCharacterRouter(db: DatabaseService, jwtSecret: string, dd
       const character = await ddb.fetchCharacter(rawId);
       const userId = res.locals.user.id as number;
       await db.run(`INSERT INTO character_sheets (id, user_id, character_data, last_synced) VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(id) DO UPDATE SET character_data=excluded.character_data, last_synced=CURRENT_TIMESTAMP`, [String(character.id), userId, JSON.stringify(character)]);
+        ON CONFLICT(id) DO UPDATE SET user_id=excluded.user_id, character_data=excluded.character_data, last_synced=CURRENT_TIMESTAMP`, [String(character.id), userId, JSON.stringify(character)]);
       res.json(character);
     } catch (error) { next(error); }
   });
