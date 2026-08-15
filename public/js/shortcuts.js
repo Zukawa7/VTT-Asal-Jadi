@@ -1,48 +1,87 @@
-// Keyboard Shortcuts
+/**
+ * Keyboard Shortcuts
+ */
 document.addEventListener('keydown', (e) => {
-  // Ignore if typing in an input
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  // Ignore shortcuts if typing in an input or textarea
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+    return;
+  }
 
-  if (e.key === 'd' || e.key === 'D') {
-    if (e.shiftKey) {
-      if (window.rollDice) window.rollDice(20, 'advantage');
-    } else if (e.ctrlKey || e.metaKey) {
-      if (window.rollDice) window.rollDice(20, 'disadvantage');
-    } else {
-      if (window.rollDice) window.rollDice(20);
+  // Helper to trigger button click
+  const triggerButton = (selector) => {
+    const btn = document.querySelector(selector);
+    if (btn) btn.click();
+  };
+
+  // Helper to trigger rollDice function if it exists globally
+  const callRoll = (dice) => {
+    if (typeof window.rollDice === 'function') {
+      window.rollDice(dice);
     }
-  } else if (e.key === '1') {
-    if (window.rollDice) window.rollDice(4);
-  } else if (e.key === '2') {
-    if (window.rollDice) window.rollDice(6);
-  } else if (e.key === '3') {
-    if (window.rollDice) window.rollDice(8);
-  } else if (e.key === '4') {
-    if (window.rollDice) window.rollDice(10);
-  } else if (e.key === '5') {
-    if (window.rollDice) window.rollDice(12);
-  } else if (e.key === '6') {
-    if (window.rollDice) window.rollDice(20);
-  } else if (e.key === '0') {
-    if (window.rollDice) window.rollDice(100);
-  } else if (e.key === 'c' || e.key === 'C') {
-    // Toggle character sheet or go to dashboard
-    window.location.href = '/dashboard';
-  } else if (e.key === '?' || e.key === '/') {
-    if (window.VTT && VTT.Modal) {
-      new VTT.Modal({
-        title: 'Keyboard Shortcuts',
-        content: `
-          <ul style="list-style: none; padding: 0;">
-            <li><kbd>D</kbd> - Roll D20</li>
-            <li><kbd>Shift+D</kbd> - Roll D20 (Advantage)</li>
-            <li><kbd>Ctrl+D</kbd> - Roll D20 (Disadvantage)</li>
-            <li><kbd>1-6</kbd> - Quick roll d4, d6, d8, d10, d12, d20</li>
-            <li><kbd>0</kbd> - Roll d100</li>
-            <li><kbd>C</kbd> - Open Dashboard</li>
-          </ul>
-        `
-      }).open();
-    }
+  };
+
+  switch (e.key.toLowerCase()) {
+    case 'd':
+      if (e.shiftKey) {
+        // Shift+D: Advantage (custom roll)
+        if (typeof window.executeCustomRoll === 'function') {
+          const input = document.getElementById('customRollInput');
+          if (input) {
+            input.value = '2d20kh1';
+            window.executeCustomRoll();
+          }
+        }
+      } else if (e.ctrlKey || e.metaKey) {
+        // Ctrl+D: Disadvantage
+        if (typeof window.executeCustomRoll === 'function') {
+          const input = document.getElementById('customRollInput');
+          if (input) {
+            input.value = '2d20kl1';
+            window.executeCustomRoll();
+          }
+        }
+        e.preventDefault(); // prevent browser bookmark shortcut
+      } else {
+        // D: Roll d20
+        callRoll(20);
+      }
+      break;
+    case '1': callRoll(4); break;
+    case '2': callRoll(6); break;
+    case '3': callRoll(8); break;
+    case '4': callRoll(10); break;
+    case '5': callRoll(12); break;
+    case '6': callRoll(20); break;
+    case '7': callRoll(100); break;
+    case '0': callRoll(100); break;
+    case 'c':
+      // C: Open character sheet or toggle
+      if (typeof window.toggleCharSheet === 'function') window.toggleCharSheet();
+      break;
+    case 's':
+      // S: Settings
+      e.preventDefault();
+      triggerButton('[data-theme-toggle]'); // Just toggling theme as a simple settings proxy
+      break;
+    case '?':
+      // ?: Show Help
+      if (window.VTT && VTT.Modal) {
+        new VTT.Modal({
+          title: 'Keyboard Shortcuts',
+          content: `
+            <ul style="list-style: none; padding: 0;">
+              <li><kbd>D</kbd> - Roll d20</li>
+              <li><kbd>Shift+D</kbd> - Roll d20 with Advantage</li>
+              <li><kbd>Ctrl+D</kbd> - Roll d20 with Disadvantage</li>
+              <li><kbd>1</kbd>-<kbd>7</kbd> - Quick roll d4-d100</li>
+              <li><kbd>0</kbd> - Roll d100</li>
+              <li><kbd>C</kbd> - Toggle Character Sheet</li>
+              <li><kbd>?</kbd> - Show this help menu</li>
+            </ul>
+          `,
+          buttons: [{ label: 'Got it', variant: 'btn-primary' }]
+        }).open();
+      }
+      break;
   }
 });
