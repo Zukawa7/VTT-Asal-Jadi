@@ -1,5 +1,16 @@
 # VTT Asal Jadi 🎲
 
+[![Quality Checks](https://github.com/Zukawa7/VTT-Asal-Jadi/actions/workflows/test.yml/badge.svg)](https://github.com/Zukawa7/VTT-Asal-Jadi/actions/workflows/test.yml)
+
+## Daftar Isi
+
+- [Fitur Utama](#fitur-utama)
+- [Menjalankan Secara Lokal](#cara-menjalankan-aplikasi-secara-lokal)
+- [Deployment](#otomatisasi-deployment-cicd-via-cloudflare-tunnel--github-actions)
+- [Dokumentasi](#dokumentasi)
+
+
+
 Virtual Tabletop (VTT) sederhana yang terintegrasi dengan **D&D Beyond** dan **OBS Overlay** untuk melacak hasil lemparan dadu dan status karakter secara real-time.
 
 ## Fitur Utama
@@ -90,6 +101,9 @@ Setiap kali Anda melakukan `git push` ke cabang `main`, GitHub Actions akan otom
 - [Deployment](docs/DEPLOYMENT.md)
 - [Contributing](docs/CONTRIBUTING.md)
 - [Changelog](docs/CHANGELOG.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Examples](docs/EXAMPLES.md)
+
 
 ---
 
