@@ -23,6 +23,7 @@ const io = new Server(httpServer, {
 });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'vtt-jwt-secret-key';
+const socketRollWindows = new Map();
 
 app.use(cors({ origin: process.env.CORS_ORIGIN || true }));
 
@@ -405,6 +406,14 @@ io.on('connection', (socket) => {
   });
   
   socket.on('send-roll', async (data) => {
+    const now = Date.now();
+    const window = socketRollWindows.get(socket.id) || { startedAt: now, count: 0 };
+    if (now - window.startedAt >= 60_000) { window.startedAt = now; window.count = 0; }
+    if (window.count >= 100) { socket.emit('new-roll', { system: true, text: 'Roll limit reached. Try again in a minute.' }); return; }
+    window.count += 1;
+    socketRollWindows.set(socket.id, window);
+
+    if (!data || typeof data.roomId !== 'string' || !Array.isArray(data.rolls)) return;
     io.to(data.roomId).emit('new-roll', data);
     console.log(`Roll in room ${data.roomId}:`, data);
 
@@ -425,6 +434,7 @@ io.on('connection', (socket) => {
   });
   
   socket.on('disconnect', () => {
+    socketRollWindows.delete(socket.id);
     console.log('User disconnected:', socket.id);
   });
 });
