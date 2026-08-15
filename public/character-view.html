@@ -59,9 +59,10 @@
     .actions { display:flex; justify-content:center; gap:10px; margin:30px 0; }
     .actions button { background:var(--red); color:#fff; border:0; border-radius:8px; padding:10px 18px; font-weight:700; }
     #error { display:none; text-align:center; padding:80px; color:var(--red); }
-    @media (max-width:900px) { .top-main{grid-template-columns:90px 1fr 100px}.portrait{width:90px;height:90px}.name{font-size:36px}.subtitle{font-size:21px}.level{font-size:25px}.icon-btn{display:none}.summary{grid-column:1/-1;grid-template-columns:1fr 1fr}.combat{grid-template-columns:repeat(2,1fr)}.side-buttons{grid-column:1/-1;grid-template-columns:1fr 1fr}.ability-grid{grid-template-columns:repeat(2,1fr);gap:40px 8%} }
+    /* Keep the fixed-width composition used by the reference sheet. */
     @media (max-width:560px) {
-      body{font-size:16px}.top{padding:10px 12px 14px}.top-main{grid-template-columns:64px 1fr;gap:10px}.portrait{width:64px;height:64px}.name{font-size:30px}.subtitle{font-size:19px;margin-top:4px}.level{font-size:22px}.manage{grid-column:1/-1;font-size:21px;padding:8px}.icon-btn{display:none}.summary{grid-column:1/-1;grid-template-columns:1fr 1fr;gap:7px}.summary-box{font-size:18px;padding:8px}.hp-value{font-size:34px}.inspiration{font-size:18px;padding:8px}.combat{grid-template-columns:repeat(2,1fr);padding:12px 0 4px;gap:10px}.combat-label{font-size:17px}.combat-value{font-size:42px}.combat-value small{font-size:25px}.initiative{padding:8px}.side-buttons{grid-column:1/-1;grid-template-columns:1fr 1fr;gap:8px}.side-buttons button{font-size:18px;padding:9px 4px}.campaign{padding:16px 10px}.campaign-inner{font-size:19px;padding:10px}.actions{margin:18px 0}.actions button{font-size:14px;padding:9px 10px}.ability-grid{grid-template-columns:1fr;gap:44px;padding:0 5%}.ability{padding:15px 12px 28px}.ability h2{font-size:24px}.modifier{font-size:40px;padding:7px}.score{font-size:32px;padding:7px 20px;bottom:-25px}.panel{margin-top:48px;padding:24px 5%;border-radius:18px}.panel h2{font-size:27px}.save-grid{grid-template-columns:1fr;gap:10px}.save-label{font-size:21px}.save-value{font-size:23px;padding:5px 15px}.hint{font-size:19px}.sense-grid{gap:5px}.sense-value{font-size:25px;padding:8px 15px}.sense-label{font-size:17px}main{padding:18px 10px}
+      html, body { min-width:1100px; }
+      body { overflow-x:auto; }
     }
   </style>
 </head>
