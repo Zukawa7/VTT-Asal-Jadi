@@ -25,4 +25,6 @@ export interface SocketServerToClientEvents {
   'token-added': (token: unknown) => void;
   'token-moved': (event: { tokenId: string; x: number; y: number }) => void;
   'token-removed': (tokenId: string) => void;
+  'character-updated': (character: unknown) => void;
+
 }

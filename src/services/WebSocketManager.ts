@@ -2,6 +2,8 @@ import type { Server, Socket } from 'socket.io';
 import type { SocketClientToServerEvents, SocketServerToClientEvents } from '../types/events.js';
 import type { RoomState, TokenState } from '../types/api.js';
 import type { DiceRoll } from './DiceRollerService.js';
+import { validateRoomId } from '../utils/validators.js';
+
 
 export type TypedIo = Server<SocketClientToServerEvents, SocketServerToClientEvents>;
 export type TypedSocket = Socket<SocketClientToServerEvents, SocketServerToClientEvents>;
@@ -23,22 +25,35 @@ export class WebSocketManager {
   }
 
   joinRoom(socket: TypedSocket, roomId: string): void {
+    if (!validateRoomId(roomId)) return;
     socket.join(roomId);
     socket.emit('room-state', this.state(roomId));
   }
 
   updateMap(roomId: string, mapUrl: string): void {
-    if (!mapUrl || mapUrl.length > 2000) return;
+    if (!validateRoomId(roomId) || !mapUrl || mapUrl.length > 2000) return;
+    try {
+      const url = new URL(mapUrl);
+      if (!['http:', 'https:'].includes(url.protocol)) return;
+    } catch {
+      return;
+    }
     this.state(roomId).mapUrl = mapUrl;
     this.io.to(roomId).emit('map-updated', mapUrl);
   }
 
   addToken(roomId: string, token: TokenState): void {
-    this.state(roomId).tokens[token.id] = token;
-    this.io.to(roomId).emit('token-added', token);
+    if (!validateRoomId(roomId) || !token?.id || !token.name || !token.avatarUrl) return;
+    this.state(roomId).tokens[token.id] = {
+      ...token,
+      x: Math.max(0, Math.min(11, Number(token.x) || 0)),
+      y: Math.max(0, Math.min(11, Number(token.y) || 0)),
+    };
+    this.io.to(roomId).emit('token-added', this.state(roomId).tokens[token.id]);
   }
 
   moveToken(roomId: string, tokenId: string, x: number, y: number): void {
+    if (!validateRoomId(roomId) || !tokenId) return;
     const token = this.state(roomId).tokens[tokenId];
     if (!token || !Number.isInteger(x) || !Number.isInteger(y)) return;
     token.x = Math.max(0, Math.min(11, x));
@@ -47,7 +62,7 @@ export class WebSocketManager {
   }
 
   removeToken(roomId: string, tokenId: string): void {
-    if (!this.state(roomId).tokens[tokenId]) return;
+    if (!validateRoomId(roomId) || !tokenId || !this.state(roomId).tokens[tokenId]) return;
     delete this.state(roomId).tokens[tokenId];
     this.io.to(roomId).emit('token-removed', tokenId);
   }
@@ -65,6 +80,7 @@ export class WebSocketManager {
   }
 
   broadcastCharacterUpdate(roomId: string, character: unknown): void {
-    this.io.to(roomId).emit('token-added', character as never);
+    if (!validateRoomId(roomId)) return;
+    this.io.to(roomId).emit('character-updated', character);
   }
 }
