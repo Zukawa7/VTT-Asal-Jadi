@@ -288,7 +288,7 @@ app.post('/api/character/import', authenticateToken, async (req, res) => {
     const character = {
       id: data.id,
       name: data.name,
-      avatarUrl: data.avatarUrl || 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png',
+      avatarUrl: data.avatarUrl || data.decorations?.avatarUrl || data.decorations?.frameAvatarUrl || data.race?.portraitAvatarUrl || data.race?.avatarUrl || 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png',
       race: data.race ? data.race.fullName : 'Unknown Race',
       classes,
       level: totalLevel,
