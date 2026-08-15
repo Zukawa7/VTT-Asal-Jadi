@@ -4,6 +4,8 @@ import { loadConfig } from './config/index.js';
 import { logger } from './utils/logger.js';
 import { CharacterSyncService } from './services/CharacterSyncService.js';
 import { RollPersistenceService } from './services/RollPersistenceService.js';
+import { WebSocketManager } from './services/WebSocketManager.js';
+
 
 
 export interface ServerConfig {
@@ -28,6 +30,9 @@ async function start(): Promise<void> {
   await database.migrate();
   const rollPersistence = new RollPersistenceService(database);
   legacy.setRollPersistence((event: unknown) => rollPersistence.persist(event as never));
+  const websocketManager = new WebSocketManager(legacy.io);
+  legacy.setRealtimeManager(websocketManager);
+
 
   legacy.app.use('/api/v2', createApiRouter(database, config.jwtSecret, (character) => {
     legacy.io.emit('character-updated', character);

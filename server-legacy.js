@@ -27,6 +27,13 @@ const socketRollWindows = new Map();
 
 let persistRollHandler = null;
 
+let realtimeManager = null;
+
+function setRealtimeManager(manager) {
+  realtimeManager = manager;
+}
+
+
 function setRollPersistence(handler) {
   persistRollHandler = handler;
 }
@@ -428,8 +435,25 @@ io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
   
   socket.on('join-room', (roomId) => {
-    socket.join(roomId);
+    if (realtimeManager) realtimeManager.joinRoom(socket, roomId);
+    else socket.join(roomId);
     console.log(`User ${socket.id} joined room: ${roomId}`);
+  });
+
+  socket.on('update-map', (data) => {
+    if (realtimeManager && data?.roomId && typeof data.mapUrl === 'string') realtimeManager.updateMap(data.roomId, data.mapUrl);
+  });
+
+  socket.on('add-token', (data) => {
+    if (realtimeManager && data?.roomId && data.token) realtimeManager.addToken(data.roomId, data.token);
+  });
+
+  socket.on('move-token', (data) => {
+    if (realtimeManager && data?.roomId && data.tokenId) realtimeManager.moveToken(data.roomId, data.tokenId, data.x, data.y);
+  });
+
+  socket.on('remove-token', (data) => {
+    if (realtimeManager && data?.roomId && data.tokenId) realtimeManager.removeToken(data.roomId, data.tokenId);
   });
   
   socket.on('send-roll', async (data) => {
@@ -472,7 +496,7 @@ io.on('connection', (socket) => {
   });
 });
 
-export { app, io, httpServer, setRollPersistence };
+export { app, io, httpServer, setRollPersistence, setRealtimeManager };
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
