@@ -12,6 +12,15 @@ export function createCharacterRouter(db: DatabaseService, jwtSecret: string, dd
   const auth = authenticateToken(jwtSecret);
 
 
+
+  router.get('/', auth, async (_req, res, next) => {
+    try {
+      const rows = await db.all<CharacterRow>('SELECT id, character_data, user_id FROM character_sheets WHERE user_id = ?', [res.locals.user.id]);
+      res.json(rows.map((row) => JSON.parse(row.character_data) as Character));
+    } catch (error) { next(error); }
+  });
+
+
   router.post('/import', auth, async (req, res, next) => {
     try {
       const rawId = String(req.body?.characterId ?? '').match(/\d+/)?.[0] ?? '';
