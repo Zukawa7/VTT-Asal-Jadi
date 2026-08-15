@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import { exec } from 'child_process';
 import jwt from 'jsonwebtoken';
-import { runQuery, getQuery, allQuery } from './db.js';
+import { runQuery, getQuery, allQuery } from './db-legacy.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
