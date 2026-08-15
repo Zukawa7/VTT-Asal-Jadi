@@ -7,6 +7,7 @@ export interface AppConfig {
   webhookSecret: string;
   databasePath: string;
   dndBeyondApiUrl: string;
+  characterSyncEnabled: boolean;
 }
 
 function requiredSecret(value: string | undefined, name: string, nodeEnv: string): string {
@@ -26,5 +27,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     webhookSecret: requiredSecret(env.WEBHOOK_SECRET, 'WEBHOOK_SECRET', nodeEnv),
     databasePath: env.DATABASE_PATH ?? path.resolve('data/vtt.db'),
     dndBeyondApiUrl: env.DNDBEYOND_API_URL ?? 'https://character-service.dndbeyond.com',
+    characterSyncEnabled: env.CHARACTER_SYNC_ENABLED === 'true',
   };
 }

@@ -2,6 +2,7 @@ import { DatabaseService } from './services/DatabaseService.js';
 import { createApiRouter } from './routes/index.js';
 import { loadConfig } from './config/index.js';
 import { logger } from './utils/logger.js';
+import { CharacterSyncService } from './services/CharacterSyncService.js';
 
 export interface ServerConfig {
   port: number;
@@ -24,6 +25,13 @@ async function start(): Promise<void> {
   const database = new DatabaseService(config.databasePath);
   await database.migrate();
   legacy.app.use('/api/v2', createApiRouter(database, config.jwtSecret));
+  const characterSync = new CharacterSyncService(database);
+  if (config.characterSyncEnabled) {
+    characterSync.start();
+    logger.info('Character sync enabled', { intervalMinutes: 5 });
+  }
+  process.once('SIGTERM', () => characterSync.stop());
+  process.once('SIGINT', () => characterSync.stop());
   logger.info('Typed API mounted', { prefix: '/api/v2', environment: config.nodeEnv });
 }
 
