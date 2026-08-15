@@ -19,8 +19,11 @@ Content-Type: application/json
 POST /api/v2/auth/register
 ```
 
-```json
-{ "username": "player_one", "password": "a-secure-password" }
+**Example Request:**
+```bash
+curl -X POST https://vtt.polyport.my.id/api/v2/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"player_one","password":"a-secure-password"}'
 ```
 
 Success: `201 Created`
@@ -37,6 +40,7 @@ Username format: lowercase letters, numbers, `_`, or `-`, between 3 and 32 chara
 POST /api/v2/auth/login
 ```
 
+**Example Request:**
 ```bash
 curl -X POST https://vtt.polyport.my.id/api/v2/auth/login \
   -H 'Content-Type: application/json' \
@@ -52,6 +56,12 @@ GET /api/v2/auth/me
 Authorization: Bearer <JWT>
 ```
 
+**Example Request:**
+```bash
+curl -X GET https://vtt.polyport.my.id/api/v2/auth/me \
+  -H 'Authorization: Bearer YOUR_JWT_TOKEN'
+```
+
 ## Characters
 
 ### Import from D&D Beyond
@@ -61,8 +71,12 @@ POST /api/v2/character/import
 Authorization: Bearer <JWT>
 ```
 
-```json
-{ "characterId": "12345678" }
+**Example Request:**
+```bash
+curl -X POST https://vtt.polyport.my.id/api/v2/character/import \
+  -H 'Authorization: Bearer YOUR_JWT_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{"characterId":"12345678"}'
 ```
 
 A full D&D Beyond character URL is also accepted. The server normalizes the numeric ID and fetches data through the D&D Beyond v5 character endpoint.
@@ -87,8 +101,12 @@ PUT /api/v2/character/:id
 Authorization: Bearer <JWT>
 ```
 
-```json
-{ "hp": { "current": 18, "temp": 4 } }
+**Example Request:**
+```bash
+curl -X PUT https://vtt.polyport.my.id/api/v2/character/12345678 \
+  -H 'Authorization: Bearer YOUR_JWT_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{"hp":{"current":18,"temp":4}}'
 ```
 
 Only the character owner can update the character. Current HP is clamped between `0` and maximum HP.
@@ -109,13 +127,12 @@ POST /api/v2/sessions
 Authorization: Bearer <JWT>
 ```
 
-```json
-{
-  "roomId": "campaign-1",
-  "name": "Lost Mine",
-  "description": "Friday session",
-  "password": "optional-room-password"
-}
+**Example Request:**
+```bash
+curl -X POST https://vtt.polyport.my.id/api/v2/sessions \
+  -H 'Authorization: Bearer YOUR_JWT_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{"roomId":"campaign-1","name":"Lost Mine","description":"Friday session","password":"optional-room-password"}'
 ```
 
 ### Get session
@@ -131,8 +148,12 @@ POST /api/v2/sessions/:roomId/join
 Authorization: Bearer <JWT>
 ```
 
-```json
-{ "password": "optional-room-password", "characterId": "12345678" }
+**Example Request:**
+```bash
+curl -X POST https://vtt.polyport.my.id/api/v2/sessions/campaign-1/join \
+  -H 'Authorization: Bearer YOUR_JWT_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{"password":"optional-room-password","characterId":"12345678"}'
 ```
 
 ### List participants
