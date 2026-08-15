@@ -4,319 +4,129 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Character Sheet - VTT Asal Jadi</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="/socket.io/socket.io.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body {
-      background-color: #12131a;
-      color: #e2e8f0;
-    }
+    :root { --red:#bd3034; --dark:#303030; --muted:#77838a; --line:#d89a9d; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#fff; color:#111; font-family:'Barlow Condensed',Arial,sans-serif; font-size:20px; }
+    button { font:inherit; cursor:pointer; }
+    .top { background:var(--dark); color:#fff; border-bottom:4px solid #777; padding:12px 26px 20px; }
+    .top-main { display:grid; grid-template-columns:145px 1fr 120px 145px 265px; align-items:center; gap:22px; max-width:1400px; margin:auto; }
+    .portrait { width:145px; height:145px; border:4px solid var(--red); border-radius:9px; object-fit:cover; background:#444; }
+    .name { font-size:54px; line-height:.95; font-weight:500; }
+    .subtitle { color:#aab2b5; font-size:30px; margin-top:12px; }
+    .level { font-size:32px; margin-top:4px; }
+    .manage,.icon-btn,.summary-box,.inspiration { border:3px solid var(--red); border-radius:9px; background:transparent; color:#fff; text-align:center; }
+    .manage { padding:13px 12px; font-size:26px; }
+    .icon-btn { height:100px; font-size:45px; }
+    .summary { display:grid; gap:10px; }
+    .summary-box { padding:10px; font-size:24px; }
+    .hp-value { font-size:54px; line-height:1; margin-top:5px; }
+    .inspiration { padding:8px; font-size:24px; }
+    .combat { max-width:1400px; margin:auto; display:grid; grid-template-columns:repeat(4,1fr) 1.25fr; align-items:center; gap:18px; padding:16px 25px 20px; }
+    .combat-item { text-align:center; }
+    .combat-label { font-size:25px; font-weight:700; text-transform:uppercase; }
+    .combat-value { font-size:64px; line-height:1; }
+    .combat-value small { color:var(--muted); font-size:48px; }
+    .initiative { border:3px solid #b8c7d2; border-radius:14px; padding:10px; }
+    .side-buttons { display:grid; gap:12px; }
+    .side-buttons button { background:#fff; border:3px solid var(--red); border-radius:9px; padding:14px; font-weight:700; color:#222; }
+    .campaign { border-top:4px solid var(--red); border-bottom:3px solid #dfb2b4; padding:34px 3%; }
+    .campaign-inner { max-width:1210px; margin:auto; border:3px solid var(--red); border-radius:10px; padding:16px; text-align:center; font-size:33px; }
+    .campaign-inner span { font-weight:700; }
+    main { max-width:1400px; margin:auto; padding:35px 4%; }
+    .ability-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:48px 14%; }
+    .ability { position:relative; border:4px solid var(--red); border-radius:28px 18px 30px 18px; padding:22px 18px 38px; text-align:center; background:#fff; }
+    .ability:after { content:''; position:absolute; inset:7px -7px -8px 7px; border:2px solid var(--red); border-radius:20px; pointer-events:none; }
+    .ability h2 { color:var(--muted); margin:0 0 12px; font-size:30px; text-transform:uppercase; }
+    .modifier { border:3px solid #c4ced5; border-radius:12px; padding:8px; font-size:57px; line-height:1; color:#111; }
+    .modifier::first-letter { color:#777; }
+    .score { display:inline-block; position:absolute; bottom:-30px; left:50%; transform:translateX(-50%); background:#fff; border:4px solid var(--red); border-radius:50%; padding:12px 27px; font-size:45px; font-weight:700; z-index:2; }
+    .panel { margin-top:65px; border:4px solid var(--line); border-radius:25px; padding:32px 7%; text-align:center; }
+    .panel h2 { margin:0 0 28px; font-size:37px; }
+    .save-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px 70px; max-width:850px; margin:auto; }
+    .save { display:flex; align-items:center; gap:12px; }
+    .dot { width:20px; height:20px; border:2px dotted #777; border-radius:50%; flex:none; }
+    .dot.on { background:#333; border-style:solid; }
+    .save-label { flex:1; border-top:3px solid var(--line); border-bottom:3px solid var(--line); padding:7px; font-weight:700; font-size:25px; }
+    .save-value { border:3px solid var(--line); border-radius:50%; padding:7px 20px; font-size:28px; color:#555; }
+    .hint { color:var(--muted); margin-top:22px; font-size:24px; }
+    .sense-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:30px; max-width:760px; margin:auto; }
+    .sense-value { color:#222; border:3px solid var(--line); border-radius:50%; padding:12px 25px; font-size:32px; display:inline-block; }
+    .sense-label { display:block; font-size:25px; font-weight:700; margin-top:10px; }
+    .actions { display:flex; justify-content:center; gap:10px; margin:30px 0; }
+    .actions button { background:var(--red); color:#fff; border:0; border-radius:8px; padding:10px 18px; font-weight:700; }
+    #error { display:none; text-align:center; padding:80px; color:var(--red); }
+    @media (max-width:900px) { .top-main{grid-template-columns:90px 1fr 100px}.portrait{width:90px;height:90px}.name{font-size:36px}.subtitle{font-size:21px}.level{font-size:25px}.icon-btn{display:none}.summary{grid-column:1/-1;grid-template-columns:1fr 1fr}.combat{grid-template-columns:repeat(2,1fr)}.side-buttons{grid-column:1/-1;grid-template-columns:1fr 1fr}.ability-grid{grid-template-columns:repeat(2,1fr);gap:40px 8%} }
+    @media (max-width:560px) { .top{padding:12px}.top-main{grid-template-columns:72px 1fr}.portrait{width:72px;height:72px}.manage{grid-column:1/-1}.summary{grid-column:1/-1}.combat{padding:14px 10px}.combat-value{font-size:46px}.combat-value small{font-size:32px}.campaign-inner{font-size:23px}.ability-grid{grid-template-columns:1fr;gap:45px;padding:0 12%}.save-grid{grid-template-columns:1fr;gap:14px}.sense-grid{gap:8px}.sense-label{font-size:20px}main{padding:25px 12px} }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans">
-  
-  <!-- Header -->
-  <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 shadow-lg">
-    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl">🧙‍♂️</span>
-        <div>
-          <h1 class="text-xl font-bold text-amber-500 tracking-wider">Character Viewer</h1>
-          <p class="text-xs text-gray-400">Public character sheet from D&D Beyond</p>
-        </div>
-      </div>
-      
-      <!-- Connection & Room Settings for rolling -->
-      <div class="flex items-center gap-2">
-        <input type="text" id="roomIdInput" placeholder="Room ID for rolls" class="bg-gray-800 text-white border border-gray-700 px-3 py-1 rounded focus:outline-none focus:border-amber-500 text-xs w-32">
-        <button id="connectRoomBtn" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded text-xs font-bold transition-all">
-          Connect Roll Sync
-        </button>
-      </div>
+<body>
+  <header class="top">
+    <div class="top-main">
+      <img id="avatar" class="portrait" alt="Character portrait">
+      <div><div id="name" class="name">Character</div><div id="subtitle" class="subtitle">Race Class</div><div id="level" class="level">Level 1</div></div>
+      <button class="manage" onclick="window.location.href='/dashboard'">MANAGE</button>
+      <button class="icon-btn" title="Export" onclick="downloadCharacterJson()">☷</button>
+      <div class="summary"><div class="summary-box">HIT POINTS<div id="hp" class="hp-value">0 / 0</div></div><div class="inspiration">HEROIC INSPIRATION</div></div>
+    </div>
+    <div class="combat">
+      <div class="combat-item"><div class="combat-label">PROFICIENCY<br> BONUS</div><div id="prof" class="combat-value">+2</div></div>
+      <div class="combat-item"><div class="combat-label" style="color:var(--muted)">WALKING<br> SPEED</div><div class="combat-value">30<small> ft.</small></div></div>
+      <div class="combat-item initiative"><div class="combat-value" id="initiative">+0</div><div class="combat-label">INITIATIVE</div></div>
+      <div class="combat-item"><div class="combat-label">ARMOR<br> CLASS</div><div class="combat-value" id="armor">10</div></div>
+      <div class="side-buttons"><button>DEFENSES</button><button>CONDITIONS</button></div>
     </div>
   </header>
 
-  <!-- Main View -->
-  <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6">
-    <div id="loadingState" class="text-center py-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-amber-500 border-t-transparent mx-auto mb-4"></div>
-      <p class="text-gray-400">Loading character sheet...</p>
-    </div>
-
-    <div id="errorState" class="hidden text-center py-20 bg-gray-900 border border-gray-800 rounded-lg p-6">
-      <span class="text-5xl">⚠️</span>
-      <h2 class="text-xl font-bold text-red-500 mt-4">Character Not Found</h2>
-      <p id="errorMsg" class="text-gray-400 mt-2">Make sure the URL is correct and the character was imported.</p>
-    </div>
-
-    <!-- Character Sheet Card -->
-    <div id="charSheet" class="hidden bg-gray-900 border border-gray-800 rounded-lg p-6 sm:p-8 shadow-2xl flex flex-col gap-6">
-      
-      <!-- Header Info -->
-      <div class="flex flex-col sm:flex-row items-center gap-6 border-b border-gray-800 pb-6 text-center sm:text-left">
-        <img id="charAvatar" src="" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-amber-500 object-cover bg-gray-800 shadow-lg">
-        <div>
-          <h2 id="charName" class="text-3xl font-extrabold text-white">Character Name</h2>
-          <p id="charSub" class="text-base text-gray-400 mt-1">Level 1 | Race | Class</p>
-          <span class="inline-block bg-gray-800 text-amber-500 border border-gray-700 text-xs px-2.5 py-1 rounded-full font-bold mt-3">
-            Owner: <span id="charOwner">Username</span>
-          </span>
-        </div>
-      </div>
-
-      <!-- Export Options -->
-      <div class="bg-gray-800/20 border border-gray-800 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div>
-          <h3 class="text-sm font-bold text-amber-500 uppercase tracking-wider">Export Character Data</h3>
-          <p class="text-xs text-gray-400 mt-1">Get the raw JSON representation of this character.</p>
-        </div>
-        <div class="flex gap-2 w-full sm:w-auto">
-          <button onclick="copyCharacterJson()" class="flex-1 sm:flex-initial bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded transition-all">
-            Copy JSON
-          </button>
-          <button onclick="downloadCharacterJson()" class="flex-1 sm:flex-initial bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-4 py-2 rounded transition-all">
-            Download JSON
-          </button>
-        </div>
-      </div>
-
-      <!-- HP Tracker -->
-      <div class="bg-gray-800/40 p-5 rounded-xl border border-gray-700/50 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div class="text-center sm:text-left">
-          <span class="text-xs text-gray-400 font-bold uppercase tracking-wider block">Hit Points</span>
-          <div class="flex items-baseline justify-center sm:justify-start gap-1 mt-1">
-            <span id="charCurrentHp" class="text-4xl font-black text-green-400">0</span>
-            <span class="text-gray-500 text-2xl">/</span>
-            <span id="charMaxHp" class="text-2xl font-bold text-gray-300">0</span>
-            <span id="charTempHpContainer" class="hidden text-sm text-blue-400 ml-2">(+<span id="charTempHp">0</span> Temp)</span>
-          </div>
-        </div>
-        <div class="w-full sm:w-2/3 bg-gray-700 rounded-full h-5 overflow-hidden shadow-inner">
-          <div id="hpBar" class="bg-green-500 h-full transition-all duration-500" style="width: 0%"></div>
-        </div>
-      </div>
-
-      <!-- Ability Scores -->
-      <div>
-        <h3 class="text-base font-bold text-amber-500 uppercase tracking-wider mb-4 text-center sm:text-left">Ability Scores</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-6 gap-4">
-          <!-- STR -->
-          <button onclick="rollStat('Strength', 'str')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-xl p-4 text-center transition-all group shadow-md">
-            <span class="block text-xs font-bold text-gray-400 uppercase">STR</span>
-            <span id="statScore-str" class="block text-3xl font-black text-white mt-1">10</span>
-            <span id="statMod-str" class="inline-block px-3 py-1 bg-gray-900 rounded-lg text-amber-500 text-sm font-bold mt-2 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
-          </button>
-          <!-- DEX -->
-          <button onclick="rollStat('Dexterity', 'dex')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-xl p-4 text-center transition-all group shadow-md">
-            <span class="block text-xs font-bold text-gray-400 uppercase">DEX</span>
-            <span id="statScore-dex" class="block text-3xl font-black text-white mt-1">10</span>
-            <span id="statMod-dex" class="inline-block px-3 py-1 bg-gray-900 rounded-lg text-amber-500 text-sm font-bold mt-2 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
-          </button>
-          <!-- CON -->
-          <button onclick="rollStat('Constitution', 'con')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-xl p-4 text-center transition-all group shadow-md">
-            <span class="block text-xs font-bold text-gray-400 uppercase">CON</span>
-            <span id="statScore-con" class="block text-3xl font-black text-white mt-1">10</span>
-            <span id="statMod-con" class="inline-block px-3 py-1 bg-gray-900 rounded-lg text-amber-500 text-sm font-bold mt-2 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
-          </button>
-          <!-- INT -->
-          <button onclick="rollStat('Intelligence', 'int')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-xl p-4 text-center transition-all group shadow-md">
-            <span class="block text-xs font-bold text-gray-400 uppercase">INT</span>
-            <span id="statScore-int" class="block text-3xl font-black text-white mt-1">10</span>
-            <span id="statMod-int" class="inline-block px-3 py-1 bg-gray-900 rounded-lg text-amber-500 text-sm font-bold mt-2 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
-          </button>
-          <!-- WIS -->
-          <button onclick="rollStat('Wisdom', 'wis')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-xl p-4 text-center transition-all group shadow-md">
-            <span class="block text-xs font-bold text-gray-400 uppercase">WIS</span>
-            <span id="statScore-wis" class="block text-3xl font-black text-white mt-1">10</span>
-            <span id="statMod-wis" class="inline-block px-3 py-1 bg-gray-900 rounded-lg text-amber-500 text-sm font-bold mt-2 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
-          </button>
-          <!-- CHA -->
-          <button onclick="rollStat('Charisma', 'cha')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-xl p-4 text-center transition-all group shadow-md">
-            <span class="block text-xs font-bold text-gray-400 uppercase">CHA</span>
-            <span id="statScore-cha" class="block text-3xl font-black text-white mt-1">10</span>
-            <span id="statMod-cha" class="inline-block px-3 py-1 bg-gray-900 rounded-lg text-amber-500 text-sm font-bold mt-2 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
-          </button>
-        </div>
-        <p class="text-xs text-gray-500 mt-4 italic text-center">Click on any stat to roll 1d20 + modifier (requires roll sync connected)</p>
-      </div>
-      
-      <!-- Feedback notification -->
-      <div id="rollFeedback" class="hidden bg-gray-950 border border-amber-800 text-amber-400 px-4 py-3 rounded-lg text-center text-sm font-mono transition-all animate-pulse">
-        Rolled 1d20 + 3 = 18! Sent to room.
-      </div>
-    </div>
+  <div class="campaign"><div class="campaign-inner"><span>CAMPAIGN:</span> <span id="campaign">No campaign assigned</span></div></div>
+  <main id="sheet" style="display:none">
+    <div class="actions"><button onclick="copyCharacterJson()">COPY JSON</button><button onclick="downloadCharacterJson()">DOWNLOAD JSON</button></div>
+    <section id="abilities" class="ability-grid"></section>
+    <section class="panel"><h2>SAVING THROWS ⚙</h2><div id="saves" class="save-grid"></div><div class="hint">You have no saving throw modifiers</div></section>
+    <section class="panel"><h2>PASSIVE SENSES ⚙</h2><div id="senses" class="sense-grid"></div><div class="hint">Additional Sense Types</div></section>
   </main>
-
-  <footer class="bg-gray-950 border-t border-gray-900 py-4 text-center text-xs text-gray-600 mt-10">
-    <p>VTT Asal Jadi - Character Sheet View</p>
-  </footer>
+  <div id="loading" style="text-align:center;padding:80px">Loading character sheet...</div><div id="error"></div>
 
   <script>
-    const socket = io();
     let character = null;
-    let currentRoom = '';
-    
-    // Parse username and characterId from URL path
-    // Format: /:username/dashboard/characters/:characterId
-    const pathParts = window.location.pathname.split('/');
-    const username = pathParts[1];
-    const characterId = pathParts[4];
+    const parts = location.pathname.split('/');
+    const username = parts[1];
+    const characterId = parts[4];
+    const names = {str:'STRENGTH',dex:'DEXTERITY',con:'CONSTITUTION',int:'INTELLIGENCE',wis:'WISDOM',cha:'CHARISMA'};
+    const statIds = {str:1,dex:2,con:3,int:4,wis:5,cha:6};
+    const mod = n => Math.floor((n - 10) / 2);
+    const signed = n => n >= 0 ? `+${n}` : `${n}`;
 
-    // Check query params for default room
-    const urlParams = new URLSearchParams(window.location.search);
-    const defaultRoom = urlParams.get('room') || '';
-    if (defaultRoom) {
-      document.getElementById('roomIdInput').value = defaultRoom;
-    }
-
-    const loadingState = document.getElementById('loadingState');
-    const errorState = document.getElementById('errorState');
-    const errorMsg = document.getElementById('errorMsg');
-    const charSheet = document.getElementById('charSheet');
-    const roomIdInput = document.getElementById('roomIdInput');
-    const connectRoomBtn = document.getElementById('connectRoomBtn');
-    const rollFeedback = document.getElementById('rollFeedback');
-
-    // Fetch character data
     async function loadCharacter() {
       try {
-        const response = await fetch(`/api/character/${username}/${characterId}`);
-        if (!response.ok) {
-          throw new Error('Character not found or database error');
-        }
-        character = await response.json();
-        renderCharacter(character);
-      } catch (err) {
-        console.error(err);
-        loadingState.classList.add('hidden');
-        errorState.classList.remove('hidden');
-        errorMsg.textContent = err.message || 'Make sure the URL is correct and the character was imported.';
-      }
+        const response = await fetch(`/api/character/${encodeURIComponent(username)}/${encodeURIComponent(characterId)}`);
+        if (!response.ok) throw new Error('Character not found or unavailable.');
+        character = await response.json(); render(character);
+      } catch (e) { document.getElementById('loading').style.display='none'; const error=document.getElementById('error'); error.textContent=e.message; error.style.display='block'; }
     }
-
-    function renderCharacter(char) {
-      loadingState.classList.add('hidden');
-      charSheet.classList.remove('hidden');
-
-      document.getElementById('charAvatar').src = char.avatarUrl;
-      document.getElementById('charName').textContent = char.name;
-      document.getElementById('charOwner').textContent = username;
-      
-      const classStr = char.classes.map(c => `${c.name} ${c.level}`).join('/') + ` (Level ${char.level})`;
-      document.getElementById('charSub').textContent = `${char.race} | ${classStr}`;
-
-      document.getElementById('charCurrentHp').textContent = char.hp.current;
-      document.getElementById('charMaxHp').textContent = char.hp.max;
-      
-      if (char.hp.temp > 0) {
-        document.getElementById('charTempHp').textContent = char.hp.temp;
-        document.getElementById('charTempHpContainer').classList.remove('hidden');
-      }
-
-      const hpPercent = Math.max(0, Math.min(100, (char.hp.current / char.hp.max) * 100));
-      const hpBar = document.getElementById('hpBar');
-      hpBar.style.width = `${hpPercent}%`;
-      if (hpPercent < 25) {
-        hpBar.className = 'bg-red-600 h-full transition-all duration-300';
-      } else if (hpPercent < 50) {
-        hpBar.className = 'bg-yellow-500 h-full transition-all duration-300';
-      } else {
-        hpBar.className = 'bg-green-500 h-full transition-all duration-300';
-      }
-
-      const stats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
-      stats.forEach(stat => {
-        document.getElementById(`statScore-${stat}`).textContent = char.stats[stat];
-        const mod = char.modifiers[stat];
-        document.getElementById(`statMod-${stat}`).textContent = mod >= 0 ? `+${mod}` : mod;
-      });
-
-      // Auto connect room if parameter is present
-      if (defaultRoom) {
-        connectRoom();
-      }
+    function render(c) {
+      document.getElementById('loading').style.display='none'; document.getElementById('sheet').style.display='block';
+      document.getElementById('avatar').src=c.avatarUrl || '';
+      document.getElementById('name').textContent=c.name;
+      document.getElementById('subtitle').textContent=`${c.race} ${c.classes.map(x=>x.name).join(' / ')}`;
+      document.getElementById('level').textContent=`Level ${c.level}`;
+      document.getElementById('hp').textContent=`${c.hp.current} / ${c.hp.max}`;
+      document.getElementById('prof').textContent=signed(2 + Math.floor((c.level-1)/4));
+      document.getElementById('initiative').textContent=signed(c.modifiers.dex);
+      document.getElementById('armor').textContent=10+c.modifiers.dex;
+      const abilities=document.getElementById('abilities');
+      abilities.innerHTML=Object.entries(names).map(([key,label])=>`<div class="ability"><h2>${label}</h2><div class="modifier">${signed(c.modifiers[key])}</div><div class="score">${c.stats[key]}</div></div>`).join('');
+      document.getElementById('saves').innerHTML=Object.entries(names).map(([key,label])=>`<div class="save"><span class="dot"></span><span class="save-label">${label.slice(0,3)}</span><span class="save-value">${signed(c.modifiers[key])}</span></div>`).join('');
+      const senses=[['PERCEPTION',10+c.modifiers.wis],['INVESTIGATION',10+c.modifiers.int],['INSIGHT',10+c.modifiers.wis]];
+      document.getElementById('senses').innerHTML=senses.map(x=>`<div><span class="sense-value">${x[1]}</span><span class="sense-label">${x[0]}</span></div>`).join('');
     }
-
-    // Connect to room for rolls
-    connectRoomBtn.addEventListener('click', connectRoom);
-
-    function connectRoom() {
-      const room = roomIdInput.value.trim();
-      if (!room) {
-        alert('Please enter a Room ID');
-        return;
-      }
-      currentRoom = room;
-      socket.emit('join-room', currentRoom);
-      
-      connectRoomBtn.textContent = `Connected: ${currentRoom}`;
-      connectRoomBtn.classList.remove('bg-amber-600', 'hover:bg-amber-700');
-      connectRoomBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-    }
-
-    // Roll stat
-    window.rollStat = function(statLabel, statKey) {
-      if (!character) return;
-      if (!currentRoom) {
-        alert('Please connect to a Roll Sync Room ID first (at the top right)!');
-        return;
-      }
-
-      const modifier = character.modifiers[statKey];
-      const roll = Math.floor(Math.random() * 20) + 1;
-      const total = roll + modifier;
-      const sign = modifier >= 0 ? '+' : '';
-      const formula = `1d20${sign}${modifier}`;
-
-      const rollData = {
-        roomId: currentRoom,
-        characterName: character.name,
-        characterAvatar: character.avatarUrl,
-        rollName: `${statLabel} Check`,
-        formula: formula,
-        result: total,
-        rolls: [roll],
-        modifier: modifier
-      };
-
-      socket.emit('send-roll', rollData);
-
-      // Show feedback
-      rollFeedback.textContent = `Rolled ${statLabel} Check: 1d20(${roll})${sign}${modifier} = ${total}! Sent to room "${currentRoom}".`;
-      rollFeedback.classList.remove('hidden');
-      setTimeout(() => {
-        rollFeedback.classList.add('hidden');
-      }, 5000);
-    };
-
-    // Export functions
-    window.copyCharacterJson = function() {
-      if (!character) return;
-      navigator.clipboard.writeText(JSON.stringify(character, null, 2));
-      
-      // Temporary feedback
-      const feedback = document.getElementById('rollFeedback');
-      feedback.textContent = 'Character JSON copied to clipboard!';
-      feedback.classList.remove('hidden');
-      setTimeout(() => {
-        feedback.classList.add('hidden');
-      }, 3000);
-    };
-
-    window.downloadCharacterJson = function() {
-      if (!character) return;
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(character, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `${character.name.replace(/\s+/g, '_')}_character.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    };
-
-
-    // Load initial data
+    function copyCharacterJson(){ if(character) navigator.clipboard.writeText(JSON.stringify(character,null,2)); }
+    function downloadCharacterJson(){ if(!character)return; const a=document.createElement('a'); a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(character,null,2)); a.download=(character.name||'character').replace(/\s+/g,'_')+'.json'; a.click(); }
     loadCharacter();
   </script>
 </body>
 </html>
+<!-- Character sheet visual layout inspired by the supplied reference image. -->
