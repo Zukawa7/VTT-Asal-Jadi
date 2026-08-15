@@ -1,17 +1,10 @@
-/* Keyframes & animations */
+/* ==========================================================================
+   ANIMATIONS & KEYFRAMES
+   ========================================================================== */
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
-}
-
-@keyframes slideInUp {
-  from { transform: translate(-50%, -40%); opacity: 0; }
-  to { transform: translate(-50%, -50%); opacity: 1; }
-}
-
-@keyframes slideInDown {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes fadeOut {
@@ -19,7 +12,75 @@
   to { opacity: 0; }
 }
 
-.animate-fadeIn { animation: fadeIn var(--transition-base) forwards; }
-.animate-slideInUp { animation: slideInUp var(--transition-base) forwards; }
-.animate-slideInDown { animation: slideInDown var(--transition-base) forwards; }
-.animate-fadeOut { animation: fadeOut var(--transition-base) forwards; }
+@keyframes slideInUp {
+  from { opacity: 0; transform: translate(-50%, -40%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 5px var(--secondary-dark); }
+  50% { box-shadow: 0 0 20px var(--secondary), 0 0 30px var(--primary); }
+  100% { box-shadow: 0 0 5px var(--secondary-dark); }
+}
+
+/* ==========================================================================
+   ANIMATION UTILITY CLASSES
+   ========================================================================== */
+.animate-fadeIn {
+  animation: fadeIn var(--transition-base) forwards;
+}
+
+.animate-fadeOut {
+  animation: fadeOut var(--transition-fast) forwards;
+}
+
+.animate-slideInUp {
+  animation: slideInUp var(--transition-base) cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-slideInDown {
+  animation: slideInDown var(--transition-base) forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.animate-glow {
+  animation: glow 2s infinite alternate;
+}
+
+/* Element transitions */
+.transition-all {
+  transition: all var(--transition-base);
+}

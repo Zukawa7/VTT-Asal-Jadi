@@ -1,16 +1,47 @@
-/* Dark/light theme specific overrides (beyond variables) */
+/* ==========================================================================
+   THEME OVERRIDES & GRADIENTS
+   ========================================================================== */
+
+/* Dark Theme (Default) specific styles */
+[data-theme="dark"] .card {
+  background: linear-gradient(145deg, var(--bg-secondary), var(--bg-tertiary));
+}
+
+[data-theme="dark"] .vtt-grid {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+}
+
+/* Light Theme specific styles */
+[data-theme="light"] {
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .card {
+  background: var(--bg-primary);
+  border-color: var(--bg-secondary);
+}
+
 [data-theme="light"] .vtt-grid {
   background-image: 
     linear-gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-color: #f8f9fa;
 }
 
-[data-theme="light"] .card {
+[data-theme="light"] .btn-secondary {
   background-color: var(--bg-secondary);
-  box-shadow: var(--shadow-sm);
 }
 
-[data-theme="light"] .input {
-  background-color: #fff;
-  border-color: #ccc;
+[data-theme="light"] .btn-secondary:hover:not(:disabled) {
+  background-color: #d1d5db;
+}
+
+[data-theme="light"] .input, 
+[data-theme="light"] .select, 
+[data-theme="light"] .textarea {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
 }
