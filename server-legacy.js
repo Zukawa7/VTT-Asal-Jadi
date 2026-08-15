@@ -129,8 +129,8 @@ app.post('/api/webhook/github', (req, res) => {
 
   console.log('GitHub Push Webhook verified. Starting deployment...');
 
-  // Execute git pull and npm install
-  exec('git pull && npm install', (err, stdout, stderr) => {
+  // Rebuild sqlite3 because production runs on ARM64 and uses a native binding.
+  exec('git pull --ff-only origin main && npm install --include=dev && npm rebuild sqlite3 --build-from-source', (err, stdout, stderr) => {
     if (err) {
       console.error('Git pull / npm install failed:', err);
       return res.status(500).send(`Deploy failed: ${err.message}`);
