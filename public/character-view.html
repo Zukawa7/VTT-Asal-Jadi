@@ -32,9 +32,11 @@
     .combat-value small { color:var(--muted); font-size:48px; }
     .initiative { border:3px solid #b8c7d2; border-radius:14px; padding:10px; }
     .side-buttons { display:grid; gap:12px; }
-    .side-buttons button { background:#fff; border:3px solid var(--red); border-radius:9px; padding:14px; font-weight:700; color:#222; }
+    .side-buttons button { background:var(--dark); border:3px solid var(--red); border-radius:9px; padding:14px; font-weight:700; color:#fff; }
     .campaign { border-top:4px solid var(--red); border-bottom:3px solid #dfb2b4; padding:34px 3%; }
-    .campaign-inner { max-width:1210px; margin:auto; border:3px solid var(--red); border-radius:10px; padding:16px; text-align:center; font-size:33px; }
+    .campaign-row { max-width:1215px; margin:auto; display:grid; grid-template-columns:1fr 140px; }
+    .campaign-inner { border:3px solid var(--red); border-radius:10px 0 0 10px; padding:16px; text-align:center; font-size:33px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .campaign-play { border:3px solid var(--red); border-left:0; background:#fff; color:#111; font-size:46px; }
     .campaign-inner span { font-weight:700; }
     main { max-width:1400px; margin:auto; padding:35px 4%; }
     .ability-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:48px 14%; }
@@ -56,7 +58,7 @@
     .sense-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:30px; max-width:760px; margin:auto; }
     .sense-value { color:#222; border:3px solid var(--line); border-radius:50%; padding:12px 25px; font-size:32px; display:inline-block; }
     .sense-label { display:block; font-size:25px; font-weight:700; margin-top:10px; }
-    .actions { display:flex; justify-content:center; gap:10px; margin:30px 0; }
+    .actions { display:none; justify-content:center; gap:10px; margin:30px 0; }
     .actions button { background:var(--red); color:#fff; border:0; border-radius:8px; padding:10px 18px; font-weight:700; }
     #error { display:none; text-align:center; padding:80px; color:var(--red); }
     /* Keep the fixed-width composition used by the reference sheet. */
@@ -84,7 +86,7 @@
     </div>
   </header>
 
-  <div class="campaign"><div class="campaign-inner"><span>CAMPAIGN:</span> <span id="campaign">No campaign assigned</span></div></div>
+  <div class="campaign"><div class="campaign-row"><div class="campaign-inner"><span>CAMPAIGN:</span> <span id="campaign">No campaign assigned</span></div><button class="campaign-play" aria-label="Open campaign">▶</button></div></div>
   <main id="sheet" style="display:none">
     <div class="actions"><button onclick="copyCharacterJson()">COPY JSON</button><button onclick="downloadCharacterJson()">DOWNLOAD JSON</button></div>
     <section id="abilities" class="ability-grid"></section>
@@ -122,7 +124,8 @@
       document.getElementById('armor').textContent=10+c.modifiers.dex;
       const abilities=document.getElementById('abilities');
       abilities.innerHTML=Object.entries(names).map(([key,label])=>`<div class="ability"><h2>${label}</h2><div class="modifier">${signed(c.modifiers[key])}</div><div class="score">${c.stats[key]}</div></div>`).join('');
-      document.getElementById('saves').innerHTML=Object.entries(names).map(([key,label])=>`<div class="save"><span class="dot"></span><span class="save-label">${label.slice(0,3)}</span><span class="save-value">${signed(c.modifiers[key])}</span></div>`).join('');
+      const saveOrder=['str','int','dex','wis','con','cha'];
+      document.getElementById('saves').innerHTML=saveOrder.map(key=>`<div class="save"><span class="dot"></span><span class="save-label">${names[key].slice(0,3)}</span><span class="save-value">${signed(c.modifiers[key])}</span></div>`).join('');
       const senses=[['PERCEPTION',10+c.modifiers.wis],['INVESTIGATION',10+c.modifiers.int],['INSIGHT',10+c.modifiers.wis]];
       document.getElementById('senses').innerHTML=senses.map(x=>`<div><span class="sense-value">${x[1]}</span><span class="sense-label">${x[0]}</span></div>`).join('');
     }
