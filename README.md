@@ -47,7 +47,7 @@ Pastikan Anda sudah menginstal [Node.js](https://nodejs.org/) (versi 18 ke atas 
 
 ## Otomatisasi Deployment (CI/CD via Cloudflare Tunnel & GitHub Actions)
 
-Aplikasi ini dilengkapi dengan endpoint webhook (`/api/webhook/github`) untuk melakukan penarikan kode otomatis (`git pull && npm install`) setiap kali ada pembaruan di GitHub.
+Aplikasi ini dilengkapi dengan endpoint webhook (`/api/webhook/github`) untuk melakukan penarikan kode otomatis, membangun ulang native binding SQLite ARM64, menjalankan build TypeScript, lalu me-restart aplikasi.
 
 ### Cara Konfigurasi
 
@@ -58,7 +58,7 @@ Untuk memastikan server otomatis menyala kembali setelah melakukan `git pull`, d
 npm install -g pm2
 
 # Jalankan aplikasi dengan nama "vtt-asal-jadi"
-pm2 start npm --name "vtt-asal-jadi" -- start
+pm2 start server.js --name "vtt-asal-jadi"
 
 # Simpan konfigurasi PM2 agar otomatis menyala saat server reboot
 pm2 save
@@ -73,8 +73,9 @@ Anda bisa mengatur variabel lingkungan berikut di server utama Anda:
 
 #### 3. Konfigurasi GitHub Secrets
 Pada repositori GitHub Anda, buka **Settings > Secrets and variables > Actions**, lalu tambahkan dua *Repository Secrets* berikut:
-1. `SERVER_WEBHOOK_URL`: URL lengkap ke endpoint webhook server Anda yang dihubungkan melalui Cloudflare Tunnel (contoh: `https://vtt-anda.cloudflare.com/api/webhook/github`).
-2. `WEBHOOK_SECRET`: Kata sandi rahasia yang sama dengan yang diatur di server (misalnya: `vtt-asal-jadi-secret`).
+1. `SERVER_WEBHOOK_URL`: URL lengkap ke endpoint webhook server Anda (contoh: `https://vtt.polyport.my.id/api/webhook/github`).
+2. `SERVER_HEALTH_URL`: URL health check setelah deployment: `https://vtt.polyport.my.id/health`.
+3. `WEBHOOK_SECRET`: Kata sandi rahasia yang sama dengan yang diatur di server. Jangan commit atau membagikan nilainya.
 
 Setiap kali Anda melakukan `git push` ke cabang `main`, GitHub Actions akan otomatis memicu webhook di server utama Anda, yang akan melakukan `git pull`, menginstal dependensi baru, dan memuat ulang aplikasi secara real-time!
 
