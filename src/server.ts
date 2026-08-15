@@ -24,7 +24,9 @@ async function start(): Promise<void> {
   const legacy = await import('../server-legacy.js');
   const database = new DatabaseService(config.databasePath);
   await database.migrate();
-  legacy.app.use('/api/v2', createApiRouter(database, config.jwtSecret));
+  legacy.app.use('/api/v2', createApiRouter(database, config.jwtSecret, (character) => {
+    legacy.io.emit('character-updated', character);
+  }));
   const characterSync = new CharacterSyncService(database);
   if (config.characterSyncEnabled) {
     characterSync.start();
