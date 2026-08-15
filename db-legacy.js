@@ -36,6 +36,36 @@ db.serialize(() => {
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )
   `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS game_sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      room_id TEXT UNIQUE NOT NULL,
+      created_by INTEGER,
+      name TEXT NOT NULL DEFAULT '',
+      description TEXT NOT NULL DEFAULT '',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (created_by) REFERENCES users(id)
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS dice_rolls (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id INTEGER,
+      character_id TEXT,
+      user_id INTEGER,
+      roll_formula TEXT NOT NULL,
+      result INTEGER NOT NULL,
+      is_critical INTEGER NOT NULL DEFAULT 0,
+      rolls_json TEXT NOT NULL DEFAULT '[]',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (session_id) REFERENCES game_sessions(id),
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+  `);
+
 });
 
 // Helper functions using Promises

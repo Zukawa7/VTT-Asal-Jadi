@@ -367,6 +367,26 @@ app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 
 app.get('/vtt', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vtt.html')));
 app.get('/:username/dashboard/characters/:characterId', (req, res) => res.sendFile(path.join(__dirname, 'public', 'character-view.html')));
 
+
+// Persistent roll history
+app.get('/api/rooms/:roomId/rolls', async (req, res) => {
+  const roomId = req.params.roomId;
+  if (!/^[a-z0-9-]{3,50}$/.test(roomId)) return res.status(400).json({ error: 'Invalid room ID' });
+  try {
+    const session = await getQuery('SELECT id FROM game_sessions WHERE room_id = ?', [roomId]);
+    if (!session) return res.json([]);
+    const rolls = await allQuery(
+      `SELECT id, character_id AS characterId, roll_formula AS formula, result,
+              is_critical AS isCritical, rolls_json AS rolls, created_at AS createdAt
+       FROM dice_rolls WHERE session_id = ? ORDER BY id DESC LIMIT 100`, [session.id]
+    );
+    res.json(rolls.map((roll) => ({ ...roll, rolls: JSON.parse(roll.rolls || '[]') })));
+  } catch (error) {
+    console.error('Roll history error:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
 // Socket.io for real-time events (rolls, logs, updates)
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
@@ -376,9 +396,24 @@ io.on('connection', (socket) => {
     console.log(`User ${socket.id} joined room: ${roomId}`);
   });
   
-  socket.on('send-roll', (data) => {
+  socket.on('send-roll', async (data) => {
     io.to(data.roomId).emit('new-roll', data);
     console.log(`Roll in room ${data.roomId}:`, data);
+
+    if (!/^[a-z0-9-]{3,50}$/.test(data.roomId)) return;
+    try {
+      await runQuery('INSERT OR IGNORE INTO game_sessions (room_id) VALUES (?)', [data.roomId]);
+      const session = await getQuery('SELECT id FROM game_sessions WHERE room_id = ?', [data.roomId]);
+      await runQuery(
+        `INSERT INTO dice_rolls (session_id, character_id, roll_formula, result, is_critical, rolls_json)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [session.id, data.characterId || null, String(data.formula || ''), Number(data.result) || 0,
+          data.rolls?.[0] === 20 || data.rolls?.[0] === 1 ? 1 : 0,
+          JSON.stringify(Array.isArray(data.rolls) ? data.rolls : [])]
+      );
+    } catch (error) {
+      console.error('Failed to persist roll:', error);
+    }
   });
   
   socket.on('disconnect', () => {
