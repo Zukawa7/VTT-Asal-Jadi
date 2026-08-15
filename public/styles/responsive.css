@@ -1,84 +1,44 @@
-/* public/styles/responsive.css */
+/* Mobile/tablet/desktop responsive styles */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-1 { flex: 1; }
+.justify-between { justify-content: space-between; }
+.items-center { align-items: center; }
+.flex-wrap { flex-wrap: wrap; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
 
-/* Mobile First Base (Already defined in variables/components) */
+.grid { display: grid; }
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
-/* SMALL TABLET & UP (640px) */
-@media (min-width: 640px) {
-  .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .sm\:flex-row { flex-direction: row; }
-  .sm\:p-6 { padding: 1.5rem; }
-}
+.w-full { width: 100%; }
+.w-16 { width: 4rem; }
+.w-36 { width: 9rem; }
+.h-16 { height: 4rem; }
+.h-4 { height: 1rem; }
+.h-full { height: 100%; }
+.min-h-screen { min-height: 100vh; }
+.min-h-\[300px\] { min-height: 300px; }
+.max-h-\[350px\] { max-height: 350px; }
+.aspect-square { aspect-ratio: 1 / 1; }
 
-/* TABLET & UP (768px) */
-@media (min-width: 768px) {
-  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .md\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .md\:col-span-2 { grid-column: span 2 / span 2; }
-}
+.hidden { display: none !important; }
 
-/* DESKTOP (1024px) */
+/* Desktop overrides */
 @media (min-width: 1024px) {
   .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
   .lg\:col-span-3 { grid-column: span 3 / span 3; }
-  .lg\:col-span-4 { grid-column: span 4 / span 4; }
   .lg\:col-span-6 { grid-column: span 6 / span 6; }
-  .lg\:col-span-8 { grid-column: span 8 / span 8; }
-  .lg\:col-span-9 { grid-column: span 9 / span 9; }
-  
-  .lg\:flex-row { flex-direction: row; }
 }
 
-/* Touch Device Optimizations */
-@media (hover: none) and (pointer: coarse) {
+/* Touch target sizing for mobile */
+@media (max-width: 768px) {
   .btn, .input, button {
-    min-height: 44px; /* Apple HIG recommendation for touch targets */
-  }
-  
-  .card:hover {
-    transform: none; /* Disable hover effects on mobile to prevent sticky hover */
-    border-color: var(--border-primary);
-  }
-}
-
-/* Mobile Navigation Utilities */
-.mobile-menu-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 40;
-}
-
-.mobile-menu-overlay.active {
-  display: block;
-}
-
-.mobile-menu-drawer {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: -100%;
-  width: 250px;
-  background-color: var(--bg-secondary);
-  z-index: 50;
-  transition: left 0.3s ease;
-  box-shadow: var(--shadow-xl);
-  padding: var(--space-md);
-}
-
-.mobile-menu-drawer.open {
-  left: 0;
-}
-
-.hamburger-btn {
-  display: block;
-}
-
-@media (min-width: 1024px) {
-  .hamburger-btn {
-    display: none;
+    min-height: 44px;
+    min-width: 44px;
   }
 }

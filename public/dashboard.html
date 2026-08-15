@@ -7,35 +7,35 @@
   
   <style>
     body {
-      background-color: #12131a;
-      color: #e2e8f0;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
     }
   </style>
 
   <!-- NEW CSS System -->
-  <link rel="stylesheet" href="/styles/variables.css?v=5">
-  <link rel="stylesheet" href="/styles/animations.css?v=5">
-  <link rel="stylesheet" href="/styles/components.css?v=5">
-  <link rel="stylesheet" href="/styles/theme.css?v=5">
-  <link rel="stylesheet" href="/styles/responsive.css?v=5">
+  <link rel="stylesheet" href="/styles/variables.css">
+  <link rel="stylesheet" href="/styles/animations.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <link rel="stylesheet" href="/styles/theme.css">
+  <link rel="stylesheet" href="/styles/responsive.css">
 </head>
 <body class="min-h-screen flex flex-col font-sans">
   
   <!-- Header -->
-  <header class="card-header" style="margin-bottom:0; border-bottom: 1px solid var(--border-primary); padding: var(--space-md) var(--space-lg);">
+  <header class="card-header" style="margin-bottom:0; border-bottom: 1px solid var(--border-primary); padding: var(--space-md) var(--space-lg); background: var(--bg-secondary);">
     <div class="max-w-7xl mx-auto flex justify-between items-center w-full">
       <div class="flex items-center gap-3">
-        <span class="text-3xl">🎲</span>
+        <span style="font-size: var(--font-size-2xl);">🎲</span>
         <div>
-          <h1 class="text-xl font-bold text-primary">VTT ASAL JADI</h1>
-          <p class="text-xs text-secondary">User Dashboard</p>
+          <h1 class="text-xl font-bold" style="color: var(--primary);">VTT ASAL JADI</h1>
+          <p class="text-xs" style="color: var(--text-secondary);">User Dashboard</p>
         </div>
       </div>
       
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-4 desktop-nav">
         <div class="text-right hidden sm:block">
-          <span class="text-xs text-secondary block">Logged in as</span>
-          <span id="headerUsername" class="font-bold text-primary">Username</span>
+          <span class="text-xs block" style="color: var(--text-secondary);">Logged in as</span>
+          <span id="headerUsername" class="font-bold" style="color: var(--primary);">Username</span>
         </div>
         <a href="/session-dashboard" class="btn btn-secondary">Session Logs</a>
         <a href="/vtt" class="btn btn-accent">Open VTT</a>
@@ -45,7 +45,7 @@
   </header>
 
   <!-- Main Content -->
-  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-8">
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-8 flex flex-col gap-6">
     
     <!-- Welcome Banner & Import Section -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -53,35 +53,35 @@
       <!-- Welcome Info (8 cols) -->
       <div class="lg:col-span-8 card flex flex-col justify-between">
         <div>
-          <h2 class="text-2xl font-bold text-primary">Welcome back, <span id="welcomeUsername" class="text-accent">Player</span>!</h2>
-          <p class="text-sm text-secondary mt-1">
+          <h2 class="text-2xl font-bold" style="color: var(--primary);">Welcome back, <span id="welcomeUsername" style="color: var(--accent);">Player</span>!</h2>
+          <p class="text-sm mt-1" style="color: var(--text-secondary);">
             This dashboard allows you to import and manage your D&D Beyond characters. You can share your characters' public sheets with your Dungeon Master and other players, or export them as JSON.
           </p>
         </div>
-        <div class="mt-4 pt-4 border-t flex flex-wrap gap-4 text-xs text-secondary">
-          <div>🔑 Token Status: <span class="text-success font-bold">Active</span></div>
-          <div>🛡️ Role: <span class="text-primary font-bold">Adventurer</span></div>
+        <div class="mt-4 pt-4 flex flex-wrap gap-4 text-xs" style="border-top: 1px solid var(--border-primary); color: var(--text-secondary);">
+          <div>🔑 Token Status: <span class="font-bold" style="color: var(--success);">Active</span></div>
+          <div>🛡️ Role: <span class="font-bold" style="color: var(--primary);">Adventurer</span></div>
         </div>
       </div>
 
       <!-- Import Card (4 cols) -->
       <div class="lg:col-span-4 card flex flex-col justify-between">
         <div>
-          <h3 class="text-lg font-bold text-primary mb-2 flex items-center gap-2">
+          <h3 class="text-lg font-bold mb-2 flex items-center gap-2" style="color: var(--primary);">
             <span>📥</span> Import Character
           </h3>
-          <p class="text-xs text-secondary mb-4">
+          <p class="text-xs mb-4" style="color: var(--text-secondary);">
             Enter your D&D Beyond Character ID:
           </p>
           <div class="flex flex-col gap-2">
             <input type="text" id="charIdInput" placeholder="Character ID (e.g. 10293847)" class="input">
             <button id="importBtn" class="btn btn-primary w-full flex justify-center items-center gap-2">
               <span id="importBtnText">Import to Database</span>
-              <div id="importSpinner" class="hidden animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"></div>
+              <div id="importSpinner" class="hidden animate-spin rounded-full h-4 w-4 border-2 border-t-transparent" style="border-color: var(--bg-primary);"></div>
             </button>
           </div>
-          <div id="importError" class="hidden mt-1 text-danger text-xs"></div>
-          <div id="importSuccess" class="hidden mt-1 text-success text-xs"></div>
+          <div id="importError" class="hidden mt-1 text-xs" style="color: var(--danger);"></div>
+          <div id="importSuccess" class="hidden mt-1 text-xs" style="color: var(--success);"></div>
         </div>
       </div>
 
@@ -89,21 +89,20 @@
 
     <!-- Characters List Section -->
     <div class="card">
-      <h2 class="text-xl font-bold text-primary mb-4 flex items-center gap-2">
+      <h2 class="text-xl font-bold mb-4 flex items-center gap-2" style="color: var(--primary);">
         <span>🧙‍♂️</span> Your Imported Characters
       </h2>
 
       <!-- Loading State -->
       <div id="charLoading" class="text-center p-4">
-        <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto mb-2"></div>
-        <p class="text-xs text-secondary">Loading characters...</p>
+        <p class="text-xs" style="color: var(--text-secondary);">Loading characters...</p>
       </div>
 
       <!-- Empty State -->
-      <div id="charEmpty" class="hidden text-center p-4 border border-secondary rounded-lg">
-        <span class="text-4xl">🐉</span>
-        <h3 class="text-base font-bold text-secondary mt-2">No characters imported yet</h3>
-        <p class="text-xs text-tertiary mt-1">Use the panel above to import your first D&D Beyond character.</p>
+      <div id="charEmpty" class="hidden text-center p-4 border rounded-lg" style="border-color: var(--border-secondary);">
+        <span style="font-size: var(--font-size-3xl);">🐉</span>
+        <h3 class="text-base font-bold mt-2" style="color: var(--text-secondary);">No characters imported yet</h3>
+        <p class="text-xs mt-1" style="color: var(--text-tertiary);">Use the panel above to import your first D&D Beyond character.</p>
       </div>
 
       <!-- Characters Grid -->
@@ -115,7 +114,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="bg-gray-950 border-t border-gray-900 py-4 text-center text-xs text-gray-600">
+  <footer style="background: var(--bg-secondary); border-top: 1px solid var(--border-primary); padding: var(--space-md); text-align: center; font-size: var(--font-size-xs); color: var(--text-tertiary);">
     <p>VTT Asal Jadi - Dashboard</p>
   </footer>
 
@@ -166,7 +165,6 @@
 
         if (!response.ok) {
           if (response.status === 401 || response.status === 403) {
-            // Token expired or invalid
             localStorage.removeItem('token');
             localStorage.removeItem('username');
             window.location.href = '/login';
@@ -181,7 +179,6 @@
           : characters;
         renderCharacters(merged);
       } catch (err) {
-        console.error(err);
         if (recentCharacter) {
           renderCharacters([recentCharacter]);
           importSuccess.textContent = `Character "${recentCharacter.name}" imported. List sync is temporarily unavailable.`;
@@ -217,18 +214,18 @@
 
         card.innerHTML = `
           <div class="flex items-center gap-4 mb-4">
-            <img src="${char.avatarUrl}" class="w-12 h-12 rounded-full border border-primary object-cover bg-primary">
-            <div class="min-w-0">
-              <h3 class="font-bold text-primary truncate text-sm">${char.name}</h3>
-              <p class="text-xs text-secondary truncate">${char.race}</p>
-              <p class="text-xs text-accent font-mono truncate">${classStr}</p>
+            <img src="${char.avatarUrl}" class="w-16 h-16 rounded-full border object-cover" style="border-color: var(--primary); background: var(--bg-secondary);">
+            <div class="min-w-0 flex-1">
+              <h3 class="font-bold truncate text-sm" style="color: var(--primary);">${char.name}</h3>
+              <p class="text-xs truncate" style="color: var(--text-secondary);">${char.race}</p>
+              <p class="text-xs font-mono truncate" style="color: var(--accent);">${classStr}</p>
             </div>
           </div>
-          <div class="flex justify-between items-center border-t pt-3 mt-2 gap-2">
-            <a href="${charUrl}" class="btn btn-secondary flex-1 text-center">
+          <div class="flex justify-between items-center pt-3 mt-2 gap-2" style="border-top: 1px solid var(--border-primary);">
+            <a href="${charUrl}" class="btn btn-secondary flex-1 text-center" style="font-size: var(--font-size-xs);">
               View & Export
             </a>
-            <button onclick="deleteCharacter('${char.id}')" class="btn btn-danger" title="Delete Character">
+            <button onclick="deleteCharacter('${char.id}')" class="btn btn-danger" style="padding: var(--space-xs) var(--space-sm);" title="Delete Character">
               ✕
             </button>
           </div>
@@ -237,7 +234,7 @@
       });
     }
 
-    // Import Character
+    // Import Character (Wizard Style Replacement)
     importBtn.addEventListener('click', async () => {
       let characterId = charIdInput.value.trim();
       if (!characterId) {
@@ -245,11 +242,8 @@
         return;
       }
 
-      // Extract ID if a full URL was provided
       const match = characterId.match(/(?:characters\/)?(\d+)/i);
-      if (match && match[1]) {
-        characterId = match[1];
-      }
+      if (match && match[1]) characterId = match[1];
 
       importBtn.disabled = true;
       importBtnText.textContent = 'Importing...';
@@ -268,16 +262,16 @@
         });
 
         const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to import character');
-        }
+        if (!response.ok) throw new Error(data.error || 'Failed to import character');
 
-        importSuccess.textContent = `Character "${data.name}" successfully imported!`;
-        importSuccess.classList.remove('hidden');
+        if(window.VTT && VTT.Notification) {
+          VTT.Notification.success(`Character "${data.name}" successfully imported!`);
+        } else {
+          importSuccess.textContent = `Character "${data.name}" successfully imported!`;
+          importSuccess.classList.remove('hidden');
+        }
         charIdInput.value = '';
         
-        // Reload the list only after the import response has completed.
-        // Also keep the imported character visible if a stale cached API response is returned.
         await loadCharacters();
         if (!charGrid.querySelector('[data-character-id="' + CSS.escape(String(data.id)) + '"]')) {
           renderCharacters([data]);
@@ -292,39 +286,46 @@
     });
 
     function showImportError(msg) {
-      importError.textContent = msg;
-      importError.classList.remove('hidden');
+      if(window.VTT && VTT.Notification) VTT.Notification.error(msg);
+      else {
+        importError.textContent = msg;
+        importError.classList.remove('hidden');
+      }
     }
 
     // Delete Character
     window.deleteCharacter = async function(charId) {
-      if (!confirm('Are you sure you want to delete this character?')) return;
+      let confirmed = false;
+      if(window.VTT && VTT.Confirm) {
+        confirmed = await VTT.Confirm.ask('Are you sure you want to delete this character?', 'Delete Character');
+      } else {
+        confirmed = confirm('Are you sure you want to delete this character?');
+      }
+      
+      if (!confirmed) return;
 
       try {
         const response = await fetch(`/api/v2/character/${charId}`, {
           method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to delete character');
-        }
-
+        if (!response.ok) throw new Error('Failed to delete character');
+        if(window.VTT && VTT.Notification) VTT.Notification.info('Character deleted.');
         loadCharacters();
       } catch (err) {
-        alert(err.message);
+        if(window.VTT && VTT.Notification) VTT.Notification.error(err.message);
+        else alert(err.message);
       }
     };
 
-    // Load initial data
     loadCharacters();
   </script>
 
   <script src="/js/components.js"></script>
   <script src="/js/theme-toggle.js"></script>
-
-<div style="position:fixed;bottom:10px;right:10px;z-index:9999;"><button data-theme-toggle class="btn btn-ghost">🌙</button></div>
+  <script src="/js/shortcuts.js"></script>
+  <script src="/js/mobile-nav.js"></script>
+  <div style="position:fixed;bottom:10px;right:10px;z-index:var(--z-tooltip);"><button data-theme-toggle class="btn btn-ghost">🌙</button></div>
 </body>
 </html>
