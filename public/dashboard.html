@@ -22,30 +22,24 @@
 <body class="min-h-screen flex flex-col font-sans">
   
   <!-- Header -->
-  <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 shadow-lg">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
+  <header class="card-header" style="margin-bottom:0; border-bottom: 1px solid var(--border-primary); padding: var(--space-md) var(--space-lg);">
+    <div class="max-w-7xl mx-auto flex justify-between items-center w-full">
       <div class="flex items-center gap-3">
         <span class="text-3xl">🎲</span>
         <div>
-          <h1 class="text-xl font-bold text-amber-500 tracking-wider">VTT ASAL JADI</h1>
-          <p class="text-xs text-gray-400">User Dashboard</p>
+          <h1 class="text-xl font-bold text-primary">VTT ASAL JADI</h1>
+          <p class="text-xs text-secondary">User Dashboard</p>
         </div>
       </div>
       
       <div class="flex items-center gap-4">
         <div class="text-right hidden sm:block">
-          <span class="text-xs text-gray-400 block">Logged in as</span>
-          <span id="headerUsername" class="font-bold text-white">Username</span>
+          <span class="text-xs text-secondary block">Logged in as</span>
+          <span id="headerUsername" class="font-bold text-primary">Username</span>
         </div>
-        <a href="/session-dashboard" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-1.5 rounded text-sm font-bold transition-all">
-          Session Logs
-        </a>
-        <a href="/vtt" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-1.5 rounded text-sm font-bold transition-all">
-          Open VTT
-        </a>
-        <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded text-sm font-bold transition-all">
-          Logout
-        </button>
+        <a href="/session-dashboard" class="btn btn-secondary">Session Logs</a>
+        <a href="/vtt" class="btn btn-accent">Open VTT</a>
+        <button id="logoutBtn" class="btn btn-danger">Logout</button>
       </div>
     </div>
   </header>
@@ -57,59 +51,59 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
       <!-- Welcome Info (8 cols) -->
-      <div class="lg:col-span-8 bg-gray-900 border border-gray-800 rounded-lg p-6 shadow-md flex flex-col justify-between">
+      <div class="lg:col-span-8 card flex flex-col justify-between">
         <div>
-          <h2 class="text-2xl font-bold text-white">Welcome back, <span id="welcomeUsername" class="text-amber-500">Player</span>!</h2>
-          <p class="text-sm text-gray-400 mt-2">
+          <h2 class="text-2xl font-bold text-primary">Welcome back, <span id="welcomeUsername" class="text-accent">Player</span>!</h2>
+          <p class="text-sm text-secondary mt-1">
             This dashboard allows you to import and manage your D&D Beyond characters. You can share your characters' public sheets with your Dungeon Master and other players, or export them as JSON.
           </p>
         </div>
-        <div class="mt-6 pt-4 border-t border-gray-800 flex flex-wrap gap-4 text-xs text-gray-400">
-          <div>🔑 Token Status: <span class="text-green-500 font-bold">Active</span></div>
-          <div>🛡️ Role: <span class="text-amber-500 font-bold">Adventurer</span></div>
+        <div class="mt-4 pt-4 border-t flex flex-wrap gap-4 text-xs text-secondary">
+          <div>🔑 Token Status: <span class="text-success font-bold">Active</span></div>
+          <div>🛡️ Role: <span class="text-primary font-bold">Adventurer</span></div>
         </div>
       </div>
 
       <!-- Import Card (4 cols) -->
-      <div class="lg:col-span-4 bg-gray-900 border border-gray-800 rounded-lg p-6 shadow-md flex flex-col justify-between">
+      <div class="lg:col-span-4 card flex flex-col justify-between">
         <div>
-          <h3 class="text-lg font-bold text-amber-500 mb-2 flex items-center gap-2">
+          <h3 class="text-lg font-bold text-primary mb-2 flex items-center gap-2">
             <span>📥</span> Import Character
           </h3>
-          <p class="text-xs text-gray-400 mb-4">
+          <p class="text-xs text-secondary mb-4">
             Enter your D&D Beyond Character ID:
           </p>
-          <div class="space-y-3">
-            <input type="text" id="charIdInput" placeholder="Character ID (e.g. 10293847)" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-500">
-            <button id="importBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-sm font-bold transition-all flex items-center justify-center gap-2">
+          <div class="flex flex-col gap-2">
+            <input type="text" id="charIdInput" placeholder="Character ID (e.g. 10293847)" class="input">
+            <button id="importBtn" class="btn btn-primary w-full flex justify-center items-center gap-2">
               <span id="importBtnText">Import to Database</span>
-              <div id="importSpinner" class="hidden animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+              <div id="importSpinner" class="hidden animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"></div>
             </button>
           </div>
-          <div id="importError" class="hidden mt-3 text-red-500 text-xs"></div>
-          <div id="importSuccess" class="hidden mt-3 text-green-500 text-xs"></div>
+          <div id="importError" class="hidden mt-1 text-danger text-xs"></div>
+          <div id="importSuccess" class="hidden mt-1 text-success text-xs"></div>
         </div>
       </div>
 
     </div>
 
     <!-- Characters List Section -->
-    <div class="bg-gray-900 border border-gray-800 rounded-lg p-6 shadow-md">
-      <h2 class="text-xl font-bold text-amber-500 mb-6 flex items-center gap-2">
+    <div class="card">
+      <h2 class="text-xl font-bold text-primary mb-4 flex items-center gap-2">
         <span>🧙‍♂️</span> Your Imported Characters
       </h2>
 
       <!-- Loading State -->
-      <div id="charLoading" class="text-center py-10">
-        <div class="animate-spin rounded-full h-8 w-8 border-2 border-amber-500 border-t-transparent mx-auto mb-2"></div>
-        <p class="text-xs text-gray-400">Loading characters...</p>
+      <div id="charLoading" class="text-center p-4">
+        <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto mb-2"></div>
+        <p class="text-xs text-secondary">Loading characters...</p>
       </div>
 
       <!-- Empty State -->
-      <div id="charEmpty" class="hidden text-center py-12 border-2 border-dashed border-gray-800 rounded-lg">
+      <div id="charEmpty" class="hidden text-center p-4 border border-secondary rounded-lg">
         <span class="text-4xl">🐉</span>
-        <h3 class="text-base font-bold text-gray-400 mt-2">No characters imported yet</h3>
-        <p class="text-xs text-gray-500 mt-1">Use the panel above to import your first D&D Beyond character.</p>
+        <h3 class="text-base font-bold text-secondary mt-2">No characters imported yet</h3>
+        <p class="text-xs text-tertiary mt-1">Use the panel above to import your first D&D Beyond character.</p>
       </div>
 
       <!-- Characters Grid -->
@@ -215,7 +209,7 @@
 
       characters.forEach(char => {
         const card = document.createElement('div');
-        card.className = 'bg-gray-800/40 border border-gray-700/50 rounded-lg p-5 flex flex-col justify-between hover:border-amber-500/50 transition-all';
+        card.className = 'card flex flex-col justify-between';
         card.dataset.characterId = String(char.id);
         
         const classStr = char.classes.map(c => `${c.name} ${c.level}`).join('/') + ` (Lvl ${char.level})`;
@@ -223,21 +217,19 @@
 
         card.innerHTML = `
           <div class="flex items-center gap-4 mb-4">
-            <img src="${char.avatarUrl}" class="w-12 h-12 rounded-full border border-amber-500/60 object-cover bg-gray-900">
+            <img src="${char.avatarUrl}" class="w-12 h-12 rounded-full border border-primary object-cover bg-bg-primary">
             <div class="min-w-0">
-              <h3 class="font-bold text-white truncate text-sm">${char.name}</h3>
-              <p class="text-xs text-gray-400 truncate">${char.race}</p>
-              <p class="text-[10px] text-amber-500 font-mono truncate">${classStr}</p>
+              <h3 class="font-bold text-primary truncate text-sm">${char.name}</h3>
+              <p class="text-xs text-secondary truncate">${char.race}</p>
+              <p class="text-xs text-accent font-mono truncate">${classStr}</p>
             </div>
           </div>
-          <div class="flex justify-between items-center border-t border-gray-800/80 pt-3 mt-2 gap-2">
-            <a href="${charUrl}" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-1.5 rounded transition-all flex-1 text-center">
+          <div class="flex justify-between items-center border-t pt-3 mt-2 gap-2">
+            <a href="${charUrl}" class="btn btn-secondary flex-1 text-center">
               View & Export
             </a>
-            <button onclick="deleteCharacter('${char.id}')" class="bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-900/50 p-1.5 rounded transition-all" title="Delete Character">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
+            <button onclick="deleteCharacter('${char.id}')" class="btn btn-danger" title="Delete Character">
+              ✕
             </button>
           </div>
         `;
