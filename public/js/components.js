@@ -145,8 +145,8 @@ VTT.Tabs = class {
     this.tabs.forEach(t => t.classList.remove('active'));
     this.contents.forEach(c => c.classList.add('hidden'));
     
-    this.container.querySelector(\`[data-tab="${name}"]\`)?.classList.add('active');
-    this.container.querySelector(\`[data-tab-content="${name}"]\`)?.classList.remove('hidden');
+    this.container.querySelector(\`[data-tab="\${name}"]\`)?.classList.add('active');
+    this.container.querySelector(\`[data-tab-content="\${name}"]\`)?.classList.remove('hidden');
   }
 };
 
@@ -168,7 +168,7 @@ VTT.Confirm = {
 };
 
 // CSS Styles for components
-const styles = `
+const styles = \`
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -187,7 +187,7 @@ const styles = `
 .notification {
   pointer-events: all;
 }
-`;
+\`;
 
 const styleSheet = document.createElement('style');
 styleSheet.textContent = styles;
