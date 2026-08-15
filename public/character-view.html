@@ -5,50 +5,68 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Character Sheet - VTT Asal Jadi</title>
 
-  <!-- NEW CSS System -->
-  <link rel="stylesheet" href="/styles/variables.css?v=5">
-  <link rel="stylesheet" href="/styles/animations.css?v=5">
-  <link rel="stylesheet" href="/styles/components.css?v=5">
-  <link rel="stylesheet" href="/styles/theme.css?v=5">
-  <link rel="stylesheet" href="/styles/responsive.css?v=5">
+  <link rel="stylesheet" href="/styles/variables.css?v=6">
+  <link rel="stylesheet" href="/styles/animations.css?v=6">
+  <link rel="stylesheet" href="/styles/components.css?v=6">
+  <link rel="stylesheet" href="/styles/theme.css?v=6">
+  <link rel="stylesheet" href="/styles/responsive.css?v=6">
   
   <script src="/socket.io/socket.io.js"></script>
   <style>
-    .stat-box { text-align: center; background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: var(--radius-md); padding: var(--space-sm); }
+    .stat-box { text-align: center; background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: var(--radius-md); padding: var(--space-sm); position: relative; }
     .stat-label { font-size: var(--font-size-xs); color: var(--text-secondary); text-transform: uppercase; font-weight: bold; }
-    .stat-val { font-size: var(--font-size-2xl); font-weight: 900; color: var(--primary); }
+    .stat-val { font-size: var(--font-size-2xl); font-weight: 900; color: var(--text-primary); }
     
     .ability-card { text-align: center; padding: var(--space-md); border: 2px solid var(--border-primary); border-radius: var(--radius-lg); position: relative; cursor: pointer; transition: all var(--transition-fast); background: var(--bg-secondary); }
-    .ability-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .ability-card:hover { border-color: var(--secondary); transform: translateY(-2px); box-shadow: var(--glow-gold); }
     .ability-title { font-size: var(--font-size-sm); color: var(--text-secondary); text-transform: uppercase; font-weight: bold; }
-    .ability-mod { font-size: var(--font-size-3xl); font-weight: 900; margin: var(--space-sm) 0; }
-    .ability-score { position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); background: var(--bg-primary); border: 1px solid var(--border-primary); border-radius: 999px; padding: 2px 10px; font-weight: bold; font-size: var(--font-size-sm); }
+    .ability-mod { font-size: var(--font-size-3xl); font-weight: 900; margin: var(--space-sm) 0; color: var(--primary); text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    .ability-score { position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: var(--bg-primary); border: 1px solid var(--border-primary); border-radius: 999px; padding: 2px 10px; font-weight: bold; font-size: var(--font-size-sm); color: var(--text-primary); }
 
-    .list-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-sm) 0; border-bottom: 1px solid var(--border-secondary); }
+    .list-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-sm) 0; border-bottom: 1px solid var(--border-secondary); cursor: pointer; transition: background var(--transition-fast); }
+    .list-row:hover { background: var(--bg-hover); }
     .list-row:last-child { border-bottom: none; }
     
     .tab-nav { display: flex; gap: var(--space-sm); overflow-x: auto; border-bottom: 2px solid var(--border-secondary); margin-bottom: var(--space-md); padding-bottom: var(--space-xs); }
-    .tab-btn { padding: var(--space-sm) var(--space-md); font-weight: bold; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; white-space: nowrap; }
-    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-btn { padding: var(--space-sm) var(--space-md); font-weight: bold; color: var(--text-tertiary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; white-space: nowrap; font-family: var(--font-heading); text-transform: uppercase; }
+    .tab-btn.active { color: var(--secondary); border-bottom-color: var(--secondary); text-shadow: var(--glow-gold); }
     .tab-btn:hover:not(.active) { color: var(--text-primary); }
+    
+    .hp-bar-bg { width: 100%; background: var(--bg-primary); border-radius: 999px; height: 8px; margin-top: 8px; overflow: hidden; border: 1px solid var(--border-primary); }
+    .hp-bar-fill { height: 100%; background: var(--success); transition: width var(--transition-base), background-color var(--transition-base); }
+    .hp-bar-fill.low { background: var(--warning); }
+    .hp-bar-fill.critical { background: var(--danger); animation: pulse 1s infinite; }
+    
+    .prof-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--text-secondary); display: inline-block; margin-right: 8px; }
+    .prof-dot.active { background: var(--text-secondary); }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-  <header class="card-header" style="margin-bottom:0; border-bottom: 1px solid var(--border-primary); padding: var(--space-md) var(--space-lg);">
+  <header class="card-header" style="margin-bottom:0; border-bottom: 1px solid var(--border-primary); padding: var(--space-md) var(--space-lg); background: var(--bg-secondary);">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center w-full gap-4">
       <div class="flex items-center gap-4 w-full sm:w-auto">
-        <img id="avatar" src="" class="w-16 h-16 rounded-full border border-primary object-cover bg-primary" alt="Portrait">
+        <img id="avatar" src="" class="w-16 h-16 rounded-full border border-primary object-cover" style="background: var(--bg-primary); border-color: var(--secondary);" alt="Portrait">
         <div class="min-w-0">
-          <h1 id="name" class="text-2xl font-bold text-primary truncate">Character Name</h1>
-          <p id="meta" class="text-sm text-secondary truncate">Race · Class</p>
-          <p id="level" class="text-xs font-bold text-accent">Level 1</p>
+          <h1 id="name" class="text-2xl font-bold truncate" style="color: var(--secondary); font-family: var(--font-heading);">Character Name</h1>
+          <p id="meta" class="text-sm truncate text-tertiary">Race · Class</p>
+          <div class="flex gap-2 items-center mt-1">
+            <span id="level" class="badge badge-accent">Level 1</span>
+            <span id="alignment" class="text-xs text-tertiary">True Neutral</span>
+            <span id="xp" class="text-xs text-tertiary">0 XP</span>
+          </div>
         </div>
       </div>
       <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-        <div class="stat-box flex-1 sm:flex-none">
+        <div class="stat-box flex-1 sm:flex-none cursor-pointer" onclick="openHpModal()" title="Click to manage HP">
           <div class="stat-label">HP</div>
-          <div id="hp" class="stat-val text-success">0 / 0</div>
+          <div class="flex items-baseline gap-1 justify-center">
+            <span id="hp-current" class="stat-val text-success">0</span>
+            <span class="text-xs text-tertiary">/</span>
+            <span id="hp-max" class="text-sm text-secondary">0</span>
+          </div>
+          <div class="text-[10px] text-tertiary absolute top-1 right-1" id="hp-temp"></div>
+          <div class="hp-bar-bg"><div id="hp-bar" class="hp-bar-fill" style="width: 0%"></div></div>
         </div>
         <button class="btn btn-secondary" onclick="location.href='/dashboard'">Manage</button>
       </div>
@@ -58,32 +76,28 @@
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col gap-6" id="content" style="display:none">
     
     <!-- Top Stats Bar -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
       <div class="stat-box"><div class="stat-label">Proficiency</div><div id="prof" class="stat-val">+2</div></div>
-      <div class="stat-box"><div class="stat-label">Walking Speed</div><div class="stat-val">30 ft.</div></div>
-      <div class="stat-box"><div class="stat-label">Initiative</div><div id="initiative" class="stat-val">+0</div></div>
+      <div class="stat-box"><div class="stat-label">Walking Speed</div><div id="speed" class="stat-val">30 ft.</div></div>
+      <div class="stat-box cursor-pointer hover:bg-hover" onclick="rollStat('Initiative', 'dex')"><div class="stat-label">Initiative</div><div id="initiative" class="stat-val">+0</div></div>
       <div class="stat-box"><div class="stat-label">Armor Class</div><div id="armor" class="stat-val">10</div></div>
+      <div class="stat-box"><div class="stat-label">Spell Save DC</div><div id="spell-dc" class="stat-val text-accent">-</div></div>
     </div>
 
-    <div class="card bg-tertiary flex justify-between items-center p-3">
-      <div><b>Campaign:</b> <span id="campaign" class="text-gray-400">No campaign assigned</span></div>
-      <div class="flex gap-2">
-        <button class="btn btn-primary" onclick="location.href='/vtt?room=character-'+character.id">Open VTT</button>
-        <button class="btn btn-secondary" onclick="downloadJson()">Export JSON</button>
+    <!-- Quick Actions & Money -->
+    <div class="card bg-tertiary flex flex-col md:flex-row justify-between items-center p-3 gap-4">
+      <div class="flex gap-4 items-center">
+        <div class="text-sm font-bold text-secondary">WEALTH:</div>
+        <div class="flex gap-2 text-sm" id="wealthContainer">
+          <span class="badge" style="background:#b87333;color:#fff">0 CP</span>
+          <span class="badge" style="background:#c0c0c0;color:#000">0 SP</span>
+          <span class="badge" style="background:#ffd700;color:#000">0 GP</span>
+          <span class="badge" style="background:#e5e4e2;color:#000">0 PP</span>
+        </div>
       </div>
-    </div>
-
-    <!-- Quick Rolls -->
-    <div class="card">
-      <div class="flex items-center gap-4 flex-wrap">
-        <h2 class="font-bold text-secondary">QUICK ROLLS</h2>
-        <button class="btn btn-secondary quick-roll" data-roll="1d20">D20</button>
-        <button class="btn btn-secondary quick-roll" data-roll="1d4">D4</button>
-        <button class="btn btn-secondary quick-roll" data-roll="1d6">D6</button>
-        <button class="btn btn-secondary quick-roll" data-roll="1d8">D8</button>
-        <button class="btn btn-secondary quick-roll" data-roll="1d10">D10</button>
-        <button class="btn btn-secondary quick-roll" data-roll="1d12">D12</button>
-        <span id="rollResult" class="ml-auto font-bold text-xl text-primary"></span>
+      <div class="flex gap-2">
+        <button class="btn btn-accent" onclick="openHpModal()">Heal / Damage</button>
+        <button class="btn btn-primary" onclick="location.href='/vtt?room=character-'+character.id">Open VTT</button>
       </div>
     </div>
 
@@ -91,20 +105,58 @@
     <div class="card flex-1" id="sheetTabs">
       <div class="tab-nav">
         <div class="tab-btn active" data-tab="stats">Stats & Skills</div>
+        <div class="tab-btn" data-tab="combat">Combat & Actions</div>
+        <div class="tab-btn" data-tab="spells">Spells</div>
         <div class="tab-btn" data-tab="equipment">Equipment</div>
-        <div class="tab-btn" data-tab="spells">Spell Slots</div>
-        <div class="tab-btn" data-tab="conditions">Conditions</div>
-        <div class="tab-btn" data-tab="features">Features</div>
+        <div class="tab-btn" data-tab="features">Features & Traits</div>
+        <div class="tab-btn" data-tab="conditions">Conditions & Bio</div>
       </div>
 
-      <!-- Tab: Stats -->
+      <!-- Tab: Stats & Skills -->
       <div data-tab-content="stats" class="animate-fadeIn">
         <div id="abilities" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mb-8"></div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div><h3 class="font-bold text-secondary mb-3 border-b pb-2">Saving Throws</h3><div id="saves"></div></div>
-          <div><h3 class="font-bold text-secondary mb-3 border-b pb-2">Skills</h3><div id="skills"></div></div>
-          <div><h3 class="font-bold text-secondary mb-3 border-b pb-2">Passive Senses</h3><div id="senses"></div></div>
+          <div><h3 class="font-heading font-bold text-secondary mb-3 border-b border-secondary pb-2">Saving Throws</h3><div id="saves"></div></div>
+          <div><h3 class="font-heading font-bold text-secondary mb-3 border-b border-secondary pb-2">Skills</h3><div id="skills"></div></div>
+          <div><h3 class="font-heading font-bold text-secondary mb-3 border-b border-secondary pb-2">Passive Senses</h3><div id="senses"></div></div>
         </div>
+      </div>
+
+      <!-- Tab: Combat & Actions -->
+      <div data-tab-content="combat" class="hidden animate-fadeIn">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="font-heading font-bold text-secondary mb-3 border-b border-secondary pb-2">Attacks & Spellcasting</h3>
+            <div id="attacksContainer" class="space-y-2">
+              <div class="text-gray-500 italic text-sm">No weapons equipped.</div>
+            </div>
+          </div>
+          <div>
+             <h3 class="font-heading font-bold text-secondary mb-3 border-b border-secondary pb-2">Defenses & Senses</h3>
+             <div class="text-sm space-y-2">
+               <div><span class="font-bold text-tertiary">Resistances:</span> <span id="resistances">None</span></div>
+               <div><span class="font-bold text-tertiary">Immunities:</span> <span id="immunities">None</span></div>
+               <div><span class="font-bold text-tertiary">Vulnerabilities:</span> <span id="vulnerabilities">None</span></div>
+             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Spells -->
+      <div data-tab-content="spells" class="hidden animate-fadeIn">
+        <div class="flex justify-between mb-4">
+          <div class="text-sm">
+            <span class="font-bold text-tertiary">Spell Attack Bonus:</span> <span id="spell-attack" class="badge badge-success">+0</span>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-secondary" id="shortRest">Short Rest</button>
+            <button class="btn btn-primary" id="longRest">Long Rest</button>
+          </div>
+        </div>
+        <h3 class="font-heading font-bold text-secondary mb-3 border-b border-secondary pb-2">Spell Slots</h3>
+        <div id="spellSlots" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"></div>
+        <h3 class="font-heading font-bold text-secondary mb-3 border-b border-secondary pb-2">Spells Known/Prepared</h3>
+        <div id="spellsList" class="space-y-2"><div class="text-gray-500 italic text-sm">No spells known.</div></div>
       </div>
 
       <!-- Tab: Equipment -->
@@ -112,186 +164,368 @@
         <div class="flex gap-2 mb-4" id="equipmentEditor"></div>
         <div id="equipment" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
       </div>
-
-      <!-- Tab: Spells -->
-      <div data-tab-content="spells" class="hidden animate-fadeIn">
-        <div class="flex gap-2 mb-4">
-          <button class="btn btn-secondary" id="shortRest">Short Rest</button>
-          <button class="btn btn-primary" id="longRest">Long Rest</button>
-        </div>
-        <div id="spellSlots" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-      </div>
-
-      <!-- Tab: Conditions -->
-      <div data-tab-content="conditions" class="hidden animate-fadeIn">
-        <div class="flex gap-2 mb-4" id="conditionEditor"></div>
-        <div id="conditions" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-      </div>
-
+      
       <!-- Tab: Features -->
       <div data-tab-content="features" class="hidden animate-fadeIn">
-        <div class="text-center p-8 text-gray-500">Features imported from D&D Beyond will appear here.</div>
+         <div id="featuresList" class="space-y-4">
+           <div class="text-gray-500 italic text-sm">Features imported from D&D Beyond will appear here.</div>
+         </div>
+      </div>
+
+      <!-- Tab: Conditions & Bio -->
+      <div data-tab-content="conditions" class="hidden animate-fadeIn">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="font-heading font-bold text-secondary mb-3 border-b border-secondary pb-2">Active Conditions</h3>
+            <div class="flex gap-2 mb-4" id="conditionEditor"></div>
+            <div id="conditions" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div>
+             <h3 class="font-heading font-bold text-secondary mb-3 border-b border-secondary pb-2">Character Notes</h3>
+             <textarea id="charNotes" class="input h-32" placeholder="Add character biography or notes here..."></textarea>
+             <button class="btn btn-secondary mt-2 w-full" id="saveNotesBtn">Save Notes</button>
+          </div>
+        </div>
       </div>
 
     </div>
   </main>
 
-  <div id="loading" class="text-center p-20 text-xl">Loading character sheet...</div>
+  <div id="loading" class="text-center p-20 text-xl font-heading text-secondary animate-pulse">Loading character sheet...</div>
   <div id="error" class="hidden text-center p-20 text-xl text-danger"></div>
 
+  <script src="/js/components.js"></script>
+  <script src="/js/theme-toggle.js"></script>
+  
   <script>
-    const socket=io();
-    socket.on('character-updated',updated=>{
-      if(character&&String(updated.id)===String(character.id)){
-        character=updated; render(updated);
+    // --- Logic Implementation follows ---
+    const socket = io();
+    socket.on('character-updated', updated => {
+      if(character && String(updated.id) === String(character.id)) {
+        character = updated; render(updated);
       }
     });
     
-    let character=null;
-    const parts=location.pathname.split('/'), username=parts[1], characterId=parts[4];
-    const keys=['str','dex','con','int','wis','cha'];
-    const labels={str:'STRENGTH',dex:'DEXTERITY',con:'CONSTITUTION',int:'INTELLIGENCE',wis:'WISDOM',cha:'CHARISMA'};
-    const skillMap={Acrobatics:'dex','Animal Handling':'wis',Arcana:'int',Athletics:'str',Deception:'cha',History:'int',Insight:'wis',Intimidation:'cha',Investigation:'int',Medicine:'wis',Nature:'int',Perception:'wis',Performance:'cha',Persuasion:'cha',Religion:'int','Sleight of Hand':'dex',Stealth:'dex',Survival:'wis'};
-    const signed=n=>n>=0?'+'+n:n;
+    let character = null;
+    const parts = location.pathname.split('/');
+    const username = parts[1];
+    const characterId = parts[4];
+    const keys = ['str','dex','con','int','wis','cha'];
+    const labels = {str:'STRENGTH',dex:'DEXTERITY',con:'CONSTITUTION',int:'INTELLIGENCE',wis:'WISDOM',cha:'CHARISMA'};
+    const skillMap = {Acrobatics:'dex','Animal Handling':'wis',Arcana:'int',Athletics:'str',Deception:'cha',History:'int',Insight:'wis',Intimidation:'cha',Investigation:'int',Medicine:'wis',Nature:'int',Perception:'wis',Performance:'cha',Persuasion:'cha',Religion:'int','Sleight of Hand':'dex',Stealth:'dex',Survival:'wis'};
     
-    async function load(){
+    const signed = n => n >= 0 ? '+'+n : n;
+    
+    async function load() {
       try{
-        let r=await fetch('/api/v2/character/'+encodeURIComponent(characterId)+'/sheet');
+        let r = await fetch('/api/v2/character/'+encodeURIComponent(characterId)+'/sheet');
         if(!r.ok) throw Error('Character not found or unavailable.');
-        character=await r.json();
+        character = await r.json();
         render(character);
-      }catch(e){
+      } catch(e) {
         document.getElementById('loading').style.display='none';
         const err = document.getElementById('error');
-        err.textContent=e.message; err.style.display='block';
+        err.textContent = e.message; err.style.display='block';
       }
     }
     
-    function render(c){
+    function sendRoll(formula, name) {
+      if(!character) return;
+      const parsed = parseFormula(formula);
+      if(!parsed) return;
+      socket.emit('send-roll', {
+        roomId: `character-${character.id}`,
+        characterId: String(character.id),
+        characterName: character.name,
+        characterAvatar: character.avatarUrl,
+        rollName: name,
+        formula: parsed.formula,
+        result: parsed.result,
+        rolls: parsed.rolls,
+        modifier: parsed.modifier
+      });
+      VTT.Notification.info(`Rolled ${name}: ${parsed.result}`);
+    }
+    
+    function parseFormula(formula) {
+      const match = formula.replace(/\s+/g,'').match(/^(\d*)d(\d+)([\+\-]\d+)?$/);
+      if(!match) return null;
+      const count = match[1]?parseInt(match[1]):1;
+      const sides = parseInt(match[2]);
+      const mod = match[3]?parseInt(match[3]):0;
+      let total = mod;
+      let rolls = [];
+      for(let i=0;i<count;i++){
+        let r=Math.floor(Math.random()*sides)+1;
+        rolls.push(r); total+=r;
+      }
+      return { formula, result: total, rolls, modifier: mod };
+    }
+    
+    function rollStat(name, stat) {
+       sendRoll(`1d20${signed(character.modifiers[stat])}`, `${name} Check`);
+    }
+
+    function render(c) {
       document.getElementById('loading').style.display='none';
       document.getElementById('content').style.display='flex';
       
-      document.getElementById('avatar').src=c.avatarUrl||'';
-      document.getElementById('name').textContent=c.name;
-      document.getElementById('meta').textContent=c.race+' · '+c.classes.map(x=>x.name).join(' / ');
-      document.getElementById('level').textContent='Level '+c.level;
-      document.getElementById('hp').textContent=c.hp.current+' / '+c.hp.max;
-      document.getElementById('prof').textContent=signed(2+Math.floor((c.level-1)/4));
-      document.getElementById('initiative').textContent=signed(c.modifiers.dex);
-      document.getElementById('armor').textContent=10+c.modifiers.dex;
+      const profBonus = 2 + Math.floor((c.level-1)/4);
+      const canEdit = Boolean(localStorage.getItem('token'));
       
-      document.getElementById('abilities').innerHTML=keys.map(k=>
-        '<div class="ability-card ability-roll" data-ability="'+k+'"><div class="ability-title">'+labels[k]+'</div><div class="ability-mod text-primary">'+signed(c.modifiers[k])+'</div><div class="ability-score">'+c.stats[k]+'</div></div>'
+      // Basic Info
+      document.getElementById('avatar').src = c.avatarUrl || '';
+      document.getElementById('name').textContent = c.name;
+      document.getElementById('meta').textContent = c.race+' · '+c.classes.map(x=>x.name).join(' / ');
+      document.getElementById('level').textContent = 'Level '+c.level;
+      document.getElementById('alignment').textContent = c.alignment || 'True Neutral';
+      document.getElementById('xp').textContent = (c.xp || 0) + ' XP';
+      
+      // HP & Temp HP
+      document.getElementById('hp-current').textContent = c.hp.current;
+      const hpCurrentEl = document.getElementById('hp-current');
+      document.getElementById('hp-max').textContent = c.hp.max;
+      if(c.hp.temp > 0) document.getElementById('hp-temp').textContent = `+${c.hp.temp} TMP`;
+      else document.getElementById('hp-temp').textContent = '';
+      
+      let hpPct = Math.min(100, Math.max(0, (c.hp.current / c.hp.max) * 100));
+      const bar = document.getElementById('hp-bar');
+      bar.style.width = hpPct + '%';
+      bar.className = 'hp-bar-fill';
+      hpCurrentEl.className = 'stat-val';
+      if(hpPct <= 25) { bar.classList.add('critical'); hpCurrentEl.classList.add('text-danger'); }
+      else if(hpPct <= 50) { bar.classList.add('low'); hpCurrentEl.classList.add('text-warning'); }
+      else { hpCurrentEl.classList.add('text-success'); }
+      
+      // Top Stats
+      document.getElementById('prof').textContent = signed(profBonus);
+      document.getElementById('initiative').textContent = signed(c.modifiers.dex);
+      document.getElementById('armor').textContent = 10 + c.modifiers.dex; // simplified
+      document.getElementById('speed').textContent = (c.speed || 30) + ' ft.';
+      document.getElementById('spell-dc').textContent = 8 + profBonus + Math.max(c.modifiers.int, c.modifiers.wis, c.modifiers.cha);
+      document.getElementById('spell-attack').textContent = signed(profBonus + Math.max(c.modifiers.int, c.modifiers.wis, c.modifiers.cha));
+      
+      // Wealth
+      if(c.currencies) {
+        document.getElementById('wealthContainer').innerHTML = 
+          `<span class="badge" style="background:#b87333;color:#fff">${c.currencies.cp||0} CP</span>
+           <span class="badge" style="background:#c0c0c0;color:#000">${c.currencies.sp||0} SP</span>
+           <span class="badge" style="background:#ffd700;color:#000">${c.currencies.gp||0} GP</span>
+           <span class="badge" style="background:#e5e4e2;color:#000">${c.currencies.pp||0} PP</span>`;
+      }
+      
+      // Abilities
+      document.getElementById('abilities').innerHTML = keys.map(k =>
+        `<div class="ability-card" onclick="rollStat('${labels[k]}','${k}')">
+          <div class="ability-title">${labels[k]}</div>
+          <div class="ability-mod">${signed(c.modifiers[k])}</div>
+          <div class="ability-score">${c.stats[k]}</div>
+        </div>`
       ).join('');
       
-      document.getElementById('saves').innerHTML=keys.map(k=>
-        '<div class="list-row"><span>'+labels[k].slice(0,3)+'</span><span class="badge badge-success">'+signed(c.modifiers[k])+'</span></div>'
-      ).join('');
+      // Saves
+      document.getElementById('saves').innerHTML = keys.map(k => {
+        let isProf = c.proficiencies?.saves?.includes(k);
+        let mod = c.modifiers[k] + (isProf ? profBonus : 0);
+        return `<div class="list-row" onclick="sendRoll('1d20${signed(mod)}', '${labels[k]} Save')">
+          <span><span class="prof-dot ${isProf?'active':''}"></span>${labels[k].charAt(0)+labels[k].slice(1).toLowerCase()}</span>
+          <span class="badge ${isProf?'badge-success':'badge-info'}">${signed(mod)}</span>
+        </div>`;
+      }).join('');
       
-      document.getElementById('skills').innerHTML=Object.entries(skillMap).map(([s,k])=>
-        '<div class="list-row"><span>'+s+'</span><span class="badge badge-success">'+signed(c.modifiers[k])+'</span></div>'
-      ).join('');
+      // Skills
+      document.getElementById('skills').innerHTML = Object.entries(skillMap).map(([s,k]) => {
+        let isProf = c.proficiencies?.skills?.includes(s);
+        let mod = c.modifiers[k] + (isProf ? profBonus : 0);
+        return `<div class="list-row" onclick="sendRoll('1d20${signed(mod)}', '${s} Check')">
+          <span><span class="prof-dot ${isProf?'active':''}"></span>${s} <span class="text-[10px] text-gray-500">(${k.toUpperCase()})</span></span>
+          <span class="badge ${isProf?'badge-success':'badge-info'}">${signed(mod)}</span>
+        </div>`;
+      }).join('');
       
-      document.getElementById('senses').innerHTML=[['PERCEPTION',10+c.modifiers.wis],['INVESTIGATION',10+c.modifiers.int],['INSIGHT',10+c.modifiers.wis]].map(x=>
-        '<div class="list-row"><span>'+x[0]+'</span><span class="badge badge-info">'+x[1]+'</span></div>'
-      ).join('');
+      // Passive Senses
+      document.getElementById('senses').innerHTML = [
+        ['PERCEPTION', 10 + c.modifiers.wis + (c.proficiencies?.skills?.includes('Perception')?profBonus:0)],
+        ['INVESTIGATION', 10 + c.modifiers.int + (c.proficiencies?.skills?.includes('Investigation')?profBonus:0)],
+        ['INSIGHT', 10 + c.modifiers.wis + (c.proficiencies?.skills?.includes('Insight')?profBonus:0)]
+      ].map(x => `<div class="list-row"><span>${x[0]}</span><span class="badge badge-info text-base px-2">${x[1]}</span></div>`).join('');
       
-      const canEdit=Boolean(localStorage.getItem('token'));
+      // Conditions
+      if(canEdit) document.getElementById('conditionEditor').innerHTML='<input id="newCondition" placeholder="Add condition (e.g. Poisoned)" class="input flex-1"><button id="addCondition" class="btn btn-primary">Add</button>';
+      const activeConditions = c.conditions||[];
+      document.getElementById('conditions').innerHTML = activeConditions.length ? activeConditions.map(condition =>
+        `<div class="badge badge-accent px-3 py-2 text-sm flex items-center gap-2">
+           ${condition}
+           <button class="text-danger hover:text-white" data-condition-remove="${condition}">✕</button>
+         </div>`
+      ).join('') : '<div class="text-gray-500 italic text-sm">No active conditions.</div>';
       
-      if(canEdit) document.getElementById('conditionEditor').innerHTML='<input id="newCondition" placeholder="Condition name" class="input flex-1"><button id="addCondition" class="btn btn-primary">Add</button>';
-      const activeConditions=c.conditions||[];
-      document.getElementById('conditions').innerHTML=activeConditions.length?activeConditions.map(condition=>
-        '<div class="card flex justify-between items-center"><b>'+condition+'</b><button class="btn btn-ghost text-danger" data-condition-remove="'+condition+'">✕</button></div>'
-      ).join(''):'<div class="text-gray-500">No active conditions.</div>';
+      // Spells
+      const slots = c.spellSlots||{};
+      document.getElementById('spellSlots').innerHTML = Object.keys(slots).length ? Object.entries(slots).map(([level,slot]) =>
+        `<div class="card p-3 flex flex-col justify-between items-center bg-bg-tertiary shadow-sm">
+           <div class="font-bold text-sm mb-1">Level ${level}</div>
+           <div class="text-xs text-secondary mb-2">${slot.current} / ${slot.max} slots</div>
+           <button class="btn btn-accent w-full text-xs py-1" data-slot-level="${level}" ${slot.current===0?'disabled':''}>Cast</button>
+         </div>`
+      ).join('') : '<div class="text-gray-500 col-span-full italic text-sm">No spell slots available.</div>';
       
-      const slots=c.spellSlots||{};
-      document.getElementById('spellSlots').innerHTML=Object.keys(slots).length?Object.entries(slots).map(([level,slot])=>
-        '<div class="card flex justify-between items-center"><div><b>Level '+level+'</b><div class="text-xs text-gray-400">'+slot.current+' / '+slot.max+' slots</div></div><button class="btn btn-accent" data-slot-level="'+level+'">Use</button></div>'
-      ).join(''):'<div class="text-gray-500">No spell slots available.</div>';
+      if(c.spells && c.spells.length > 0) {
+        document.getElementById('spellsList').innerHTML = c.spells.map(spell => 
+          `<div class="card p-2 flex justify-between items-center hover:border-secondary transition-colors cursor-pointer bg-bg-tertiary">
+            <div>
+              <div class="font-bold text-sm text-primary">${spell.name}</div>
+              <div class="text-xs text-tertiary">Level ${spell.level} · ${spell.school} · ${spell.castingTime}</div>
+            </div>
+            <button class="btn btn-ghost text-xs border border-secondary text-secondary hover:bg-secondary hover:text-white px-2 py-1">Cast</button>
+           </div>`
+        ).join('');
+      }
       
-      if(canEdit){
-        document.getElementById('addCondition').onclick=()=>{
-          const val=document.getElementById('newCondition').value.trim();
-          if(val&&!activeConditions.includes(val)) updateSheet({conditions:[...activeConditions,val]});
+      // Equipment
+      const items = c.equipment||[];
+      const totalWeight = items.reduce((sum,item)=>sum+Number(item.weight||0)*Number(item.quantity||1),0);
+      const capacity = Number(c.stats.str||10)*15;
+      
+      document.getElementById('equipmentEditor').innerHTML = canEdit ?
+        '<input id="newItemName" placeholder="Item name" class="input flex-1"><input id="newItemQuantity" type="number" min="1" value="1" class="input w-20" title="Qty"><input id="newItemWeight" type="number" min="0" step="0.1" value="0" class="input w-20" title="Weight"><button id="addItem" class="btn btn-primary">Add</button>':'';
+        
+      document.getElementById('equipment').innerHTML = (items.length ?
+        `<div class="col-span-full mb-2 text-sm text-tertiary">Total weight: ${totalWeight.toFixed(1)} / ${capacity} lb ${totalWeight>capacity?'<span class="text-danger font-bold animate-pulse">OVER CAPACITY</span>':''}</div>` +
+        items.map((item,index) =>
+          `<div class="card flex flex-col gap-2 bg-bg-tertiary">
+             <div class="flex justify-between items-start">
+               <div>
+                 <b class="text-primary">${item.name}</b>
+                 <div class="text-xs text-tertiary">Qty ${item.quantity} · ${(Number(item.weight||0)*Number(item.quantity||1)).toFixed(1)} lb</div>
+               </div>
+             </div>
+             <div class="flex gap-2 flex-wrap">
+               ${item.equipped?'<span class="badge badge-success">Equipped</span>':''}
+               ${item.attuned?'<span class="badge badge-info">Attuned</span>':''}
+             </div>
+             ${canEdit?`<div class="flex gap-2 mt-2 pt-2 border-t border-border-secondary">
+               <button class="btn btn-ghost text-xs text-tertiary hover:text-white" data-equipment-equipped="${index}">${item.equipped?'Unequip':'Equip'}</button>
+               <button class="btn btn-ghost text-xs text-tertiary hover:text-white" data-equipment-attuned="${index}">${item.attuned?'Unattune':'Attune'}</button>
+               <button class="btn btn-ghost text-danger text-xs ml-auto hover:text-red-400" data-equipment-remove="${index}">Drop</button>
+             </div>`:''}
+           </div>`
+        ).join('') : '<div class="text-gray-500 italic text-sm">No equipment found.</div>');
+
+      // Notes
+      if(c.notes) document.getElementById('charNotes').value = c.notes;
+        
+      // Event Listeners for Edits
+      if(canEdit) {
+        document.getElementById('addCondition').onclick = () => {
+          const val = document.getElementById('newCondition').value.trim();
+          if(val && !activeConditions.includes(val)) updateSheet({conditions:[...activeConditions,val]});
         };
-        document.getElementById('shortRest').onclick=()=>{
-          const next=Object.fromEntries(Object.entries(slots).map(([k,s])=>[k,{...s,current:Math.min(s.current+1,s.max)}]));
+        document.querySelectorAll('[data-condition-remove]').forEach(btn => btn.onclick = () => updateSheet({conditions:activeConditions.filter(x => x!==btn.dataset.conditionRemove)}));
+        
+        document.getElementById('shortRest').onclick = () => {
+          const next = Object.fromEntries(Object.entries(slots).map(([k,s])=>[k,{...s,current:Math.min(s.current+1,s.max)}]));
           updateSheet({spellSlots:next});
         };
-        document.getElementById('longRest').onclick=()=>{
-          const next=Object.fromEntries(Object.entries(slots).map(([k,s])=>[k,{...s,current:s.max}]));
-          updateSheet({spellSlots:next});
+        document.getElementById('longRest').onclick = () => {
+          const next = Object.fromEntries(Object.entries(slots).map(([k,s])=>[k,{...s,current:s.max}]));
+          updateSheet({spellSlots:next, hp:{...c.hp, current:c.hp.max}}); // long rest fully heals
         };
-        document.querySelectorAll('[data-condition-remove]').forEach(btn=>btn.onclick=()=>updateSheet({conditions:activeConditions.filter(x=>x!==btn.dataset.conditionRemove)}));
-        document.querySelectorAll('[data-slot-level]').forEach(btn=>btn.onclick=()=>{
-          const lvl=btn.dataset.slotLevel;
+        document.querySelectorAll('[data-slot-level]').forEach(btn => btn.onclick = () => {
+          const lvl = btn.dataset.slotLevel;
           updateSheet({spellSlots:{...slots,[lvl]:{...slots[lvl],current:Math.max(0,slots[lvl].current-1)}}});
         });
-      }
-      
-      const items=c.equipment||[];
-      const totalWeight=items.reduce((sum,item)=>sum+Number(item.weight||0)*Number(item.quantity||1),0);
-      const capacity=Number(c.stats.str||10)*15;
-      
-      document.getElementById('equipmentEditor').innerHTML=canEdit?
-        '<input id="newItemName" placeholder="Item name" class="input flex-1"><input id="newItemQuantity" type="number" min="1" value="1" class="input w-20"><input id="newItemWeight" type="number" min="0" step="0.1" value="0" class="input w-20"><button id="addItem" class="btn btn-primary">Add</button>':'';
         
-      if(canEdit) document.getElementById('addItem').onclick=()=>{
-        const n=document.getElementById('newItemName').value.trim();
-        if(!n)return;
-        updateSheet({equipment:[...items,{id:'custom-'+Date.now(),name:n,quantity:Math.max(1,Number(document.getElementById('newItemQuantity').value||1)),weight:Math.max(0,Number(document.getElementById('newItemWeight').value||0)),equipped:false,attuned:false}]});
-      };
-      
-      document.getElementById('equipment').innerHTML=(items.length?
-        '<div class="col-span-full mb-2 text-sm text-gray-400">Total weight: '+totalWeight.toFixed(1)+' / '+capacity+' lb '+(totalWeight>capacity?'<span class="text-danger font-bold">OVER CAPACITY</span>':'')+'</div>'+
-        items.map((item,index)=>
-          '<div class="card flex flex-col gap-2"><div><b>'+item.name+'</b><div class="text-xs text-gray-400">Qty '+item.quantity+' · '+(Number(item.weight||0)*Number(item.quantity||1)).toFixed(1)+' lb</div></div>'+
-          '<div class="flex gap-2 flex-wrap">'+(item.equipped?'<span class="badge badge-success">Equipped</span>':'')+(item.attuned?'<span class="badge badge-info">Attuned</span>':'')+'</div>'+
-          (canEdit?'<div class="flex gap-2 mt-2 pt-2 border-t border-gray-800"><button class="btn btn-ghost text-xs" data-equipment-equipped="'+index+'">Equip</button><button class="btn btn-ghost text-xs" data-equipment-attuned="'+index+'">Attune</button><button class="btn btn-ghost text-danger text-xs ml-auto" data-equipment-remove="'+index+'">Drop</button></div>':'')+'</div>'
-        ).join(''):'<div class="text-gray-500">No equipment imported.</div>');
+        document.getElementById('addItem').onclick = () => {
+          const n = document.getElementById('newItemName').value.trim();
+          if(!n)return;
+          updateSheet({equipment:[...items,{id:'custom-'+Date.now(),name:n,quantity:Math.max(1,Number(document.getElementById('newItemQuantity').value||1)),weight:Math.max(0,Number(document.getElementById('newItemWeight').value||0)),equipped:false,attuned:false}]});
+        };
+        document.querySelectorAll('[data-equipment-equipped]').forEach(btn => btn.onclick = () => updateSheet({equipment:items.map((it,i)=>i===Number(btn.dataset.equipmentEquipped)?{...it,equipped:!it.equipped}:it)}));
+        document.querySelectorAll('[data-equipment-attuned]').forEach(btn => btn.onclick = () => updateSheet({equipment:items.map((it,i)=>i===Number(btn.dataset.equipmentAttuned)?{...it,attuned:!it.attuned}:it)}));
+        document.querySelectorAll('[data-equipment-remove]').forEach(btn => btn.onclick = () => updateSheet({equipment:items.filter((_,i)=>i!==Number(btn.dataset.equipmentRemove))}));
         
-      if(canEdit){
-        document.querySelectorAll('[data-equipment-equipped]').forEach(btn=>btn.onclick=()=>updateSheet({equipment:items.map((it,i)=>i===Number(btn.dataset.equipmentEquipped)?{...it,equipped:!it.equipped}:it)}));
-        document.querySelectorAll('[data-equipment-attuned]').forEach(btn=>btn.onclick=()=>updateSheet({equipment:items.map((it,i)=>i===Number(btn.dataset.equipmentAttuned)?{...it,attuned:!it.attuned}:it)}));
-        document.querySelectorAll('[data-equipment-remove]').forEach(btn=>btn.onclick=()=>updateSheet({equipment:items.filter((_,i)=>i!==Number(btn.dataset.equipmentRemove))}));
+        document.getElementById('saveNotesBtn').onclick = () => {
+          updateSheet({notes: document.getElementById('charNotes').value});
+          VTT.Notification.success('Notes saved.');
+        };
       }
     }
     
-    async function updateSheet(changes){
-      const token=localStorage.getItem('token');
-      if(!token){ VTT.Notification?.error('Login as owner to edit.'); return; }
-      const res=await fetch('/api/v2/character/'+encodeURIComponent(character.id),{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(changes)});
-      if(!res.ok){ VTT.Notification?.error('Failed to update.'); return; }
-      character=await res.json(); render(character);
+    async function updateSheet(changes) {
+      const token = localStorage.getItem('token');
+      if(!token) { VTT.Notification?.error('Login as owner to edit.'); return; }
+      try {
+        const res = await fetch('/api/v2/character/'+encodeURIComponent(character.id), {
+          method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+          body:JSON.stringify(changes)
+        });
+        if(!res.ok) throw Error();
+        character = await res.json(); render(character);
+      } catch {
+        VTT.Notification?.error('Failed to update sheet.');
+      }
     }
     
-    function downloadJson(){
-      if(!character)return;
-      let a=document.createElement('a');
-      a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(character,null,2));
-      a.download=(character.name||'character').replace(/\s+/g,'_')+'.json';
-      a.click();
-    }
-    
+    // HP Modal Logic
+    window.openHpModal = function() {
+      if(!character) return;
+      const content = `
+        <div class="flex flex-col gap-4">
+          <div class="flex gap-4">
+            <div class="flex-1">
+              <label class="text-xs font-bold text-tertiary block mb-1">Amount</label>
+              <input type="number" id="hpAmount" class="input text-center text-lg" value="1" min="1">
+            </div>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button class="btn btn-danger flex-1" onclick="applyHp(-1)">Damage</button>
+            <button class="btn btn-success flex-1" onclick="applyHp(1)">Heal</button>
+            <button class="btn btn-info flex-1" onclick="applyTempHp()">Temp HP</button>
+          </div>
+        </div>
+      `;
+      window.hpModal = new VTT.Modal({ title: 'Manage HP', content: content, buttons: [] });
+      window.hpModal.open();
+    };
+
+    window.applyHp = function(multiplier) {
+      if(!character) return;
+      const amount = parseInt(document.getElementById('hpAmount').value) || 0;
+      if(amount <= 0) return;
+      let newHp = character.hp.current;
+      let newTemp = character.hp.temp || 0;
+      
+      if(multiplier < 0) {
+        // Damage: reduce temp HP first
+        const dmg = amount;
+        if(newTemp >= dmg) { newTemp -= dmg; }
+        else {
+          const overflow = dmg - newTemp;
+          newTemp = 0;
+          newHp = Math.max(0, newHp - overflow);
+        }
+      } else {
+        // Heal
+        newHp = Math.min(character.hp.max, newHp + amount);
+      }
+      
+      updateSheet({ hp: { current: newHp, max: character.hp.max, temp: newTemp } });
+      window.hpModal.close();
+    };
+
+    window.applyTempHp = function() {
+      if(!character) return;
+      const amount = parseInt(document.getElementById('hpAmount').value) || 0;
+      if(amount <= 0) return;
+      // Temp HP doesn't stack, takes highest
+      const currentTemp = character.hp.temp || 0;
+      updateSheet({ hp: { ...character.hp, temp: Math.max(currentTemp, amount) } });
+      window.hpModal.close();
+    };
+
     load();
-    
-    // Quick Rolls
-    document.querySelectorAll('.quick-roll').forEach(btn=>btn.addEventListener('click',()=>{
-      const formula=btn.dataset.roll;
-      const match=formula.match(/1d(\d+)/);
-      if(!match)return;
-      const result=Math.floor(Math.random()*Number(match[1]))+1;
-      const resEl = document.getElementById('rollResult');
-      resEl.textContent=`${formula} = ${result}`;
-      resEl.animate([{transform:'scale(1.2)'},{transform:'scale(1)'}],{duration:200});
-      if(character) socket.emit('send-roll',{roomId:`character-${character.id}`,characterId:String(character.id),characterName:character.name,characterAvatar:character.avatarUrl,rollName:'Quick Roll',formula,result,rolls:[result],modifier:0});
-    }));
-  </script>
-  
-  <script src="/js/components.js"></script>
-  <script src="/js/theme-toggle.js"></script>
-  <script>
-    // Initialize Tabs
+
     document.addEventListener('DOMContentLoaded', () => {
       if(window.VTT && VTT.Tabs) new VTT.Tabs(document.getElementById('sheetTabs'));
     });
