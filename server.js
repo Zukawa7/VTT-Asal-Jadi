@@ -226,7 +226,7 @@ app.post('/api/character/import', authenticateToken, async (req, res) => {
   }
 
   try {
-    const response = await fetch(`https://character-service.dndbeyond.com/character/v2/character/${characterId}`);
+    const response = await fetch(`https://character-service.dndbeyond.com/character/v5/character/${characterId}`);
     if (!response.ok) {
       return res.status(response.status).json({ error: `Failed to fetch character from D&D Beyond (Status: ${response.status})` });
     }
