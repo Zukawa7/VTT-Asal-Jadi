@@ -296,6 +296,7 @@ window.rollDice = function(sides) {
   socket.emit('send-roll', rollData);
 };
 
+
 window.openCustomRoll = function() {
   customRollForm.classList.toggle('hidden');
   if (!customRollForm.classList.contains('hidden')) {
@@ -334,14 +335,16 @@ window.executeCustomRoll = function() {
 // Dice parser helper
 function parseAndRoll(formula) {
   const cleanFormula = formula.replace(/\s+/g, '').toLowerCase();
-  const match = cleanFormula.match(/^(\d*)d(\d+)([\+\-]\d+)?$/);
+  const match = cleanFormula.match(/^(\d*)d(\d+)([hl]\d+)?([\+\-]\d+)?$/);
   if (!match) return null;
   
   const count = match[1] ? parseInt(match[1]) : 1;
   const sides = parseInt(match[2]);
-  const modifier = match[3] ? parseInt(match[3]) : 0;
+  const keepMode = match[3] ? match[3][0] : null;
+  const keepCount = match[3] ? parseInt(match[3].slice(1)) : count;
+  const modifier = match[4] ? parseInt(match[4]) : 0;
   
-  if (count <= 0 || count > 100 || sides <= 0 || sides > 1000) return null;
+  if (count <= 0 || count > 100 || sides <= 0 || sides > 1000 || keepCount < 1 || keepCount > count) return null;
 
   const rolls = [];
   let sum = 0;
@@ -351,10 +354,11 @@ function parseAndRoll(formula) {
     sum += roll;
   }
   
-  const result = sum + modifier;
+  const keptRolls = keepMode === 'h' ? [...rolls].sort((a, b) => b - a).slice(0, keepCount) : keepMode === 'l' ? [...rolls].sort((a, b) => a - b).slice(0, keepCount) : rolls;
+  const result = keptRolls.reduce((total, value) => total + value, modifier);
   
   return {
-    formula: `${count}d${sides}${modifier !== 0 ? (modifier > 0 ? '+' + modifier : modifier) : ''}`,
+    formula: `${count}d${sides}${match[3] || ''}${modifier !== 0 ? (modifier > 0 ? '+' + modifier : modifier) : ''}`,
     count,
     sides,
     modifier,
