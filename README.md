@@ -58,7 +58,7 @@ Untuk memastikan server otomatis menyala kembali setelah melakukan `git pull`, d
 npm install -g pm2
 
 # Jalankan aplikasi dengan nama "vtt-asal-jadi"
-pm2 start server.js --name "vtt-asal-jadi" --watch
+pm2 start npm --name "vtt-asal-jadi" -- start
 
 # Simpan konfigurasi PM2 agar otomatis menyala saat server reboot
 pm2 save
@@ -80,5 +80,16 @@ Setiap kali Anda melakukan `git push` ke cabang `main`, GitHub Actions akan otom
 
 ---
 
+
+
+## Dokumentasi
+
+- [API Reference](docs/API.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Deployment](docs/DEPLOYMENT.md)
+- [Contributing](docs/CONTRIBUTING.md)
+- [Changelog](docs/CHANGELOG.md)
+
+---
 
 *Dibuat dengan ❤️ untuk kemudahan bermain TTRPG.*
