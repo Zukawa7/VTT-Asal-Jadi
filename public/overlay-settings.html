@@ -1,5 +1,12 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Overlay Settings</title><script src="https://cdn.tailwindcss.com"></script></head>
+<html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Overlay Settings</title>
+  <!-- NEW CSS System -->
+  <link rel="stylesheet" href="/styles/variables.css">
+  <link rel="stylesheet" href="/styles/animations.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <link rel="stylesheet" href="/styles/theme.css">
+  <link rel="stylesheet" href="/styles/responsive.css">
+</head>
 <body class="min-h-screen bg-slate-950 text-slate-100 p-6"><main class="max-w-lg mx-auto bg-slate-900 border border-slate-700 rounded-xl p-6"><h1 class="text-2xl font-bold text-amber-400 mb-6">OBS Overlay Settings</h1><form id="settings" class="space-y-5">
 <label class="block">Room ID<input id="room" class="mt-1 w-full rounded bg-slate-800 border border-slate-700 p-2" placeholder="default-room"></label>
 <label class="block">Position<select id="position" class="mt-1 w-full rounded bg-slate-800 border border-slate-700 p-2"><option>top</option><option>center</option><option>bottom</option></select></label>
@@ -12,4 +19,9 @@
 const key='vtt-overlay-config', defaults={position:'bottom',animationStyle:'slide',fontSize:'medium',showFormula:true,autoHideTimeout:10,soundEffectsEnabled:false};
 const $=id=>document.getElementById(id);let config={...defaults};try{config={...config,...JSON.parse(localStorage.getItem(key)||'{}')}}catch{}
 function load(){['position','animationStyle','fontSize'].forEach(id=>$(id).value=config[id]);['showFormula','soundEffectsEnabled'].forEach(id=>$(id).checked=Boolean(config[id]));$('autoHideTimeout').value=config.autoHideTimeout;$('timeoutValue').value=config.autoHideTimeout;$('room').value=new URLSearchParams(location.search).get('room')||''}load();$('autoHideTimeout').oninput=e=>$('timeoutValue').value=e.target.value;$('settings').onsubmit=e=>{e.preventDefault();config={position:$('position').value,animationStyle:$('animationStyle').value,fontSize:$('fontSize').value,showFormula:$('showFormula').checked,autoHideTimeout:Number($('autoHideTimeout').value),soundEffectsEnabled:$('soundEffectsEnabled').checked};localStorage.setItem(key,JSON.stringify(config));$('status').textContent='Settings saved.'};$('openOverlay').onclick=()=>{const p=new URLSearchParams({room:$('room').value||'default-room',position:$('position').value,animation:$('animationStyle').value,fontSize:$('fontSize').value,showFormula:String($('showFormula').checked),timeout:$('autoHideTimeout').value,sound:String($('soundEffectsEnabled').checked)});window.open('/overlay.html?'+p,'_blank')};
-</script></body></html>
+</script>
+  <script src="/js/components.js"></script>
+  <script src="/js/theme-toggle.js"></script>
+
+<div style="position:fixed;bottom:10px;right:10px;z-index:9999;"><button data-theme-toggle class="btn btn-ghost">🌙</button></div>
+</body></html>

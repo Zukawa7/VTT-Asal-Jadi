@@ -1,5 +1,12 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Session Dashboard - VTT Asal Jadi</title><script src="https://cdn.tailwindcss.com"></script><script src="/socket.io/socket.io.js"></script></head>
+<html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Session Dashboard - VTT Asal Jadi</title><script src="/socket.io/socket.io.js"></script>
+  <!-- NEW CSS System -->
+  <link rel="stylesheet" href="/styles/variables.css">
+  <link rel="stylesheet" href="/styles/animations.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <link rel="stylesheet" href="/styles/theme.css">
+  <link rel="stylesheet" href="/styles/responsive.css">
+</head>
 <body class="min-h-screen bg-slate-950 text-slate-100 p-4 sm:p-8"><main class="max-w-5xl mx-auto space-y-6">
   <header class="flex flex-wrap justify-between items-center gap-4"><div><p class="text-amber-400 text-sm font-bold uppercase tracking-widest">VTT Asal Jadi</p><h1 class="text-3xl font-bold">Session Dashboard</h1></div><a href="/dashboard" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded text-sm">Dashboard</a></header>
   <section class="bg-slate-900 border border-slate-800 rounded-xl p-5"><div class="flex flex-col sm:flex-row gap-3"><input id="room" value="default-room" placeholder="Room ID" class="flex-1 bg-slate-800 border border-slate-700 rounded px-3 py-2"><button id="load" class="bg-amber-600 hover:bg-amber-700 px-5 py-2 rounded font-bold">Load Session</button><button id="csv" class="bg-emerald-700 hover:bg-emerald-600 px-5 py-2 rounded font-bold">Export CSV</button></div><p id="status" class="text-sm text-slate-400 mt-3"></p></section>
@@ -11,4 +18,9 @@ const room=document.getElementById('room'),statusEl=document.getElementById('sta
 socket.on('new-roll',data=>{if(data&&data.roomId===room.value.trim().toLowerCase())loadSession()});
 async function loadSession(){const id=room.value.trim().toLowerCase();if(!/^[a-z0-9-]{3,50}$/.test(id)){statusEl.textContent='Invalid room ID';return}statusEl.textContent='Loading...';socket.emit('join-room',id);try{const response=await fetch('/api/v2/rolls/'+encodeURIComponent(id));if(!response.ok)throw Error('Unable to load roll history');const rolls=await response.json();const total=rolls.length;const average=total?rolls.reduce((sum,x)=>sum+Number(x.result||0),0)/total:0;const critical=rolls.filter(x=>x.isCritical).length;document.getElementById('total').textContent=total;document.getElementById('average').textContent=average.toFixed(2);document.getElementById('critical').textContent=critical;const formulaCounts={};rolls.forEach(x=>{formulaCounts[x.formula]=(formulaCounts[x.formula]||0)+1});const formulas=Object.entries(formulaCounts).sort((a,b)=>b[1]-a[1]);document.getElementById('formulas').innerHTML=formulas.length?formulas.map(([formula,uses])=>`<div class="flex justify-between bg-slate-800 rounded px-4 py-3"><code>${formula}</code><span class="text-amber-400 font-bold">${uses} uses</span></div>`).join(''):'<p class="text-slate-500">No rolls yet.</p>';document.getElementById('rolls').innerHTML=rolls.length?rolls.map(x=>`<tr class="border-b border-slate-800/70"><td class="py-3 font-semibold">${x.characterName||'Adventurer'}</td><td>${x.rollName||'Roll'}</td><td><code class="text-amber-300">${x.formula}</code></td><td class="font-bold ${x.isCritical?'text-red-400':'text-white'}">${x.result}${x.isCritical?' ★':''}</td><td class="text-slate-500">${x.createdAt?new Date(x.createdAt).toLocaleString():''}</td></tr>`).join(''):'<tr><td colspan="5" class="py-6 text-center text-slate-500">No rolls yet.</td></tr>';statusEl.textContent=`Session loaded · ${total} rolls`;}catch(e){statusEl.textContent=e.message}}
 document.getElementById('load').onclick=loadSession;document.getElementById('csv').onclick=async()=>{const id=room.value.trim().toLowerCase();const response=await fetch('/api/v2/rolls/'+encodeURIComponent(id));if(!response.ok)return;const rolls=await response.json();const rows=[['Character','Action','Formula','Result','Critical','Created At'],...rolls.map(x=>[x.characterName||'Adventurer',x.rollName||'Roll',x.formula,x.result,x.isCritical?'yes':'no',x.createdAt||''])];const csv=rows.map(row=>row.map(value=>'"'+String(value).replaceAll('"','""')+'"').join(',')).join('\n');const link=document.createElement('a');link.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);link.download=id+'-roll-history.csv';link.click()};loadSession();
-</script></body></html>
+</script>
+  <script src="/js/components.js"></script>
+  <script src="/js/theme-toggle.js"></script>
+
+<div style="position:fixed;bottom:10px;right:10px;z-index:9999;"><button data-theme-toggle class="btn btn-ghost">🌙</button></div>
+</body></html>

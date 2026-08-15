@@ -1,0 +1,80 @@
+/* public/styles/responsive.css */
+
+/* Mobile First Base (Already defined in variables/components) */
+
+/* SMALL TABLET & UP (640px) */
+@media (min-width: 640px) {
+  .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sm\:flex-row { flex-direction: row; }
+  .sm\:p-6 { padding: 1.5rem; }
+}
+
+/* TABLET & UP (768px) */
+@media (min-width: 768px) {
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .md\:col-span-2 { grid-column: span 2 / span 2; }
+}
+
+/* DESKTOP (1024px) */
+@media (min-width: 1024px) {
+  .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .lg\:col-span-3 { grid-column: span 3 / span 3; }
+  .lg\:col-span-4 { grid-column: span 4 / span 4; }
+  .lg\:col-span-6 { grid-column: span 6 / span 6; }
+  .lg\:col-span-8 { grid-column: span 8 / span 8; }
+  .lg\:col-span-9 { grid-column: span 9 / span 9; }
+  
+  .lg\:flex-row { flex-direction: row; }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .btn, .input, button {
+    min-height: 44px; /* Apple HIG recommendation for touch targets */
+  }
+  
+  .card:hover {
+    transform: none; /* Disable hover effects on mobile to prevent sticky hover */
+    border-color: var(--border-primary);
+  }
+}
+
+/* Mobile Navigation Utilities */
+.mobile-menu-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+
+.mobile-menu-overlay.active {
+  display: block;
+}
+
+.mobile-menu-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: -100%;
+  width: 250px;
+  background-color: var(--bg-secondary);
+  z-index: 50;
+  transition: left 0.3s ease;
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-md);
+}
+
+.mobile-menu-drawer.open {
+  left: 0;
+}
+
+.hamburger-btn {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .hamburger-btn {
+    display: none;
+  }
+}

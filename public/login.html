@@ -1,16 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - VTT Asal Jadi</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  
   <style>
     body {
       background-color: #12131a;
       color: #e2e8f0;
     }
   </style>
+
+  <!-- NEW CSS System -->
+  <link rel="stylesheet" href="/styles/variables.css">
+  <link rel="stylesheet" href="/styles/animations.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <link rel="stylesheet" href="/styles/theme.css">
+  <link rel="stylesheet" href="/styles/responsive.css">
 </head>
 <body class="min-h-screen flex items-center justify-center font-sans p-4">
   <div class="bg-gray-900 border border-gray-800 rounded-lg p-8 shadow-2xl max-w-md w-full">
@@ -87,5 +94,10 @@
       }
     });
   </script>
+
+  <script src="/js/components.js"></script>
+  <script src="/js/theme-toggle.js"></script>
+
+<div style="position:fixed;bottom:10px;right:10px;z-index:9999;"><button data-theme-toggle class="btn btn-ghost">🌙</button></div>
 </body>
 </html>

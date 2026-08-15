@@ -1,0 +1,110 @@
+:root {
+  /* PRIMARY COLORS */
+  --primary: #8B5A2B;
+  --primary-dark: #6B4423;
+  --primary-light: #A87333;
+  
+  --secondary: #D4AF37;
+  --secondary-dark: #B8860B;
+  --secondary-light: #E6C547;
+  
+  --accent: #C41E3A;
+  --accent-dark: #A01830;
+  --accent-light: #E82E50;
+
+  /* STATUS COLORS */
+  --success: #2ECC71;
+  --warning: #F39C12;
+  --danger: #E74C3C;
+  --info: #3498DB;
+
+  /* BACKGROUNDS */
+  --bg-primary: #1A1617;
+  --bg-secondary: #2D2520;
+  --bg-tertiary: #3D3530;
+  --bg-quaternary: #4A4240;
+  --bg-hover: #3D3530;
+  --bg-active: #4A4240;
+  --bg-disabled: #2A2420;
+
+  /* TEXT */
+  --text-primary: #F5F1E8;
+  --text-secondary: #A89968;
+  --text-tertiary: #7A7269;
+  --text-disabled: #5A5250;
+
+  /* BORDERS */
+  --border-primary: #4A4240;
+  --border-secondary: #3D3530;
+  --border-accent: #D4AF37;
+
+  /* SHADOWS */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
+
+  /* SPACING */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+
+  /* TYPOGRAPHY */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Courier New', monospace;
+  
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* BORDER RADIUS */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* TRANSITIONS */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+
+  /* Z-INDEX */
+  --z-dropdown: 100;
+  --z-modal-backdrop: 1000;
+  --z-modal: 1001;
+  --z-tooltip: 1100;
+  --z-notification: 1200;
+}
+
+[data-theme="light"] {
+  --primary: #D4AF37;
+  --bg-primary: #F5F1E8;
+  --bg-secondary: #E8E4DC;
+  --text-primary: #1A1617;
+  --text-secondary: #6B4423;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  transition: background-color var(--transition-base);
+}
+
+html { scroll-behavior: smooth; }
