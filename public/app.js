@@ -297,6 +297,7 @@ window.rollDice = function(sides) {
 };
 
 
+
 window.openCustomRoll = function() {
   customRollForm.classList.toggle('hidden');
   if (!customRollForm.classList.contains('hidden')) {
