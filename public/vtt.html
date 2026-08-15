@@ -139,23 +139,56 @@
     <!-- RIGHT COLUMN: Dice & Log -->
     <div class="lg:col-span-3 flex flex-col gap-6">
       <div class="card">
-        <h2 class="card-title">🎲 Dice Tray</h2>
+        <h2 class="card-title flex justify-between items-center">
+          <span>🎲 Dice Tray</span>
+          <span class="text-xs font-normal text-gray-500">Shortcuts: 1-7, D</span>
+        </h2>
         
-        <div class="grid grid-cols-4 gap-2 mb-4">
-          <button onclick="rollDice(4)" class="btn btn-secondary text-xs">d4</button>
-          <button onclick="rollDice(6)" class="btn btn-secondary text-xs">d6</button>
-          <button onclick="rollDice(8)" class="btn btn-secondary text-xs">d8</button>
-          <button onclick="rollDice(10)" class="btn btn-secondary text-xs">d10</button>
-          <button onclick="rollDice(12)" class="btn btn-secondary text-xs">d12</button>
-          <button onclick="rollDice(20)" class="btn btn-secondary text-xs">d20</button>
-          <button onclick="rollDice(100)" class="btn btn-secondary text-xs">d100</button>
+        <div class="mt-4 mb-2 flex items-center justify-between">
+          <span class="text-xs font-bold text-gray-400">BUILD POOL</span>
+          <button id="clearPoolBtn" class="text-xs text-danger hover:text-red-400">Clear</button>
+        </div>
+        
+        <div class="grid grid-cols-4 gap-2 mb-3">
+          <button onclick="addToPool(4)" class="btn btn-secondary text-xs relative group">
+            d4 <span class="hidden group-hover:block absolute -top-2 -right-2 bg-accent text-white rounded-full w-4 h-4 text-[10px] leading-4 text-center">+</span>
+          </button>
+          <button onclick="addToPool(6)" class="btn btn-secondary text-xs relative group">
+            d6 <span class="hidden group-hover:block absolute -top-2 -right-2 bg-accent text-white rounded-full w-4 h-4 text-[10px] leading-4 text-center">+</span>
+          </button>
+          <button onclick="addToPool(8)" class="btn btn-secondary text-xs relative group">
+            d8 <span class="hidden group-hover:block absolute -top-2 -right-2 bg-accent text-white rounded-full w-4 h-4 text-[10px] leading-4 text-center">+</span>
+          </button>
+          <button onclick="addToPool(10)" class="btn btn-secondary text-xs relative group">
+            d10 <span class="hidden group-hover:block absolute -top-2 -right-2 bg-accent text-white rounded-full w-4 h-4 text-[10px] leading-4 text-center">+</span>
+          </button>
+          <button onclick="addToPool(12)" class="btn btn-secondary text-xs relative group">
+            d12 <span class="hidden group-hover:block absolute -top-2 -right-2 bg-accent text-white rounded-full w-4 h-4 text-[10px] leading-4 text-center">+</span>
+          </button>
+          <button onclick="addToPool(20)" class="btn btn-secondary text-xs relative group border-primary text-primary">
+            d20 <span class="hidden group-hover:block absolute -top-2 -right-2 bg-accent text-white rounded-full w-4 h-4 text-[10px] leading-4 text-center">+</span>
+          </button>
+          <button onclick="addToPool(100)" class="btn btn-secondary text-xs relative group">
+            d100 <span class="hidden group-hover:block absolute -top-2 -right-2 bg-accent text-white rounded-full w-4 h-4 text-[10px] leading-4 text-center">+</span>
+          </button>
           <button onclick="openCustomRoll()" class="btn btn-secondary text-xs">Custom</button>
         </div>
 
-        <div id="customRollForm" class="hidden border-t pt-3">
+        <div class="bg-gray-900 border border-gray-800 rounded p-2 mb-3 min-h-[44px] flex flex-wrap gap-1 items-center" id="dicePoolContainer">
+          <span class="text-xs text-gray-500 italic">Click dice to add to pool...</span>
+        </div>
+
+        <div class="flex gap-2 items-center mb-3">
+          <span class="text-xs font-bold text-gray-400">MODIFIER</span>
+          <input type="number" id="diceModifier" value="0" class="input w-16 text-center text-sm p-1" />
+        </div>
+
+        <button onclick="rollPool()" class="btn btn-accent w-full animate-pulse-hover">ROLL POOL</button>
+
+        <div id="customRollForm" class="hidden border-t border-gray-800 pt-3 mt-3">
           <div class="flex gap-2">
-            <input type="text" id="customRollInput" placeholder="e.g. 2d6+4" class="input flex-1" />
-            <button onclick="executeCustomRoll()" class="btn btn-accent">Roll</button>
+            <input type="text" id="customRollInput" placeholder="e.g. 2d6+4" class="input flex-1 text-sm" />
+            <button onclick="executeCustomRoll()" class="btn btn-primary text-sm">Roll</button>
           </div>
         </div>
       </div>

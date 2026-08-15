@@ -491,3 +491,88 @@ window.copyObsUrl = function() {
     copyBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
   }, 2000);
 };
+
+// --- DICE POOL LOGIC ---
+let dicePool = {};
+
+window.addToPool = function(sides) {
+  if (!dicePool[sides]) dicePool[sides] = 0;
+  dicePool[sides]++;
+  renderDicePool();
+};
+
+window.renderDicePool = function() {
+  const container = document.getElementById('dicePoolContainer');
+  if (!container) return;
+  
+  const entries = Object.entries(dicePool).filter(([s, c]) => c > 0);
+  if (entries.length === 0) {
+    container.innerHTML = '<span class="text-xs text-gray-500 italic">Click dice to add to pool...</span>';
+    return;
+  }
+  
+  container.innerHTML = entries.map(([sides, count]) => 
+    `<span class="badge badge-accent cursor-pointer hover:bg-red-600" onclick="removeFromPool(${sides})" title="Remove">
+       ${count}d${sides} <span class="ml-1 opacity-50">×</span>
+     </span>`
+  ).join('');
+};
+
+window.removeFromPool = function(sides) {
+  if (dicePool[sides] > 0) {
+    dicePool[sides]--;
+    renderDicePool();
+  }
+};
+
+document.getElementById('clearPoolBtn')?.addEventListener('click', () => {
+  dicePool = {};
+  renderDicePool();
+  const mod = document.getElementById('diceModifier');
+  if(mod) mod.value = "0";
+});
+
+window.rollPool = function() {
+  const entries = Object.entries(dicePool).filter(([s, c]) => c > 0);
+  if (entries.length === 0) return; // empty pool
+
+  const modifier = parseInt(document.getElementById('diceModifier')?.value || 0);
+  
+  let totalResult = modifier;
+  let allRolls = [];
+  let formulaParts = [];
+  
+  for (const [sides, count] of entries) {
+    formulaParts.push(`${count}d${sides}`);
+    for (let i = 0; i < count; i++) {
+      const roll = Math.floor(Math.random() * parseInt(sides)) + 1;
+      allRolls.push(roll);
+      totalResult += roll;
+    }
+  }
+  
+  let formulaStr = formulaParts.join(' + ');
+  if (modifier > 0) formulaStr += ` + ${modifier}`;
+  else if (modifier < 0) formulaStr += ` - ${Math.abs(modifier)}`;
+
+  const name = currentCharacter ? currentCharacter.name : 'Adventurer';
+  const avatar = currentCharacter ? currentCharacter.avatarUrl : 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png';
+
+  const rollData = {
+    roomId: currentRoom,
+    characterName: name,
+    characterAvatar: avatar,
+    rollName: `Dice Pool`,
+    formula: formulaStr,
+    result: totalResult,
+    rolls: allRolls,
+    modifier: modifier
+  };
+
+  socket.emit('send-roll', rollData);
+  
+  // Optional: clear pool after roll
+  dicePool = {};
+  renderDicePool();
+  if(document.getElementById('diceModifier')) document.getElementById('diceModifier').value = "0";
+};
