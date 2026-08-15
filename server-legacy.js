@@ -135,7 +135,12 @@ function getStatValue(characterData, statId) {
   return val + bonus;
 }
 
+// Deploy lock – prevents concurrent builds that cause OOM and sqlite3 corruption.
+let isDeploying = false;
+
 // Webhook endpoint for auto-deployment
+// IMPORTANT: Responds 200 immediately so Cloudflare doesn't timeout (100s limit)
+// and GitHub doesn't retry, which would trigger concurrent builds.
 app.post('/api/webhook/github', (req, res) => {
   const signature = req.headers['x-hub-signature-256'];
   const secret = process.env.WEBHOOK_SECRET || 'vtt-asal-jadi-secret';
@@ -153,22 +158,36 @@ app.post('/api/webhook/github', (req, res) => {
     return res.status(401).send('Invalid signature');
   }
 
-  console.log('GitHub Push Webhook verified. Starting deployment...');
+  // Reject if a deploy is already in progress (prevents concurrent builds / OOM).
+  if (isDeploying) {
+    console.warn('Deploy already in progress – ignoring duplicate webhook.');
+    return res.status(200).send('Deploy already in progress');
+  }
+
+  // Respond 200 IMMEDIATELY so Cloudflare won't timeout and GitHub won't retry.
+  console.log('GitHub Push Webhook verified. Accepting & starting background deployment...');
+  res.status(200).send('Deployment accepted – building in background');
+
+  // Run the build in the background AFTER the response has been sent.
+  isDeploying = true;
+  console.log('[Deploy] Starting build process...');
 
   // Rebuild sqlite3 because production runs on ARM64 and uses a native binding.
   exec('git pull --ff-only origin main && npm install --include=dev && npm rebuild sqlite3 --build-from-source && npm run build', (err, stdout, stderr) => {
+    isDeploying = false;
+
     if (err) {
-      console.error('Git pull / npm install failed:', err);
-      return res.status(500).send(`Deploy failed: ${err.message}`);
+      console.error('[Deploy] Build failed:', err.message);
+      if (stderr) console.error('[Deploy] stderr:', stderr);
+      return; // Don't restart – keep the current working version running.
     }
-    
-    console.log('Deploy stdout:', stdout);
-    if (stderr) console.warn('Deploy stderr:', stderr);
 
-    res.status(200).send('Deployment triggered successfully');
+    console.log('[Deploy] Build succeeded.');
+    if (stdout) console.log('[Deploy] stdout:', stdout);
+    if (stderr) console.warn('[Deploy] stderr:', stderr);
 
-    // Exit process so process manager (like PM2 or systemd) restarts the app with the new code
-    console.log('Exiting process to trigger PM2/systemd auto-restart...');
+    // Exit process so PM2 restarts the app with the new code.
+    console.log('[Deploy] Exiting process to trigger PM2 auto-restart...');
     setTimeout(() => {
       process.exit(0);
     }, 1000);
