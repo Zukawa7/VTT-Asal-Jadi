@@ -11,6 +11,7 @@ export function createCharacterRouter(db: DatabaseService, jwtSecret: string, dd
   const router = Router();
   const auth = authenticateToken(jwtSecret);
 
+
   router.post('/import', auth, async (req, res, next) => {
     try {
       const rawId = String(req.body?.characterId ?? '').match(/\d+/)?.[0] ?? '';
