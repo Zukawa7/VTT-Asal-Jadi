@@ -354,10 +354,12 @@ app.get('/api/character/:username/:characterId', async (req, res) => {
   }
 });
 
-// Serve the character HTML view page
-app.get('/character/:username/:characterId', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'character-view.html'));
-});
+// Serve HTML pages with clean URLs
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
+app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
+app.get('/vtt', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vtt.html')));
+app.get('/:username/dashboard/characters/:characterId', (req, res) => res.sendFile(path.join(__dirname, 'public', 'character-view.html')));
 
 // Socket.io for real-time events (rolls, logs, updates)
 io.on('connection', (socket) => {

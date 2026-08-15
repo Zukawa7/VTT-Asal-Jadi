@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VTT Asal Jadi - D&D Beyond VTT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      background-color: #12131a;
+      color: #e2e8f0;
+    }
+    .vtt-grid {
+      background-size: calc(100% / 12) calc(100% / 12);
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+  <!-- Header -->
+  <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🎲</span>
+        <div>
+          <h1 class="text-2xl font-bold text-amber-500 tracking-wider">VTT ASAL JADI</h1>
+          <p class="text-xs text-gray-400">D&D Beyond Integration & OBS Overlay</p>
+        </div>
+      </div>
+      
+      <!-- Connection & Room Settings -->
+      <div class="flex flex-wrap items-center gap-3">
+        <div>
+          <label class="block text-xs text-gray-400 font-bold uppercase">Room ID</label>
+          <input type="text" id="roomIdInput" value="default-room" class="bg-gray-800 text-white border border-gray-700 px-3 py-1.5 rounded focus:outline-none focus:border-amber-500 w-36 text-sm">
+        </div>
+        <button id="joinRoomBtn" class="mt-4 sm:mt-0 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded text-sm font-bold transition-all">
+          Connect Room
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- Left Column: Import & Character Sheet (3 cols) -->
+    <div class="lg:col-span-3 flex flex-col gap-6">
+      <!-- Import Card -->
+      <div class="bg-gray-900 border border-gray-800 rounded-lg p-5 shadow-md">
+        <h2 class="text-lg font-bold text-amber-500 mb-3 flex items-center gap-2">
+          <span>📥</span> Import Character from D&D Beyond
+        </h2>
+        <p class="text-xs text-gray-400 mb-4">
+          Enter your D&D Beyond character ID (the number at the end of your character sheet URL, e.g., <code>https://www.dndbeyond.com/characters/<b>12345678</b></code>).
+        </p>
+        <div class="flex gap-2">
+          <input type="text" id="charIdInput" placeholder="Character ID (e.g., 10293847)" class="bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:outline-none focus:border-amber-500 flex-1">
+          <button id="importBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold transition-all flex items-center gap-2">
+            <span id="importBtnText">Import</span>
+            <div id="importSpinner" class="hidden animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+          </button>
+        </div>
+        <div id="importError" class="hidden mt-3 text-red-500 text-sm"></div>
+      </div>
+
+      <!-- Character Info (Only shown if imported) -->
+      <div id="charSheet" class="hidden bg-gray-900 border border-gray-800 rounded-lg p-6 shadow-md flex-1 flex flex-col gap-6">
+        
+        <!-- Header Info -->
+        <div class="flex items-center gap-4 border-b border-gray-800 pb-4">
+          <img id="charAvatar" src="" alt="Avatar" class="w-16 h-16 rounded-full border-2 border-amber-500 object-cover bg-gray-800">
+          <div>
+            <h2 id="charName" class="text-2xl font-bold text-white">Character Name</h2>
+            <p id="charSub" class="text-sm text-gray-400">Level 1 | Race | Class</p>
+          </div>
+        </div>
+
+        <!-- HP Tracker -->
+        <div class="bg-gray-800/50 p-4 rounded-lg border border-gray-700/50 flex justify-between items-center">
+          <div>
+            <span class="text-xs text-gray-400 font-bold uppercase tracking-wider block">Hit Points</span>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span id="charCurrentHp" class="text-3xl font-black text-green-400">0</span>
+              <span class="text-gray-500 text-lg">/</span>
+              <span id="charMaxHp" class="text-xl font-bold text-gray-300">0</span>
+              <span id="charTempHpContainer" class="hidden text-sm text-blue-400 ml-2">(+<span id="charTempHp">0</span> Temp)</span>
+            </div>
+          </div>
+          <div class="w-1/2 bg-gray-700 rounded-full h-4 overflow-hidden">
+            <div id="hpBar" class="bg-green-500 h-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Ability Scores Grid -->
+        <div>
+          <h3 class="text-sm font-bold text-amber-500 uppercase tracking-wider mb-3">Ability Scores</h3>
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
+            <!-- STR -->
+            <button onclick="rollStat('Strength', 'str')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-lg p-3 text-center transition-all group">
+              <span class="block text-xs font-bold text-gray-400 uppercase">STR</span>
+              <span id="statScore-str" class="block text-2xl font-black text-white mt-1">10</span>
+              <span id="statMod-str" class="inline-block px-2 py-0.5 bg-gray-900 rounded text-amber-500 text-sm font-bold mt-1 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
+            </button>
+            <!-- DEX -->
+            <button onclick="rollStat('Dexterity', 'dex')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-lg p-3 text-center transition-all group">
+              <span class="block text-xs font-bold text-gray-400 uppercase">DEX</span>
+              <span id="statScore-dex" class="block text-2xl font-black text-white mt-1">10</span>
+              <span id="statMod-dex" class="inline-block px-2 py-0.5 bg-gray-900 rounded text-amber-500 text-sm font-bold mt-1 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
+            </button>
+            <!-- CON -->
+            <button onclick="rollStat('Constitution', 'con')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-lg p-3 text-center transition-all group">
+              <span class="block text-xs font-bold text-gray-400 uppercase">CON</span>
+              <span id="statScore-con" class="block text-2xl font-black text-white mt-1">10</span>
+              <span id="statMod-con" class="inline-block px-2 py-0.5 bg-gray-900 rounded text-amber-500 text-sm font-bold mt-1 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
+            </button>
+            <!-- INT -->
+            <button onclick="rollStat('Intelligence', 'int')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-lg p-3 text-center transition-all group">
+              <span class="block text-xs font-bold text-gray-400 uppercase">INT</span>
+              <span id="statScore-int" class="block text-2xl font-black text-white mt-1">10</span>
+              <span id="statMod-int" class="inline-block px-2 py-0.5 bg-gray-900 rounded text-amber-500 text-sm font-bold mt-1 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
+            </button>
+            <!-- WIS -->
+            <button onclick="rollStat('Wisdom', 'wis')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-lg p-3 text-center transition-all group">
+              <span class="block text-xs font-bold text-gray-400 uppercase">WIS</span>
+              <span id="statScore-wis" class="block text-2xl font-black text-white mt-1">10</span>
+              <span id="statMod-wis" class="inline-block px-2 py-0.5 bg-gray-900 rounded text-amber-500 text-sm font-bold mt-1 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
+            </button>
+            <!-- CHA -->
+            <button onclick="rollStat('Charisma', 'cha')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-lg p-3 text-center transition-all group">
+              <span class="block text-xs font-bold text-gray-400 uppercase">CHA</span>
+              <span id="statScore-cha" class="block text-2xl font-black text-white mt-1">10</span>
+              <span id="statMod-cha" class="inline-block px-2 py-0.5 bg-gray-900 rounded text-amber-500 text-sm font-bold mt-1 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
+            </button>
+          </div>
+          <p class="text-[10px] text-gray-500 mt-2 italic text-center">Click on any stat to roll 1d20 + modifier</p>
+        </div>
+      </div>
+      
+      <!-- Placeholder when no character is loaded -->
+      <div id="charPlaceholder" class="bg-gray-900 border border-gray-800 rounded-lg p-10 text-center flex-1 flex flex-col justify-center items-center">
+        <span class="text-5xl mb-4">🧙‍♂️</span>
+        <h3 class="text-lg font-bold text-gray-300">No Character Imported</h3>
+        <p class="text-sm text-gray-500 mt-1 max-w-sm">Import your D&D Beyond character above to view stats and make rolls.</p>
+      </div>
+    </div>
+
+    <!-- Middle Column: Tactical VTT Grid Map (6 cols) -->
+    <div class="lg:col-span-6 flex flex-col gap-6">
+      <div class="bg-gray-900 border border-gray-800 rounded-lg p-5 shadow-md flex flex-col gap-4">
+        <div class="flex justify-between items-center flex-wrap gap-2">
+          <h2 class="text-lg font-bold text-amber-500 flex items-center gap-2">
+            <span>🗺️</span> Tactical Map
+          </h2>
+          <button id="addTokenBtn" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-bold transition-all">
+            + Place Token
+          </button>
+        </div>
+        
+        <!-- Map URL Input -->
+        <div class="flex gap-2">
+          <input type="text" id="mapUrlInput" placeholder="Map Image URL..." class="bg-gray-800 border border-gray-700 rounded px-3 py-1 text-xs text-white focus:outline-none focus:border-amber-500 flex-1">
+          <button id="setMapBtn" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded text-xs font-bold transition-all">Set Map</button>
+        </div>
+
+        <!-- Map Container -->
+        <div id="mapContainer" class="relative w-full aspect-square bg-gray-950 border border-gray-800 rounded-lg overflow-hidden vtt-grid">
+          <!-- Tokens will be rendered here dynamically -->
+        </div>
+        <p class="text-[10px] text-gray-500 italic text-center">Drag and drop tokens to move them. Tokens snap to the grid.</p>
+      </div>
+    </div>
+
+    <!-- Right Column: Dice Tray, Log, OBS Link (3 cols) -->
+    <div class="lg:col-span-3 flex flex-col gap-6">
+      <!-- Dice Tray -->
+      <div class="bg-gray-900 border border-gray-800 rounded-lg p-5 shadow-md">
+        <h2 class="text-lg font-bold text-amber-500 mb-3 flex items-center gap-2">
+          <span>🎲</span> Dice Tray
+        </h2>
+        
+        <!-- Quick Dice Buttons -->
+        <div class="grid grid-cols-4 gap-2 mb-4">
+          <button onclick="rollDice(4)" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-2 rounded font-bold text-sm">d4</button>
+          <button onclick="rollDice(6)" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-2 rounded font-bold text-sm">d6</button>
+          <button onclick="rollDice(8)" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-2 rounded font-bold text-sm">d8</button>
+          <button onclick="rollDice(10)" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-2 rounded font-bold text-sm">d10</button>
+          <button onclick="rollDice(12)" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-2 rounded font-bold text-sm">d12</button>
+          <button onclick="rollDice(20)" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-2 rounded font-bold text-sm bg-amber-950/40 border-amber-800 text-amber-400">d20</button>
+          <button onclick="rollDice(100)" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-2 rounded font-bold text-sm">d100</button>
+          <!-- Custom Dice Roll Button -->
+          <button onclick="openCustomRoll()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-2 rounded font-bold text-sm text-blue-400">Custom</button>
+        </div>
+
+        <!-- Custom Roll Form -->
+        <div id="customRollForm" class="hidden border-t border-gray-800 pt-3 flex gap-2">
+          <input type="text" id="customRollInput" placeholder="e.g. 2d6+4" class="bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-500 flex-1">
+          <button onclick="executeCustomRoll()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-1.5 rounded text-sm font-bold">Roll</button>
+        </div>
+      </div>
+
+      <!-- OBS Integration Link -->
+      <div class="bg-gray-900 border border-gray-800 rounded-lg p-5 shadow-md">
+        <h2 class="text-lg font-bold text-amber-500 mb-2 flex items-center gap-2">
+          <span>🎥</span> OBS Overlay Integration
+        </h2>
+        <p class="text-xs text-gray-400 mb-3">
+          Add this URL as a <b>Browser Source</b> in OBS (Width: 400, Height: 600 recommended) to display the live roll log on your stream.
+        </p>
+        <div class="flex gap-2">
+          <input type="text" id="obsUrlInput" readonly class="bg-gray-800 text-gray-400 border border-gray-700 px-3 py-1.5 rounded text-xs flex-1 focus:outline-none">
+          <button onclick="copyObsUrl()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded text-xs font-bold transition-all">Copy</button>
+        </div>
+      </div>
+
+      <!-- Game Log -->
+      <div class="bg-gray-900 border border-gray-800 rounded-lg p-5 shadow-md flex-1 flex flex-col min-h-[300px]">
+        <div class="flex justify-between items-center mb-3">
+          <h2 class="text-lg font-bold text-amber-500 flex items-center gap-2">
+            <span>📜</span> Game Log
+          </h2>
+          <button onclick="clearLog()" class="text-xs text-gray-500 hover:text-gray-300">Clear</button>
+        </div>
+        
+        <!-- Log Messages Container -->
+        <div id="logContainer" class="flex-1 bg-gray-950 border border-gray-800 rounded p-3 overflow-y-auto max-h-[350px] space-y-2 text-sm font-mono">
+          <div class="text-gray-500 italic">No rolls yet. Join a room and roll some dice!</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-950 border-t border-gray-900 py-4 text-center text-xs text-gray-600">
+    <p>VTT Asal Jadi - Created for quick D&D Beyond importing and OBS integration.</p>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

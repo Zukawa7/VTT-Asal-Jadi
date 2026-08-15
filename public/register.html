@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - VTT Asal Jadi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #12131a;
+      color: #e2e8f0;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center font-sans p-4">
+  <div class="bg-gray-900 border border-gray-800 rounded-lg p-8 shadow-2xl max-w-md w-full">
+    <div class="text-center mb-8">
+      <span class="text-5xl">🧙‍♂️</span>
+      <h1 class="text-3xl font-bold text-amber-500 tracking-wider mt-3">CREATE ACCOUNT</h1>
+      <p class="text-sm text-gray-400 mt-1">Start managing your D&D Beyond characters</p>
+    </div>
+
+    <form id="registerForm" class="space-y-6">
+      <div>
+        <label for="username" class="block text-xs font-bold uppercase text-gray-400 tracking-wider mb-2">Username</label>
+        <input type="text" id="username" required autocomplete="username" class="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:outline-none focus:border-amber-500">
+        <p class="text-[10px] text-gray-500 mt-1">Minimum 3 characters long</p>
+      </div>
+
+      <div>
+        <label for="password" class="block text-xs font-bold uppercase text-gray-400 tracking-wider mb-2">Password</label>
+        <input type="password" id="password" required autocomplete="new-password" class="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:outline-none focus:border-amber-500">
+        <p class="text-[10px] text-gray-500 mt-1">Minimum 6 characters long</p>
+      </div>
+
+      <div id="registerError" class="hidden text-red-500 text-sm text-center"></div>
+      <div id="registerSuccess" class="hidden text-green-500 text-sm text-center"></div>
+
+      <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded transition-all">
+        Register
+      </button>
+    </form>
+
+    <div class="mt-6 text-center text-sm text-gray-400">
+      Already have an account? 
+      <a href="/login" class="text-amber-500 hover:underline">Sign in here</a>
+    </div>
+  </div>
+
+  <script>
+    if (localStorage.getItem('token')) {
+      window.location.href = '/dashboard';
+    }
+
+    const registerForm = document.getElementById('registerForm');
+    const registerError = document.getElementById('registerError');
+    const registerSuccess = document.getElementById('registerSuccess');
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      registerError.classList.add('hidden');
+      registerSuccess.classList.add('hidden');
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Registration failed');
+        }
+
+        registerSuccess.textContent = 'Account created successfully! Redirecting to login...';
+        registerSuccess.classList.remove('hidden');
+
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      } catch (err) {
+        registerError.textContent = err.message;
+        registerError.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

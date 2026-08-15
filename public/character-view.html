@@ -64,6 +64,22 @@
         </div>
       </div>
 
+      <!-- Export Options -->
+      <div class="bg-gray-800/20 border border-gray-800 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div>
+          <h3 class="text-sm font-bold text-amber-500 uppercase tracking-wider">Export Character Data</h3>
+          <p class="text-xs text-gray-400 mt-1">Get the raw JSON representation of this character.</p>
+        </div>
+        <div class="flex gap-2 w-full sm:w-auto">
+          <button onclick="copyCharacterJson()" class="flex-1 sm:flex-initial bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded transition-all">
+            Copy JSON
+          </button>
+          <button onclick="downloadCharacterJson()" class="flex-1 sm:flex-initial bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-4 py-2 rounded transition-all">
+            Download JSON
+          </button>
+        </div>
+      </div>
+
       <!-- HP Tracker -->
       <div class="bg-gray-800/40 p-5 rounded-xl border border-gray-700/50 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div class="text-center sm:text-left">
@@ -141,10 +157,10 @@
     let currentRoom = '';
     
     // Parse username and characterId from URL path
-    // Format: /character/:username/:characterId
+    // Format: /:username/dashboard/characters/:characterId
     const pathParts = window.location.pathname.split('/');
-    const username = pathParts[2];
-    const characterId = pathParts[3];
+    const username = pathParts[1];
+    const characterId = pathParts[4];
 
     // Check query params for default room
     const urlParams = new URLSearchParams(window.location.search);
@@ -272,6 +288,32 @@
         rollFeedback.classList.add('hidden');
       }, 5000);
     };
+
+    // Export functions
+    window.copyCharacterJson = function() {
+      if (!character) return;
+      navigator.clipboard.writeText(JSON.stringify(character, null, 2));
+      
+      // Temporary feedback
+      const feedback = document.getElementById('rollFeedback');
+      feedback.textContent = 'Character JSON copied to clipboard!';
+      feedback.classList.remove('hidden');
+      setTimeout(() => {
+        feedback.classList.add('hidden');
+      }, 3000);
+    };
+
+    window.downloadCharacterJson = function() {
+      if (!character) return;
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(character, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `${character.name.replace(/\s+/g, '_')}_character.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    };
+
 
     // Load initial data
     loadCharacter();
