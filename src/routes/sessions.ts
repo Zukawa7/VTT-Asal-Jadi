@@ -15,7 +15,7 @@ export function createSessionsRouter(db: DatabaseService, jwtSecret: string): Ro
       if (!validateRoomId(roomId)) { res.status(400).json({ error: 'Invalid room ID' }); return; }
       const existing = await sessions.get(roomId);
       if (existing) { res.status(409).json({ error: 'Room already exists' }); return; }
-      const session = await sessions.create(roomId, res.locals.user.id, String(req.body?.name ?? ''), String(req.body?.description ?? ''));
+      const session = await sessions.create(roomId, res.locals.user.id, String(req.body?.name ?? ''), String(req.body?.description ?? ''), req.body?.password ? String(req.body.password) : undefined);
       res.status(201).json(session);
     } catch (error) { next(error); }
   });
@@ -26,6 +26,23 @@ export function createSessionsRouter(db: DatabaseService, jwtSecret: string): Ro
       const session = await sessions.get(req.params.roomId);
       if (!session) { res.status(404).json({ error: 'Session not found' }); return; }
       res.json(session);
+    } catch (error) { next(error); }
+  });
+
+  router.post('/:roomId/join', auth, async (req, res, next) => {
+    try {
+      const roomId = String(req.params.roomId);
+      if (!validateRoomId(roomId)) { res.status(400).json({ error: 'Invalid room ID' }); return; }
+      const participant = await sessions.join(roomId, res.locals.user.id, req.body?.password, req.body?.characterId);
+      res.json(participant);
+    } catch (error) { next(error); }
+  });
+
+  router.get('/:roomId/participants', auth, async (req, res, next) => {
+    try {
+      const roomId = String(req.params.roomId);
+      if (!validateRoomId(roomId)) { res.status(400).json({ error: 'Invalid room ID' }); return; }
+      res.json(await sessions.participants(roomId));
     } catch (error) { next(error); }
   });
 

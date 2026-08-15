@@ -51,6 +51,26 @@ db.serialize(() => {
   `);
 
   db.run(`
+    CREATE TABLE IF NOT EXISTS session_participants (
+      session_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      character_id TEXT,
+      joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (session_id, user_id),
+      FOREIGN KEY (session_id) REFERENCES game_sessions(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS session_passwords (
+      session_id INTEGER PRIMARY KEY,
+      password_hash TEXT NOT NULL,
+      FOREIGN KEY (session_id) REFERENCES game_sessions(id) ON DELETE CASCADE
+    )
+  `);
+
+  db.run(`
     CREATE TABLE IF NOT EXISTS dice_rolls (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       session_id INTEGER,
