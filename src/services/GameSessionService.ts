@@ -23,6 +23,14 @@ export class GameSessionService {
     return this.get(roomId) as Promise<GameSession>;
   }
 
+  async analytics(roomId: string): Promise<Record<string, unknown>> {
+    const session = await this.get(roomId);
+    if (!session) return { totalRolls: 0, averageResult: 0, criticalCount: 0, formulas: [] };
+    const summary = await this.db.get<{ totalRolls: number; averageResult: number | null; criticalCount: number }>(`SELECT COUNT(*) AS totalRolls, AVG(result) AS averageResult, SUM(is_critical) AS criticalCount FROM dice_rolls WHERE session_id = ?`, [session.id]);
+    const formulas = await this.db.all<{ formula: string; uses: number }>(`SELECT roll_formula AS formula, COUNT(*) AS uses FROM dice_rolls WHERE session_id = ? GROUP BY roll_formula ORDER BY uses DESC`, [session.id]);
+    return { totalRolls: summary?.totalRolls ?? 0, averageResult: summary?.averageResult ?? 0, criticalCount: summary?.criticalCount ?? 0, formulas };
+  }
+
   async exportRolls(roomId: string): Promise<Record<string, unknown>[]> {
     const session = await this.get(roomId);
     if (!session) return [];
