@@ -35,23 +35,22 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-  <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 shadow-lg">
-    <div class="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
-      <div class="flex items-center gap-4">
-        <img id="avatar" src="" class="w-16 h-16 rounded-full border-2 border-primary object-cover" alt="Portrait">
-        <div>
-          <h1 id="name" class="text-2xl font-bold text-primary">Character Name</h1>
-          <p id="meta" class="text-sm text-gray-400">Race · Class</p>
-          <p id="level" class="text-xs font-bold text-secondary">Level 1</p>
+  <header class="card-header" style="margin-bottom:0; border-bottom: 1px solid var(--border-primary); padding: var(--space-md) var(--space-lg);">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center w-full gap-4">
+      <div class="flex items-center gap-4 w-full sm:w-auto">
+        <img id="avatar" src="" class="w-16 h-16 rounded-full border border-primary object-cover bg-bg-primary" alt="Portrait">
+        <div class="min-w-0">
+          <h1 id="name" class="text-2xl font-bold text-primary truncate">Character Name</h1>
+          <p id="meta" class="text-sm text-secondary truncate">Race · Class</p>
+          <p id="level" class="text-xs font-bold text-accent">Level 1</p>
         </div>
       </div>
-      <div class="flex items-center gap-3">
-        <div class="stat-box">
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+        <div class="stat-box flex-1 sm:flex-none">
           <div class="stat-label">HP</div>
           <div id="hp" class="stat-val text-success">0 / 0</div>
         </div>
         <button class="btn btn-secondary" onclick="location.href='/dashboard'">Manage</button>
-        <button data-theme-toggle class="btn btn-ghost">🌙</button>
       </div>
     </div>
   </header>
@@ -100,7 +99,7 @@
 
       <!-- Tab: Stats -->
       <div data-tab-content="stats" class="animate-fadeIn">
-        <div id="abilities" class="grid grid-cols-3 md:grid-cols-6 gap-4 mb-8"></div>
+        <div id="abilities" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mb-8"></div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div><h3 class="font-bold text-secondary mb-3 border-b pb-2">Saving Throws</h3><div id="saves"></div></div>
           <div><h3 class="font-bold text-secondary mb-3 border-b pb-2">Skills</h3><div id="skills"></div></div>
