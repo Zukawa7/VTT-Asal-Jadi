@@ -5,6 +5,8 @@ import { logger } from './utils/logger.js';
 import { CharacterSyncService } from './services/CharacterSyncService.js';
 import { RollPersistenceService } from './services/RollPersistenceService.js';
 import { WebSocketManager } from './services/WebSocketManager.js';
+import { securityMiddleware } from './middleware/security.js';
+
 
 
 
@@ -26,6 +28,8 @@ async function start(): Promise<void> {
   // routes are mounted under /api/v2 during the migration.
   // @ts-expect-error Legacy JavaScript module is typed by the migration boundary.
   const legacy = await import('../server-legacy.js');
+  legacy.app.use(securityMiddleware);
+
   const database = new DatabaseService(config.databasePath);
   await database.migrate();
   const rollPersistence = new RollPersistenceService(database);
