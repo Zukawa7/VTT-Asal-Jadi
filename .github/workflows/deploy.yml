@@ -1,0 +1,33 @@
+name: Auto Deploy to Main Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Trigger Deploy Webhook
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Webhook request
+        run: |
+          # The webhook secret is used to generate the signature
+          # We calculate the HMAC SHA256 of the payload and send it in the header
+          PAYLOAD='{"ref": "refs/heads/main", "after": "${{ github.sha }}"}'
+          SECRET="${{ secrets.WEBHOOK_SECRET }}"
+          
+          if [ -z "$SECRET" ]; then
+            echo "Error: WEBHOOK_SECRET is not set in GitHub Secrets."
+            exit 1
+          fi
+          
+          # Calculate signature
+          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$SECRET" | cut -d' ' -f2)
+          
+          # Send POST request to the main server webhook endpoint (exposed via Cloudflare Tunnel)
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "x-hub-signature-256: sha256=$SIGNATURE" \
+            -d "$PAYLOAD" \
+            "${{ secrets.SERVER_WEBHOOK_URL }}"
