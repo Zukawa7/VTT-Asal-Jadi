@@ -1,44 +1,49 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
-  /* PRIMARY COLORS - Rich Medieval */
-  --primary: #9b2c2c;       /* Crimson Red */
-  --primary-dark: #742a2a;
-  --primary-light: #c53030;
+  /* PRIMARY COLORS - Rich Medieval (Polyport theme) */
+  --primary: #d4a544;       /* Gold/Amber */
+  --primary-dark: #b8860b;
+  --primary-light: #ecc94b;
   
-  --secondary: #d69e2e;     /* Old Gold */
-  --secondary-dark: #b7791f;
-  --secondary-light: #ecc94b;
+  --secondary: #e8ddc8;     /* Off-white / Cream */
+  --secondary-dark: #c9a86a; /* Faded gold */
+  --secondary-light: #f0e6d2;
   
-  --accent: #2b6cb0;        /* Royal Blue */
-  --accent-dark: #2c5282;
-  --accent-light: #4299e1;
+  --accent: #d4a544;        /* Gold/Amber */
+  --accent-dark: #c9a86a;
+  --accent-light: #f0e6d2;
 
   /* STATUS COLORS */
-  --success: #38a169;
-  --warning: #d69e2e;
-  --danger: #e53e3e;
-  --info: #3182ce;
+  --success: #3ecb6e;
+  --success-dark: #2ea559;
+  --warning: #d4a544;
+  --danger: #a53b3b;
+  --danger-dark: #7a2b2b;
+  --info: #3b6ea5;
+  --info-dark: #4a7fb8;
 
   /* BACKGROUNDS - Dark Fantasy Theme */
-  --bg-primary: #1a1614;
-  --bg-secondary: #27211e;
-  --bg-tertiary: #362e2a;
-  --bg-quaternary: #4a403a;
-  --bg-hover: #312925;
-  --bg-active: #4a403a;
-  --bg-disabled: #221d1a;
+  --bg-main-light: #1a140f;
+  --bg-main-dark: #0d0906;
+  --bg-primary: #1a140f; 
+  --bg-secondary: #241b14;
+  --bg-tertiary: #2a2018;
+  --bg-quaternary: #362e2a;
+  --bg-hover: #2a2018;
+  --bg-active: #362e2a;
+  --bg-disabled: #1a140f;
 
   /* TEXT */
-  --text-primary: #f6e8d2;   /* Parchment White */
-  --text-secondary: #d69e2e; /* Gold */
+  --text-primary: #e8ddc8;   /* Cream */
+  --text-secondary: #c9a86a; /* Faded Gold */
   --text-tertiary: #a08c75;
   --text-disabled: #5c4f45;
 
   /* BORDERS */
-  --border-primary: #4a403a;
-  --border-secondary: #362e2a;
-  --border-accent: #d69e2e;
+  --border-primary: rgba(212, 165, 68, 0.25);
+  --border-secondary: rgba(212, 165, 68, 0.15);
+  --border-accent: #d4a544;
 
   /* SHADOWS & GLOWS */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.8);
@@ -108,10 +113,9 @@
 * { box-sizing: border-box; }
 
 body {
-  background-color: var(--bg-primary);
-  /* Subtle dark texture overlay */
-  background-image: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%),
-                    url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h40v40H0z" fill="none"/><path d="M0 0h10v10H0zm20 20h10v10H20z" fill="%23000000" fill-opacity="0.03"/></svg>');
+  background-image: radial-gradient(circle at top center, var(--bg-main-light) 0%, var(--bg-main-dark) 100%),
+                    url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h40v40H0z" fill="none"/><path d="M0 0h10v10H0zm20 20h10v10H20z" fill="%23000000" fill-opacity="0.05"/></svg>');
+  background-color: var(--bg-main-dark);
   background-attachment: fixed;
   color: var(--text-primary);
   font-family: var(--font-sans);
