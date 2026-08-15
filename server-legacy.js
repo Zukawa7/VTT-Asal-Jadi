@@ -25,7 +25,12 @@ const io = new Server(httpServer, {
 const JWT_SECRET = process.env.JWT_SECRET || 'vtt-jwt-secret-key';
 const socketRollWindows = new Map();
 
-app.use(cors({ origin: process.env.CORS_ORIGIN || true }));
+const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map((value) => value.trim()).filter(Boolean);
+const isProduction = process.env.NODE_ENV === 'production';
+app.use(cors({ origin: (origin, callback) => {
+  if (!origin || (!isProduction && allowedOrigins.length === 0) || allowedOrigins.includes(origin)) callback(null, true);
+  else callback(new Error('CORS origin is not allowed'));
+} }));
 
 const apiLimiter = rateLimit({ windowMs: 1000, limit: 10, standardHeaders: 'draft-7', legacyHeaders: false });
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 3, standardHeaders: 'draft-7', legacyHeaders: false, message: { error: 'Too many login or registration attempts. Try again later.' } });
@@ -38,6 +43,8 @@ app.use(express.json({
   }
 }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'vtt-asal-jadi', timestamp: new Date().toISOString() }));
 
 // Helper to hash password
 function hashPassword(password, salt) {
@@ -385,7 +392,8 @@ app.get('/api/rooms/:roomId/rolls', async (req, res) => {
     const session = await getQuery('SELECT id FROM game_sessions WHERE room_id = ?', [roomId]);
     if (!session) return res.json([]);
     const rolls = await allQuery(
-      `SELECT id, character_id AS characterId, roll_formula AS formula, result,
+      `SELECT id, character_id AS characterId, character_name AS characterName,
+              roll_name AS rollName, roll_formula AS formula, result,
               is_critical AS isCritical, rolls_json AS rolls, created_at AS createdAt
        FROM dice_rolls WHERE session_id = ? ORDER BY id DESC LIMIT 100`, [session.id]
     );
@@ -422,9 +430,10 @@ io.on('connection', (socket) => {
       await runQuery('INSERT OR IGNORE INTO game_sessions (room_id) VALUES (?)', [data.roomId]);
       const session = await getQuery('SELECT id FROM game_sessions WHERE room_id = ?', [data.roomId]);
       await runQuery(
-        `INSERT INTO dice_rolls (session_id, character_id, roll_formula, result, is_critical, rolls_json)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [session.id, data.characterId || null, String(data.formula || ''), Number(data.result) || 0,
+        `INSERT INTO dice_rolls (session_id, character_id, character_name, roll_name, roll_formula, result, is_critical, rolls_json)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [session.id, data.characterId || null, String(data.characterName || 'Adventurer'), String(data.rollName || 'Roll'),
+          String(data.formula || ''), Number(data.result) || 0,
           data.rolls?.[0] === 20 || data.rolls?.[0] === 1 ? 1 : 0,
           JSON.stringify(Array.isArray(data.rolls) ? data.rolls : [])]
       );

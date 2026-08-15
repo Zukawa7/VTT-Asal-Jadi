@@ -80,12 +80,17 @@ db.serialize(() => {
       result INTEGER NOT NULL,
       is_critical INTEGER NOT NULL DEFAULT 0,
       rolls_json TEXT NOT NULL DEFAULT '[]',
+      character_name TEXT,
+      roll_name TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (session_id) REFERENCES game_sessions(id),
       FOREIGN KEY (user_id) REFERENCES users(id)
     )
   `);
 
+  // Backward-compatible columns for existing databases.
+  db.run('ALTER TABLE dice_rolls ADD COLUMN character_name TEXT', () => {});
+  db.run('ALTER TABLE dice_rolls ADD COLUMN roll_name TEXT', () => {});
 });
 
 // Helper functions using Promises

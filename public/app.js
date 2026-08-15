@@ -106,6 +106,26 @@ function joinRoom() {
     system: true,
     text: `Connected to room: "${currentRoom}"`
   });
+  loadRollHistory(currentRoom);
+}
+
+async function loadRollHistory(roomId) {
+  try {
+    const response = await fetch(`/api/rooms/${encodeURIComponent(roomId)}/rolls`);
+    if (!response.ok) return;
+    const history = await response.json();
+    history.reverse().forEach((roll) => addLogMessage({
+      characterName: roll.characterName || 'Adventurer',
+      characterAvatar: roll.characterAvatar || 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png',
+      rollName: roll.rollName || 'Historical Roll',
+      formula: roll.formula,
+      result: roll.result,
+      rolls: Array.isArray(roll.rolls) ? roll.rolls : [],
+      modifier: roll.modifier || 0,
+    }));
+  } catch (error) {
+    console.warn('Unable to load roll history:', error);
+  }
 }
 
 socket.on('new-roll', (data) => {
