@@ -1,12 +1,13 @@
 import express from 'express';
-
-import crypto from 'crypto';
-import { exec } from 'child_process';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
+import { exec } from 'child_process';
+import jwt from 'jsonwebtoken';
+import { runQuery, getQuery, allQuery } from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,6 +21,8 @@ const io = new Server(httpServer, {
   }
 });
 
+const JWT_SECRET = process.env.JWT_SECRET || 'vtt-jwt-secret-key';
+
 app.use(cors());
 app.use(express.json({
   verify: (req, res, buf) => {
@@ -27,6 +30,29 @@ app.use(express.json({
   }
 }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Helper to hash password
+function hashPassword(password, salt) {
+  return crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+}
+
+// Authentication Middleware
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Access token required' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Invalid or expired token' });
+    }
+    req.user = user;
+    next();
+  });
+}
 
 // Helper to get stat value
 function getStatValue(characterData, statId) {
@@ -108,10 +134,91 @@ app.post('/api/webhook/github', (req, res) => {
   });
 });
 
+// --- Authentication APIs ---
 
-// Endpoint to import character from D&D Beyond
-app.get('/api/character/:id', async (req, res) => {
-  const characterId = req.params.id;
+// Register
+app.post('/api/auth/register', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
+  }
+
+  const cleanUsername = username.trim().toLowerCase();
+  if (cleanUsername.length < 3) {
+    return res.status(400).json({ error: 'Username must be at least 3 characters long' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+  }
+
+  try {
+    const existingUser = await getQuery('SELECT id FROM users WHERE username = ?', [cleanUsername]);
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username is already taken' });
+    }
+
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = hashPassword(password, salt);
+
+    await runQuery(
+      'INSERT INTO users (username, password_hash, salt) VALUES (?, ?, ?)',
+      [cleanUsername, hash, salt]
+    );
+
+    res.status(201).json({ success: true, message: 'User registered successfully' });
+  } catch (err) {
+    console.error('Registration error:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Login
+app.post('/api/auth/login', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
+  }
+
+  const cleanUsername = username.trim().toLowerCase();
+
+  try {
+    const user = await getQuery('SELECT * FROM users WHERE username = ?', [cleanUsername]);
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid username or password' });
+    }
+
+    const hash = hashPassword(password, user.salt);
+    if (hash !== user.password_hash) {
+      return res.status(400).json({ error: 'Invalid username or password' });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, username: user.username },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({ token, username: user.username });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Get current user info
+app.get('/api/auth/me', authenticateToken, (req, res) => {
+  res.json({ id: req.user.id, username: req.user.username });
+});
+
+// --- Character APIs ---
+
+// Import character (Authenticated)
+app.post('/api/character/import', authenticateToken, async (req, res) => {
+  const { characterId } = req.body;
+  if (!characterId) {
+    return res.status(400).json({ error: 'Character ID is required' });
+  }
+
   try {
     const response = await fetch(`https://character-service.dndbeyond.com/character/v2/character/${characterId}`);
     if (!response.ok) {
@@ -156,7 +263,6 @@ app.get('/api/character/:id', async (req, res) => {
     const baseHp = data.baseHitPoints || 0;
     const bonusHp = data.bonusHitPoints || 0;
     
-    // Check for other HP modifiers (like Tough feat, etc.)
     let hpPerLevelBonus = 0;
     const modifierTypes = ['race', 'class', 'background', 'item', 'feat'];
     for (const type of modifierTypes) {
@@ -189,11 +295,68 @@ app.get('/api/character/:id', async (req, res) => {
       modifiers
     };
     
+    // Save or update in database
+    const characterJson = JSON.stringify(character);
+    await runQuery(
+      `INSERT INTO characters (id, user_id, name, data) 
+       VALUES (?, ?, ?, ?) 
+       ON CONFLICT(id) DO UPDATE SET name=excluded.name, data=excluded.data`,
+      [character.id.toString(), req.user.id, character.name, characterJson]
+    );
+    
     res.json(character);
   } catch (error) {
-    console.error('Error fetching character:', error);
+    console.error('Error importing character:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
+});
+
+// Get user's characters
+app.get('/api/characters', authenticateToken, async (req, res) => {
+  try {
+    const rows = await allQuery('SELECT id, name, data FROM characters WHERE user_id = ?', [req.user.id]);
+    const characters = rows.map(r => JSON.parse(r.data));
+    res.json(characters);
+  } catch (err) {
+    console.error('Fetch characters error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Delete character
+app.delete('/api/character/:id', authenticateToken, async (req, res) => {
+  const characterId = req.params.id;
+  try {
+    await runQuery('DELETE FROM characters WHERE id = ? AND user_id = ?', [characterId, req.user.id]);
+    res.json({ success: true, message: 'Character deleted successfully' });
+  } catch (err) {
+    console.error('Delete character error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Public API: Get character by username and characterId
+app.get('/api/character/:username/:characterId', async (req, res) => {
+  const { username, characterId } = req.params;
+  try {
+    const user = await getQuery('SELECT id FROM users WHERE username = ?', [username.toLowerCase()]);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const characterRow = await getQuery('SELECT data FROM characters WHERE id = ? AND user_id = ?', [characterId, user.id]);
+    if (!characterRow) {
+      return res.status(404).json({ error: 'Character not found' });
+    }
+    res.json(JSON.parse(characterRow.data));
+  } catch (err) {
+    console.error('Get public character error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Serve the character HTML view page
+app.get('/character/:username/:characterId', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'character-view.html'));
 });
 
 // Socket.io for real-time events (rolls, logs, updates)
@@ -206,7 +369,6 @@ io.on('connection', (socket) => {
   });
   
   socket.on('send-roll', (data) => {
-    // data: { roomId, characterName, rollName, formula, result, rolls }
     io.to(data.roomId).emit('new-roll', data);
     console.log(`Roll in room ${data.roomId}:`, data);
   });

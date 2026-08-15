@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Character Sheet - VTT Asal Jadi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      background-color: #12131a;
+      color: #e2e8f0;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+  
+  <!-- Header -->
+  <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 shadow-lg">
+    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🧙‍♂️</span>
+        <div>
+          <h1 class="text-xl font-bold text-amber-500 tracking-wider">Character Viewer</h1>
+          <p class="text-xs text-gray-400">Public character sheet from D&D Beyond</p>
+        </div>
+      </div>
+      
+      <!-- Connection & Room Settings for rolling -->
+      <div class="flex items-center gap-2">
+        <input type="text" id="roomIdInput" placeholder="Room ID for rolls" class="bg-gray-800 text-white border border-gray-700 px-3 py-1 rounded focus:outline-none focus:border-amber-500 text-xs w-32">
+        <button id="connectRoomBtn" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded text-xs font-bold transition-all">
+          Connect Roll Sync
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View -->
+  <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6">
+    <div id="loadingState" class="text-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-amber-500 border-t-transparent mx-auto mb-4"></div>
+      <p class="text-gray-400">Loading character sheet...</p>
+    </div>
+
+    <div id="errorState" class="hidden text-center py-20 bg-gray-900 border border-gray-800 rounded-lg p-6">
+      <span class="text-5xl">⚠️</span>
+      <h2 class="text-xl font-bold text-red-500 mt-4">Character Not Found</h2>
+      <p id="errorMsg" class="text-gray-400 mt-2">Make sure the URL is correct and the character was imported.</p>
+    </div>
+
+    <!-- Character Sheet Card -->
+    <div id="charSheet" class="hidden bg-gray-900 border border-gray-800 rounded-lg p-6 sm:p-8 shadow-2xl flex flex-col gap-6">
+      
+      <!-- Header Info -->
+      <div class="flex flex-col sm:flex-row items-center gap-6 border-b border-gray-800 pb-6 text-center sm:text-left">
+        <img id="charAvatar" src="" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-amber-500 object-cover bg-gray-800 shadow-lg">
+        <div>
+          <h2 id="charName" class="text-3xl font-extrabold text-white">Character Name</h2>
+          <p id="charSub" class="text-base text-gray-400 mt-1">Level 1 | Race | Class</p>
+          <span class="inline-block bg-gray-800 text-amber-500 border border-gray-700 text-xs px-2.5 py-1 rounded-full font-bold mt-3">
+            Owner: <span id="charOwner">Username</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- HP Tracker -->
+      <div class="bg-gray-800/40 p-5 rounded-xl border border-gray-700/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="text-center sm:text-left">
+          <span class="text-xs text-gray-400 font-bold uppercase tracking-wider block">Hit Points</span>
+          <div class="flex items-baseline justify-center sm:justify-start gap-1 mt-1">
+            <span id="charCurrentHp" class="text-4xl font-black text-green-400">0</span>
+            <span class="text-gray-500 text-2xl">/</span>
+            <span id="charMaxHp" class="text-2xl font-bold text-gray-300">0</span>
+            <span id="charTempHpContainer" class="hidden text-sm text-blue-400 ml-2">(+<span id="charTempHp">0</span> Temp)</span>
+          </div>
+        </div>
+        <div class="w-full sm:w-2/3 bg-gray-700 rounded-full h-5 overflow-hidden shadow-inner">
+          <div id="hpBar" class="bg-green-500 h-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Ability Scores -->
+      <div>
+        <h3 class="text-base font-bold text-amber-500 uppercase tracking-wider mb-4 text-center sm:text-left">Ability Scores</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-6 gap-4">
+          <!-- STR -->
+          <button onclick="rollStat('Strength', 'str')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-xl p-4 text-center transition-all group shadow-md">
+            <span class="block text-xs font-bold text-gray-400 uppercase">STR</span>
+            <span id="statScore-str" class="block text-3xl font-black text-white mt-1">10</span>
+            <span id="statMod-str" class="inline-block px-3 py-1 bg-gray-900 rounded-lg text-amber-500 text-sm font-bold mt-2 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
+          </button>
+          <!-- DEX -->
+          <button onclick="rollStat('Dexterity', 'dex')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-xl p-4 text-center transition-all group shadow-md">
+            <span class="block text-xs font-bold text-gray-400 uppercase">DEX</span>
+            <span id="statScore-dex" class="block text-3xl font-black text-white mt-1">10</span>
+            <span id="statMod-dex" class="inline-block px-3 py-1 bg-gray-900 rounded-lg text-amber-500 text-sm font-bold mt-2 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
+          </button>
+          <!-- CON -->
+          <button onclick="rollStat('Constitution', 'con')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-xl p-4 text-center transition-all group shadow-md">
+            <span class="block text-xs font-bold text-gray-400 uppercase">CON</span>
+            <span id="statScore-con" class="block text-3xl font-black text-white mt-1">10</span>
+            <span id="statMod-con" class="inline-block px-3 py-1 bg-gray-900 rounded-lg text-amber-500 text-sm font-bold mt-2 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
+          </button>
+          <!-- INT -->
+          <button onclick="rollStat('Intelligence', 'int')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-xl p-4 text-center transition-all group shadow-md">
+            <span class="block text-xs font-bold text-gray-400 uppercase">INT</span>
+            <span id="statScore-int" class="block text-3xl font-black text-white mt-1">10</span>
+            <span id="statMod-int" class="inline-block px-3 py-1 bg-gray-900 rounded-lg text-amber-500 text-sm font-bold mt-2 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
+          </button>
+          <!-- WIS -->
+          <button onclick="rollStat('Wisdom', 'wis')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-xl p-4 text-center transition-all group shadow-md">
+            <span class="block text-xs font-bold text-gray-400 uppercase">WIS</span>
+            <span id="statScore-wis" class="block text-3xl font-black text-white mt-1">10</span>
+            <span id="statMod-wis" class="inline-block px-3 py-1 bg-gray-900 rounded-lg text-amber-500 text-sm font-bold mt-2 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
+          </button>
+          <!-- CHA -->
+          <button onclick="rollStat('Charisma', 'cha')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-amber-500 rounded-xl p-4 text-center transition-all group shadow-md">
+            <span class="block text-xs font-bold text-gray-400 uppercase">CHA</span>
+            <span id="statScore-cha" class="block text-3xl font-black text-white mt-1">10</span>
+            <span id="statMod-cha" class="inline-block px-3 py-1 bg-gray-900 rounded-lg text-amber-500 text-sm font-bold mt-2 group-hover:bg-amber-500 group-hover:text-gray-900 transition-all">+0</span>
+          </button>
+        </div>
+        <p class="text-xs text-gray-500 mt-4 italic text-center">Click on any stat to roll 1d20 + modifier (requires roll sync connected)</p>
+      </div>
+      
+      <!-- Feedback notification -->
+      <div id="rollFeedback" class="hidden bg-gray-950 border border-amber-800 text-amber-400 px-4 py-3 rounded-lg text-center text-sm font-mono transition-all animate-pulse">
+        Rolled 1d20 + 3 = 18! Sent to room.
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-gray-950 border-t border-gray-900 py-4 text-center text-xs text-gray-600 mt-10">
+    <p>VTT Asal Jadi - Character Sheet View</p>
+  </footer>
+
+  <script>
+    const socket = io();
+    let character = null;
+    let currentRoom = '';
+    
+    // Parse username and characterId from URL path
+    // Format: /character/:username/:characterId
+    const pathParts = window.location.pathname.split('/');
+    const username = pathParts[2];
+    const characterId = pathParts[3];
+
+    // Check query params for default room
+    const urlParams = new URLSearchParams(window.location.search);
+    const defaultRoom = urlParams.get('room') || '';
+    if (defaultRoom) {
+      document.getElementById('roomIdInput').value = defaultRoom;
+    }
+
+    const loadingState = document.getElementById('loadingState');
+    const errorState = document.getElementById('errorState');
+    const errorMsg = document.getElementById('errorMsg');
+    const charSheet = document.getElementById('charSheet');
+    const roomIdInput = document.getElementById('roomIdInput');
+    const connectRoomBtn = document.getElementById('connectRoomBtn');
+    const rollFeedback = document.getElementById('rollFeedback');
+
+    // Fetch character data
+    async function loadCharacter() {
+      try {
+        const response = await fetch(`/api/character/${username}/${characterId}`);
+        if (!response.ok) {
+          throw new Error('Character not found or database error');
+        }
+        character = await response.json();
+        renderCharacter(character);
+      } catch (err) {
+        console.error(err);
+        loadingState.classList.add('hidden');
+        errorState.classList.remove('hidden');
+        errorMsg.textContent = err.message || 'Make sure the URL is correct and the character was imported.';
+      }
+    }
+
+    function renderCharacter(char) {
+      loadingState.classList.add('hidden');
+      charSheet.classList.remove('hidden');
+
+      document.getElementById('charAvatar').src = char.avatarUrl;
+      document.getElementById('charName').textContent = char.name;
+      document.getElementById('charOwner').textContent = username;
+      
+      const classStr = char.classes.map(c => `${c.name} ${c.level}`).join('/') + ` (Level ${char.level})`;
+      document.getElementById('charSub').textContent = `${char.race} | ${classStr}`;
+
+      document.getElementById('charCurrentHp').textContent = char.hp.current;
+      document.getElementById('charMaxHp').textContent = char.hp.max;
+      
+      if (char.hp.temp > 0) {
+        document.getElementById('charTempHp').textContent = char.hp.temp;
+        document.getElementById('charTempHpContainer').classList.remove('hidden');
+      }
+
+      const hpPercent = Math.max(0, Math.min(100, (char.hp.current / char.hp.max) * 100));
+      const hpBar = document.getElementById('hpBar');
+      hpBar.style.width = `${hpPercent}%`;
+      if (hpPercent < 25) {
+        hpBar.className = 'bg-red-600 h-full transition-all duration-300';
+      } else if (hpPercent < 50) {
+        hpBar.className = 'bg-yellow-500 h-full transition-all duration-300';
+      } else {
+        hpBar.className = 'bg-green-500 h-full transition-all duration-300';
+      }
+
+      const stats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+      stats.forEach(stat => {
+        document.getElementById(`statScore-${stat}`).textContent = char.stats[stat];
+        const mod = char.modifiers[stat];
+        document.getElementById(`statMod-${stat}`).textContent = mod >= 0 ? `+${mod}` : mod;
+      });
+
+      // Auto connect room if parameter is present
+      if (defaultRoom) {
+        connectRoom();
+      }
+    }
+
+    // Connect to room for rolls
+    connectRoomBtn.addEventListener('click', connectRoom);
+
+    function connectRoom() {
+      const room = roomIdInput.value.trim();
+      if (!room) {
+        alert('Please enter a Room ID');
+        return;
+      }
+      currentRoom = room;
+      socket.emit('join-room', currentRoom);
+      
+      connectRoomBtn.textContent = `Connected: ${currentRoom}`;
+      connectRoomBtn.classList.remove('bg-amber-600', 'hover:bg-amber-700');
+      connectRoomBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+    }
+
+    // Roll stat
+    window.rollStat = function(statLabel, statKey) {
+      if (!character) return;
+      if (!currentRoom) {
+        alert('Please connect to a Roll Sync Room ID first (at the top right)!');
+        return;
+      }
+
+      const modifier = character.modifiers[statKey];
+      const roll = Math.floor(Math.random() * 20) + 1;
+      const total = roll + modifier;
+      const sign = modifier >= 0 ? '+' : '';
+      const formula = `1d20${sign}${modifier}`;
+
+      const rollData = {
+        roomId: currentRoom,
+        characterName: character.name,
+        characterAvatar: character.avatarUrl,
+        rollName: `${statLabel} Check`,
+        formula: formula,
+        result: total,
+        rolls: [roll],
+        modifier: modifier
+      };
+
+      socket.emit('send-roll', rollData);
+
+      // Show feedback
+      rollFeedback.textContent = `Rolled ${statLabel} Check: 1d20(${roll})${sign}${modifier} = ${total}! Sent to room "${currentRoom}".`;
+      rollFeedback.classList.remove('hidden');
+      setTimeout(() => {
+        rollFeedback.classList.add('hidden');
+      }, 5000);
+    };
+
+    // Load initial data
+    loadCharacter();
+  </script>
+</body>
+</html>

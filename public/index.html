@@ -11,6 +11,12 @@
       background-color: #12131a;
       color: #e2e8f0;
     }
+    .vtt-grid {
+      background-size: calc(100% / 12) calc(100% / 12);
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans">
@@ -41,8 +47,8 @@
   <!-- Main Content -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
     
-    <!-- Left Column: Import & Character Sheet (7 cols) -->
-    <div class="lg:col-span-7 flex flex-col gap-6">
+    <!-- Left Column: Import & Character Sheet (3 cols) -->
+    <div class="lg:col-span-3 flex flex-col gap-6">
       <!-- Import Card -->
       <div class="bg-gray-900 border border-gray-800 rounded-lg p-5 shadow-md">
         <h2 class="text-lg font-bold text-amber-500 mb-3 flex items-center gap-2">
@@ -142,8 +148,34 @@
       </div>
     </div>
 
-    <!-- Right Column: Dice Tray, Log, OBS Link (5 cols) -->
-    <div class="lg:col-span-5 flex flex-col gap-6">
+    <!-- Middle Column: Tactical VTT Grid Map (6 cols) -->
+    <div class="lg:col-span-6 flex flex-col gap-6">
+      <div class="bg-gray-900 border border-gray-800 rounded-lg p-5 shadow-md flex flex-col gap-4">
+        <div class="flex justify-between items-center flex-wrap gap-2">
+          <h2 class="text-lg font-bold text-amber-500 flex items-center gap-2">
+            <span>🗺️</span> Tactical Map
+          </h2>
+          <button id="addTokenBtn" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-bold transition-all">
+            + Place Token
+          </button>
+        </div>
+        
+        <!-- Map URL Input -->
+        <div class="flex gap-2">
+          <input type="text" id="mapUrlInput" placeholder="Map Image URL..." class="bg-gray-800 border border-gray-700 rounded px-3 py-1 text-xs text-white focus:outline-none focus:border-amber-500 flex-1">
+          <button id="setMapBtn" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded text-xs font-bold transition-all">Set Map</button>
+        </div>
+
+        <!-- Map Container -->
+        <div id="mapContainer" class="relative w-full aspect-square bg-gray-950 border border-gray-800 rounded-lg overflow-hidden vtt-grid">
+          <!-- Tokens will be rendered here dynamically -->
+        </div>
+        <p class="text-[10px] text-gray-500 italic text-center">Drag and drop tokens to move them. Tokens snap to the grid.</p>
+      </div>
+    </div>
+
+    <!-- Right Column: Dice Tray, Log, OBS Link (3 cols) -->
+    <div class="lg:col-span-3 flex flex-col gap-6">
       <!-- Dice Tray -->
       <div class="bg-gray-900 border border-gray-800 rounded-lg p-5 shadow-md">
         <h2 class="text-lg font-bold text-amber-500 mb-3 flex items-center gap-2">

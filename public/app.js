@@ -4,6 +4,7 @@ const socket = io();
 // State
 let currentCharacter = null;
 let currentRoom = 'default-room';
+let localTokens = {};
 
 // DOM Elements
 const roomIdInput = document.getElementById('roomIdInput');
@@ -30,6 +31,12 @@ const customRollInput = document.getElementById('customRollInput');
 const obsUrlInput = document.getElementById('obsUrlInput');
 const logContainer = document.getElementById('logContainer');
 
+// VTT Map DOM Elements
+const mapContainer = document.getElementById('mapContainer');
+const mapUrlInput = document.getElementById('mapUrlInput');
+const setMapBtn = document.getElementById('setMapBtn');
+const addTokenBtn = document.getElementById('addTokenBtn');
+
 // Init OBS URL & Join Default Room
 updateObsUrl();
 joinRoom();
@@ -43,6 +50,55 @@ joinRoomBtn.addEventListener('click', () => {
 
 importBtn.addEventListener('click', importCharacter);
 
+// VTT Map Event Listeners
+setMapBtn.addEventListener('click', () => {
+  const mapUrl = mapUrlInput.value.trim();
+  if (!mapUrl) return;
+  socket.emit('update-map', { roomId: currentRoom, mapUrl });
+});
+
+addTokenBtn.addEventListener('click', () => {
+  if (!currentCharacter) {
+    alert('Please import a character first!');
+    return;
+  }
+  socket.emit('add-token', {
+    roomId: currentRoom,
+    token: {
+      id: currentCharacter.id.toString(),
+      name: currentCharacter.name,
+      avatarUrl: currentCharacter.avatarUrl,
+      x: 0,
+      y: 0
+    }
+  });
+});
+
+// Drag and Drop for VTT Map
+mapContainer.addEventListener('dragover', (e) => {
+  e.preventDefault();
+});
+
+mapContainer.addEventListener('drop', (e) => {
+  e.preventDefault();
+  const tokenId = e.dataTransfer.getData('text/plain');
+  if (!tokenId) return;
+
+  const rect = mapContainer.getBoundingClientRect();
+  const xCell = Math.floor(((e.clientX - rect.left) / rect.width) * 12);
+  const yCell = Math.floor(((e.clientY - rect.top) / rect.height) * 12);
+
+  const x = Math.max(0, Math.min(11, xCell));
+  const y = Math.max(0, Math.min(11, yCell));
+
+  socket.emit('move-token', {
+    roomId: currentRoom,
+    tokenId,
+    x,
+    y
+  });
+});
+
 // Socket Event Handlers
 function joinRoom() {
   socket.emit('join-room', currentRoom);
@@ -54,6 +110,34 @@ function joinRoom() {
 
 socket.on('new-roll', (data) => {
   addLogMessage(data);
+});
+
+socket.on('room-state', (state) => {
+  updateMapBackground(state.mapUrl);
+  localTokens = state.tokens || {};
+  renderTokens(localTokens);
+});
+
+socket.on('map-updated', (mapUrl) => {
+  updateMapBackground(mapUrl);
+});
+
+socket.on('token-added', (token) => {
+  localTokens[token.id] = token;
+  renderTokens(localTokens);
+});
+
+socket.on('token-moved', (data) => {
+  if (localTokens[data.tokenId]) {
+    localTokens[data.tokenId].x = data.x;
+    localTokens[data.tokenId].y = data.y;
+    renderTokens(localTokens);
+  }
+});
+
+socket.on('token-removed', (tokenId) => {
+  delete localTokens[tokenId];
+  renderTokens(localTokens);
 });
 
 // Import Character function
@@ -296,6 +380,54 @@ function addLogMessage(data) {
 
 window.clearLog = function() {
   logContainer.innerHTML = '<div class="text-gray-500 italic">No rolls yet. Join a room and roll some dice!</div>';
+};
+
+// VTT Map Helper Functions
+function updateMapBackground(mapUrl) {
+  mapContainer.style.backgroundImage = `url('${mapUrl}')`;
+  mapContainer.style.backgroundSize = 'cover';
+  mapContainer.style.backgroundPosition = 'center';
+  mapUrlInput.value = mapUrl;
+}
+
+function renderTokens(tokens) {
+  // Remove existing token elements
+  const tokenEls = mapContainer.querySelectorAll('.token-element');
+  tokenEls.forEach(el => el.remove());
+
+  Object.values(tokens).forEach(token => {
+    const tokenEl = document.createElement('div');
+    tokenEl.className = 'token-element absolute cursor-pointer group p-1 transition-all duration-100 z-10';
+    tokenEl.style.width = 'calc(100% / 12)';
+    tokenEl.style.height = 'calc(100% / 12)';
+    tokenEl.style.left = `calc((${token.x} / 12) * 100%)`;
+    tokenEl.style.top = `calc((${token.y} / 12) * 100%)`;
+
+    tokenEl.draggable = true;
+    tokenEl.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', token.id);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    tokenEl.innerHTML = `
+      <div class="relative w-full h-full flex items-center justify-center">
+        <img src="${token.avatarUrl}" class="w-11/12 h-11/12 rounded-full border-2 border-amber-500 object-cover shadow-lg bg-gray-800" title="${token.name}">
+        <!-- Delete Button on Hover -->
+        <button onclick="removeToken('${token.id}')" class="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow z-20">×</button>
+        <!-- Name Badge on Hover -->
+        <span class="absolute -bottom-5 bg-gray-950/90 text-white text-[9px] px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20 border border-gray-800">${token.name}</span>
+      </div>
+    `;
+
+    mapContainer.appendChild(tokenEl);
+  });
+}
+
+window.removeToken = function(tokenId) {
+  socket.emit('remove-token', {
+    roomId: currentRoom,
+    tokenId
+  });
 };
 
 // OBS URL generator
