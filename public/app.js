@@ -111,7 +111,7 @@ function joinRoom() {
 
 async function loadRollHistory(roomId) {
   try {
-    const response = await fetch(`/api/rooms/${encodeURIComponent(roomId)}/rolls`);
+    const response = await fetch(`/api/v2/rolls/${encodeURIComponent(roomId)}`);
     if (!response.ok) return;
     const history = await response.json();
     history.reverse().forEach((roll) => addLogMessage({
