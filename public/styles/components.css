@@ -156,6 +156,19 @@
 
 .font-bold { font-weight: var(--font-weight-bold); }
 .font-black { font-weight: 900; }
+
+.bg-primary { background-color: var(--bg-primary); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.bg-tertiary { background-color: var(--bg-tertiary); }
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-accent { color: var(--accent); }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-info { color: var(--info); }
+.text-warning { color: var(--warning); }
+.tracking-wider { letter-spacing: 0.05em; }
 .uppercase { text-transform: uppercase; }
 .text-center { text-align: center; }
 
@@ -230,3 +243,5 @@
 .relative { position: relative; }
 .overflow-hidden { overflow: hidden; }
 .overflow-y-auto { overflow-y: auto; }
+.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }

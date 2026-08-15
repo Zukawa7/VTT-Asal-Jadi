@@ -6,11 +6,11 @@
   <title>Character Sheet - VTT Asal Jadi</title>
 
   <!-- NEW CSS System -->
-  <link rel="stylesheet" href="/styles/variables.css?v=3">
-  <link rel="stylesheet" href="/styles/animations.css?v=3">
-  <link rel="stylesheet" href="/styles/components.css?v=3">
-  <link rel="stylesheet" href="/styles/theme.css?v=3">
-  <link rel="stylesheet" href="/styles/responsive.css?v=3">
+  <link rel="stylesheet" href="/styles/variables.css?v=5">
+  <link rel="stylesheet" href="/styles/animations.css?v=5">
+  <link rel="stylesheet" href="/styles/components.css?v=5">
+  <link rel="stylesheet" href="/styles/theme.css?v=5">
+  <link rel="stylesheet" href="/styles/responsive.css?v=5">
   
   <script src="/socket.io/socket.io.js"></script>
   <style>
@@ -38,7 +38,7 @@
   <header class="card-header" style="margin-bottom:0; border-bottom: 1px solid var(--border-primary); padding: var(--space-md) var(--space-lg);">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center w-full gap-4">
       <div class="flex items-center gap-4 w-full sm:w-auto">
-        <img id="avatar" src="" class="w-16 h-16 rounded-full border border-primary object-cover bg-bg-primary" alt="Portrait">
+        <img id="avatar" src="" class="w-16 h-16 rounded-full border border-primary object-cover bg-primary" alt="Portrait">
         <div class="min-w-0">
           <h1 id="name" class="text-2xl font-bold text-primary truncate">Character Name</h1>
           <p id="meta" class="text-sm text-secondary truncate">Race · Class</p>
@@ -65,7 +65,7 @@
       <div class="stat-box"><div class="stat-label">Armor Class</div><div id="armor" class="stat-val">10</div></div>
     </div>
 
-    <div class="card bg-bg-tertiary flex justify-between items-center p-3">
+    <div class="card bg-tertiary flex justify-between items-center p-3">
       <div><b>Campaign:</b> <span id="campaign" class="text-gray-400">No campaign assigned</span></div>
       <div class="flex gap-2">
         <button class="btn btn-primary" onclick="location.href='/vtt?room=character-'+character.id">Open VTT</button>
