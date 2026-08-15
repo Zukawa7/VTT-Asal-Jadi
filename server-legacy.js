@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import { exec } from 'child_process';
 import jwt from 'jsonwebtoken';
+import rateLimit from 'express-rate-limit';
 import { runQuery, getQuery, allQuery } from './db-legacy.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,7 +24,13 @@ const io = new Server(httpServer, {
 
 const JWT_SECRET = process.env.JWT_SECRET || 'vtt-jwt-secret-key';
 
-app.use(cors());
+app.use(cors({ origin: process.env.CORS_ORIGIN || true }));
+
+const apiLimiter = rateLimit({ windowMs: 1000, limit: 10, standardHeaders: 'draft-7', legacyHeaders: false });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 3, standardHeaders: 'draft-7', legacyHeaders: false, message: { error: 'Too many login or registration attempts. Try again later.' } });
+app.use('/api', apiLimiter);
+app.use('/api/auth', authLimiter);
+
 app.use(express.json({
   verify: (req, res, buf) => {
     req.rawBody = buf;
