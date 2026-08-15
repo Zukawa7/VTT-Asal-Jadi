@@ -5,48 +5,297 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Character Sheet - VTT Asal Jadi</title>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;700;900&family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    :root{--ink:#26282a;--red:#a83337;--rose:#d89b9d;--gray:#707b80;--paper:#fbfaf8;--blue:#bdc8d0}
-    *{box-sizing:border-box} body{margin:0;background:#e7e3dd;color:var(--ink);font-family:'Roboto Condensed',Arial,sans-serif}.sheet{max-width:1500px;margin:auto;background:var(--paper);min-height:100vh;box-shadow:0 0 25px #7777}.top{background:var(--ink);color:#fff;border-bottom:5px solid var(--red);padding:24px 30px 18px}.toprow{display:grid;grid-template-columns:130px minmax(300px,1fr) 150px 230px;gap:28px;align-items:center;max-width:1320px;margin:auto}.portrait{width:130px;height:130px;object-fit:cover;border:4px solid var(--red);border-radius:8px;background:#444}.charname{font-size:52px;font-weight:500;line-height:1}.meta{font-size:26px;color:#acb5b8;margin-top:9px}.level{font-size:28px;margin-top:5px}.button{border:3px solid var(--red);border-radius:7px;background:transparent;color:#fff;padding:12px 20px;font-size:21px;font-weight:700}.hp{border:3px solid var(--red);border-radius:7px;text-align:center;padding:8px 22px;min-width:190px}.hp small{display:block;font-size:18px}.hp strong{font-size:45px;line-height:1}.combat{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr)) 210px;gap:18px;max-width:1320px;margin:26px auto 0;text-align:center}.combat-item{border:2px solid #777;border-radius:8px;padding:7px}.combat-label{font-size:16px;color:#b5bec1;font-weight:700;text-transform:uppercase}.combat-value{font-size:38px}.combat-item:last-child{border:0;display:grid;gap:6px}.combat-item:last-child button{border:2px solid var(--red);background:transparent;color:#fff;border-radius:6px;font-weight:700;padding:7px}.campaign{padding:20px 5%;border-bottom:3px solid var(--rose)}.campaign-box{border:3px solid var(--red);border-radius:7px;padding:11px;text-align:center;font-size:26px}.campaign-box b{font-weight:900}.content{padding:34px 5% 55px}.toolbar{display:flex;gap:8px;justify-content:flex-end;margin-bottom:20px}.toolbar button{border:0;border-radius:5px;background:var(--red);color:white;padding:9px 14px;font-weight:bold}.abilities{display:grid;grid-template-columns:repeat(3,minmax(190px,1fr));gap:52px 9%;max-width:980px;margin:0 auto}.ability{text-align:center;border:3px solid var(--red);border-radius:16px;padding:20px 18px 34px;position:relative;min-height:145px;background:linear-gradient(#fff,#faf8f5)}.ability h2{font-size:20px;color:var(--gray);margin:0 0 10px}.mod{border:2px solid var(--blue);border-radius:8px;font-size:34px;padding:7px}.score{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);background:var(--paper);border:3px solid var(--red);border-radius:50%;font-size:28px;font-weight:700;padding:6px 15px}.columns{display:grid;grid-template-columns:minmax(240px,1fr) minmax(440px,1.8fr) minmax(240px,1fr);gap:28px;margin:78px auto 0;max-width:1200px;align-items:start}.panel{border:3px solid var(--rose);border-radius:14px;padding:20px 18px;background:#fff}.panel h2{margin:0 0 17px;text-align:center;font-size:25px;text-transform:uppercase;color:var(--ink);border-bottom:3px solid var(--red);padding-bottom:8px}.row{display:flex;align-items:center;gap:8px;margin:9px 0;font-size:18px}.dot{width:13px;height:13px;border:2px dotted #777;border-radius:50%;flex:none}.dot.on{background:#333;border-style:solid}.row label{flex:1}.pill{border:2px solid var(--rose);border-radius:50%;padding:4px 13px;min-width:45px;text-align:center;font-size:19px}.skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}.skill-grid .row{font-size:16px}.subheading{color:var(--gray);font-weight:bold;text-transform:uppercase;font-size:18px;margin:12px 0 4px}.wide{margin-top:22px}.empty{color:var(--gray);text-align:center;font-size:18px;padding:15px}.export-note{text-align:center;color:var(--gray);margin-top:25px;font-size:15px}@media(max-width:850px){.toprow{grid-template-columns:90px 1fr}.portrait{width:90px;height:90px}.charname{font-size:37px}.toprow>.button,.toprow>.hp{grid-column:1/-1}.combat{grid-template-columns:repeat(2,1fr)}.combat-item:last-child{grid-column:1/-1;grid-template-columns:1fr 1fr}.abilities{grid-template-columns:repeat(3,1fr)}.columns{grid-template-columns:1fr 1fr}}@media(max-width:560px){.top{padding:15px}.content{padding:25px 15px}.abilities{grid-template-columns:repeat(2,1fr);gap:30px 10px}.columns{grid-template-columns:1fr}.campaign-box{font-size:20px}.skill-grid{grid-template-columns:1fr}.charname{font-size:31px}.meta{font-size:20px}}
-    .quick-rolls{max-width:980px;margin:0 auto 25px;padding:16px 20px;border:3px solid var(--rose);border-radius:14px;background:#fff;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.quick-rolls h2{font-size:20px;margin:0 12px 0 0;color:var(--gray)}.quick-roll{border:2px solid var(--red);background:#fff;color:var(--ink);border-radius:5px;padding:7px 12px;font-weight:700}.ability-roll{cursor:pointer;font-family:inherit;color:inherit;width:100%}.ability-roll:hover{background:#fff4f4;transform:translateY(-2px);transition:transform .15s ease}.quick-roll:hover{background:var(--red);color:#fff}.roll-result{margin-left:auto;font-size:24px;font-weight:700;color:var(--red);min-width:110px;text-align:center}@media(max-width:560px){.quick-rolls{justify-content:center}.quick-rolls h2{width:100%;text-align:center}.roll-result{width:100%;margin:0}}
-    .equipment-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.equipment-item{display:flex;align-items:center;gap:8px;border:1px solid var(--rose);border-radius:7px;padding:8px;background:#fff}.equipment-item img{width:32px;height:32px;object-fit:cover;border-radius:4px}.equipment-item small{display:block;color:var(--gray)}.equipment-tag{margin-left:auto;color:var(--red);font-size:12px;font-weight:bold}.sheet-control{border:1px solid var(--red);background:#fff;color:var(--ink);border-radius:5px;padding:4px 8px;font-weight:bold;font-size:13px}.sheet-control:hover{background:var(--red);color:#fff}.locked-note{color:var(--gray);font-size:13px;text-align:center;width:100%}@media(max-width:560px){.equipment-list{grid-template-columns:1fr}}
-
-  </style>
-
   <!-- NEW CSS System -->
   <link rel="stylesheet" href="/styles/variables.css">
   <link rel="stylesheet" href="/styles/animations.css">
   <link rel="stylesheet" href="/styles/components.css">
   <link rel="stylesheet" href="/styles/theme.css">
   <link rel="stylesheet" href="/styles/responsive.css">
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    .stat-box { text-align: center; background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: var(--radius-md); padding: var(--space-sm); }
+    .stat-label { font-size: var(--font-size-xs); color: var(--text-secondary); text-transform: uppercase; font-weight: bold; }
+    .stat-val { font-size: var(--font-size-2xl); font-weight: 900; color: var(--primary); }
+    
+    .ability-card { text-align: center; padding: var(--space-md); border: 2px solid var(--border-primary); border-radius: var(--radius-lg); position: relative; cursor: pointer; transition: all var(--transition-fast); background: var(--bg-secondary); }
+    .ability-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .ability-title { font-size: var(--font-size-sm); color: var(--text-secondary); text-transform: uppercase; font-weight: bold; }
+    .ability-mod { font-size: var(--font-size-3xl); font-weight: 900; margin: var(--space-sm) 0; }
+    .ability-score { position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); background: var(--bg-primary); border: 1px solid var(--border-primary); border-radius: 999px; padding: 2px 10px; font-weight: bold; font-size: var(--font-size-sm); }
+
+    .list-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-sm) 0; border-bottom: 1px solid var(--border-secondary); }
+    .list-row:last-child { border-bottom: none; }
+    
+    .tab-nav { display: flex; gap: var(--space-sm); overflow-x: auto; border-bottom: 2px solid var(--border-secondary); margin-bottom: var(--space-md); padding-bottom: var(--space-xs); }
+    .tab-btn { padding: var(--space-sm) var(--space-md); font-weight: bold; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; white-space: nowrap; }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-btn:hover:not(.active) { color: var(--text-primary); }
+  </style>
 </head>
-<body><div class="sheet">
-  <header class="top"><div class="toprow"><img id="avatar" class="portrait" alt="Character portrait"><div><div id="name" class="charname">Character</div><div id="meta" class="meta">Race · Class</div><div id="level" class="level">Level 1</div></div><button class="button" onclick="location.href='/dashboard'">MANAGE</button><div class="hp"><small>HIT POINTS</small><strong id="hp">0 / 0</strong></div></div>
-    <div class="combat"><div class="combat-item"><div class="combat-label">Proficiency Bonus</div><div class="combat-value" id="prof">+2</div></div><div class="combat-item"><div class="combat-label">Walking Speed</div><div class="combat-value">30 ft.</div></div><div class="combat-item"><div class="combat-label">Initiative</div><div class="combat-value" id="initiative">+0</div></div><div class="combat-item"><div class="combat-label">Armor Class</div><div class="combat-value" id="armor">10</div></div><div class="combat-item"><button>DEFENSES</button><button>CONDITIONS</button></div></div>
+<body class="min-h-screen flex flex-col">
+
+  <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 shadow-lg">
+    <div class="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
+      <div class="flex items-center gap-4">
+        <img id="avatar" src="" class="w-16 h-16 rounded-full border-2 border-primary object-cover" alt="Portrait">
+        <div>
+          <h1 id="name" class="text-2xl font-bold text-primary">Character Name</h1>
+          <p id="meta" class="text-sm text-gray-400">Race · Class</p>
+          <p id="level" class="text-xs font-bold text-secondary">Level 1</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="stat-box">
+          <div class="stat-label">HP</div>
+          <div id="hp" class="stat-val text-success">0 / 0</div>
+        </div>
+        <button class="btn btn-secondary" onclick="location.href='/dashboard'">Manage</button>
+        <button data-theme-toggle class="btn btn-ghost">🌙</button>
+      </div>
+    </div>
   </header>
-  <div class="campaign"><div class="campaign-box"><b>CAMPAIGN:</b> <span id="campaign">No campaign assigned</span></div></div>
-  <main id="content" class="content" style="display:none"><div class="toolbar"><button onclick="location.href='/vtt?room=character-'+character.id">OPEN VTT</button><button onclick="copyJson()">COPY JSON</button><button onclick="downloadJson()">DOWNLOAD JSON</button></div><section class="quick-rolls"><h2>QUICK ROLLS</h2><button class="quick-roll" data-roll="1d20">D20</button><button class="quick-roll" data-roll="1d4">D4</button><button class="quick-roll" data-roll="1d6">D6</button><button class="quick-roll" data-roll="1d8">D8</button><button class="quick-roll" data-roll="1d10">D10</button><button class="quick-roll" data-roll="1d12">D12</button><span id="rollResult" class="roll-result">Click a die to roll</span></section><section id="abilities" class="abilities"></section>
 
-    <div class="columns"><section class="panel"><h2>Saving Throws</h2><div id="saves"></div><div class="empty">No saving throw modifiers</div></section><section class="panel"><h2>Skills</h2><div id="skills" class="skill-grid"></div></section><section class="panel"><h2>Passive Senses</h2><div id="senses"></div><div class="empty">Additional Sense Types</div></section></div>
-    <section class="panel wide"><h2>Conditions</h2><div id="conditionEditor" class="equipment-list"></div><div id="conditions" class="equipment-list"><div class="empty">No active conditions.</div></div></section><section class="panel wide"><h2>Spell Slots</h2><div class="toolbar"><button class="sheet-control" id="shortRest">SHORT REST</button><button class="sheet-control" id="longRest">LONG REST</button></div><div id="spellSlots" class="equipment-list"><div class="empty">No spell slots available.</div></div></section><section class="panel wide"><h2>Features &amp; Traits</h2><div class="empty">Features imported from D&amp;D Beyond will appear here.</div></section><section class="panel wide"><h2>Equipment &amp; Inventory</h2><div id="equipmentEditor" class="equipment-list"></div><div id="equipment" class="equipment-list"><div class="empty">No equipment imported.</div></div></section>
-    <p class="export-note">VTT Asal Jadi · Character sheet layout inspired by classic D&amp;D record sheets</p>
-  </main><div id="loading" style="text-align:center;padding:80px">Loading character sheet...</div><div id="error" style="display:none;text-align:center;padding:80px;color:#a83337"></div>
-</div>
-<script>
-const socket=io();socket.on('character-updated',updated=>{if(character&&String(updated.id)===String(character.id)){character=updated;render(updated);}});let character=null;const parts=location.pathname.split('/'),username=parts[1],characterId=parts[4],keys=['str','dex','con','int','wis','cha'],labels={str:'STRENGTH',dex:'DEXTERITY',con:'CONSTITUTION',int:'INTELLIGENCE',wis:'WISDOM',cha:'CHARISMA'},skillMap={Acrobatics:'dex','Animal Handling':'wis',Arcana:'int',Athletics:'str',Deception:'cha',History:'int',Insight:'wis',Intimidation:'cha',Investigation:'int',Medicine:'wis',Nature:'int',Perception:'wis',Performance:'cha',Persuasion:'cha',Religion:'int','Sleight of Hand':'dex',Stealth:'dex',Survival:'wis'};const signed=n=>n>=0?'+'+n:n;const mod=n=>Math.floor((n-10)/2);
-async function load(){try{let r=await fetch('/api/v2/character/'+encodeURIComponent(characterId)+'/sheet');if(!r.ok)throw Error('Character not found or unavailable.');character=await r.json();render(character)}catch(e){loading.style.display='none';error.textContent=e.message;error.style.display='block'}}
-function render(c){loading.style.display='none';content.style.display='block';avatar.src=c.avatarUrl||'';name.textContent=c.name;meta.textContent=c.race+' · '+c.classes.map(x=>x.name).join(' / ');level.textContent='Level '+c.level;hp.textContent=c.hp.current+' / '+c.hp.max;prof.textContent=signed(2+Math.floor((c.level-1)/4));initiative.textContent=signed(c.modifiers.dex);armor.textContent=10+c.modifiers.dex;abilities.innerHTML=keys.map(k=>'<button class="ability ability-roll" data-ability="'+k+'"><h2>'+labels[k]+'</h2><div class="mod">'+signed(c.modifiers[k])+'</div><div class="score">'+c.stats[k]+'</div></button>').join('');saves.innerHTML=keys.map(k=>'<div class="row"><i class="dot"></i><label>'+labels[k].slice(0,3)+'</label><span class="pill">'+signed(c.modifiers[k])+'</span></div>').join('');skills.innerHTML=Object.entries(skillMap).map(([s,k])=>'<div class="row"><i class="dot"></i><label>'+s+'</label><span class="pill">'+signed(c.modifiers[k])+'</span></div>').join('');senses.innerHTML=[['PERCEPTION',10+c.modifiers.wis],['INVESTIGATION',10+c.modifiers.int],['INSIGHT',10+c.modifiers.wis]].map(x=>'<div class="row"><label>'+x[0]+'</label><span class="pill">'+x[1]+'</span></div>').join('');const canEdit=Boolean(localStorage.getItem('token'));if(canEdit)conditionEditor.innerHTML='<input id="newCondition" placeholder="Condition name" class="sheet-control"><button id="addCondition" class="sheet-control">Add condition</button>';const activeConditions=c.conditions||[];conditions.innerHTML=activeConditions.length?activeConditions.map(condition=>'<div class="equipment-item"><b>'+condition+'</b><button class="sheet-control" data-condition-remove="'+condition+'">Remove</button></div>').join(''):'<div class="empty">No active conditions.</div>';const slots=c.spellSlots||{};spellSlots.innerHTML=Object.keys(slots).length?Object.entries(slots).map(([level,slot])=>'<div class="equipment-item"><b>Level '+level+'</b><button class="sheet-control" data-slot-level="'+level+'">Use slot</button><span class="equipment-tag">'+slot.current+' / '+slot.max+' available</span></div>').join(''):'<div class="empty">No spell slots available.</div>';if(canEdit){document.getElementById('addCondition').onclick=()=>{const input=document.getElementById('newCondition');const value=input.value.trim();if(value&&!activeConditions.includes(value))updateSheet({conditions:[...activeConditions,value]});};document.getElementById('shortRest').onclick=()=>{const next=Object.fromEntries(Object.entries(slots).map(([key,slot])=>[key,{...slot,current:Math.min(slot.current+1,slot.max)}]));updateSheet({spellSlots:next});};document.getElementById('longRest').onclick=()=>{const next=Object.fromEntries(Object.entries(slots).map(([key,slot])=>[key,{...slot,current:slot.max}]));updateSheet({spellSlots:next});};document.querySelectorAll('[data-condition-remove]').forEach(button=>button.onclick=()=>updateSheet({conditions:activeConditions.filter(condition=>condition!==button.dataset.conditionRemove)}));document.querySelectorAll('[data-slot-level]').forEach(button=>button.onclick=()=>{const level=button.dataset.slotLevel;const next={...slots,[level]:{...slots[level],current:Math.max(0,slots[level].current-1)}};updateSheet({spellSlots:next});});}const items=c.equipment||[];const totalWeight=items.reduce((sum,item)=>sum+Number(item.weight||0)*Number(item.quantity||1),0);const capacity=Number(c.stats.str||10)*15;const weightWarning=totalWeight>capacity?'<span class="equipment-tag">OVER CAPACITY</span>':'';equipmentEditor.innerHTML=canEdit?'<input id="newItemName" placeholder="Item name" class="sheet-control"><input id="newItemQuantity" type="number" min="1" value="1" class="sheet-control"><input id="newItemWeight" type="number" min="0" step="0.1" value="0" class="sheet-control"><button id="addItem" class="sheet-control">Add item</button>':'';if(canEdit)document.getElementById('addItem').onclick=()=>{const itemName=document.getElementById('newItemName').value.trim();if(!itemName)return;const item={id:'custom-'+Date.now(),name:itemName,quantity:Math.max(1,Number(document.getElementById('newItemQuantity').value||1)),weight:Math.max(0,Number(document.getElementById('newItemWeight').value||0)),equipped:false,attuned:false};updateSheet({equipment:[...items,item]});};equipment.innerHTML=(items.length?'<div class="locked-note">Total weight: '+totalWeight.toFixed(1)+' / '+capacity+' lb '+weightWarning+'</div>'+items.map((item,index)=>'<div class="equipment-item">'+(item.imageUrl?'<img src="'+item.imageUrl+'" alt="">':'')+'<div><b>'+item.name+'</b><small>Qty '+item.quantity+' · '+(Number(item.weight||0)*Number(item.quantity||1)).toFixed(1)+' lb</small></div>'+(item.equipped?'<span class="equipment-tag">EQUIPPED</span>':'')+(item.attuned?'<span class="equipment-tag">ATTUNED</span>':'')+(canEdit?'<button class="sheet-control" data-equipment-equipped="'+index+'">Equipped</button><button class="sheet-control" data-equipment-attuned="'+index+'">Attuned</button><button class="sheet-control" data-equipment-remove="'+index+'">Remove</button>':'')+'</div>').join(''):'<div class="empty">No equipment imported.</div>');if(canEdit){document.querySelectorAll('[data-equipment-equipped]').forEach(button=>button.onclick=()=>{const index=Number(button.dataset.equipmentEquipped);const next=items.map((item,itemIndex)=>itemIndex===index?{...item,equipped:!item.equipped}:item);updateSheet({equipment:next});});document.querySelectorAll('[data-equipment-attuned]').forEach(button=>button.onclick=()=>{const index=Number(button.dataset.equipmentAttuned);const next=items.map((item,itemIndex)=>itemIndex===index?{...item,attuned:!item.attuned}:item);updateSheet({equipment:next});});document.querySelectorAll('[data-equipment-remove]').forEach(button=>button.onclick=()=>{const index=Number(button.dataset.equipmentRemove);updateSheet({equipment:items.filter((_,itemIndex)=>itemIndex!==index)});});}}
-async function updateSheet(changes){const token=localStorage.getItem('token');if(!token){alert('Login as the character owner to edit this sheet.');return}const response=await fetch('/api/v2/character/'+encodeURIComponent(character.id),{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(changes)});if(!response.ok){alert('Unable to update character sheet.');return}character=await response.json();render(character)}function copyJson(){if(character)navigator.clipboard.writeText(JSON.stringify(character,null,2))}function downloadJson(){if(!character)return;let a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(character,null,2));a.download=(character.name||'character').replace(/\s+/g,'_')+'.json';a.click()}load();
-const rollButtons=document.querySelectorAll('.quick-roll');const rollResult=document.getElementById('rollResult');
-rollButtons.forEach(button=>button.addEventListener('click',()=>{const formula=button.dataset.roll;const match=formula.match(/1d(\d+)/);if(!match)return;const result=Math.floor(Math.random()*Number(match[1]))+1;rollResult.textContent=`${formula} = ${result}`;rollResult.animate([{transform:'scale(1.15)'},{transform:'scale(1)'}],{duration:220});if(character)socket.emit('send-roll',{roomId:`character-${character.id}`,characterId:String(character.id),characterName:character.name,characterAvatar:character.avatarUrl,rollName:'Quick Roll',formula,result,rolls:[result],modifier:0});}));
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col gap-6" id="content" style="display:none">
+    
+    <!-- Top Stats Bar -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="stat-box"><div class="stat-label">Proficiency</div><div id="prof" class="stat-val">+2</div></div>
+      <div class="stat-box"><div class="stat-label">Walking Speed</div><div class="stat-val">30 ft.</div></div>
+      <div class="stat-box"><div class="stat-label">Initiative</div><div id="initiative" class="stat-val">+0</div></div>
+      <div class="stat-box"><div class="stat-label">Armor Class</div><div id="armor" class="stat-val">10</div></div>
+    </div>
 
-</script>
+    <div class="card bg-bg-tertiary flex justify-between items-center p-3">
+      <div><b>Campaign:</b> <span id="campaign" class="text-gray-400">No campaign assigned</span></div>
+      <div class="flex gap-2">
+        <button class="btn btn-primary" onclick="location.href='/vtt?room=character-'+character.id">Open VTT</button>
+        <button class="btn btn-secondary" onclick="downloadJson()">Export JSON</button>
+      </div>
+    </div>
+
+    <!-- Quick Rolls -->
+    <div class="card">
+      <div class="flex items-center gap-4 flex-wrap">
+        <h2 class="font-bold text-secondary">QUICK ROLLS</h2>
+        <button class="btn btn-secondary quick-roll" data-roll="1d20">D20</button>
+        <button class="btn btn-secondary quick-roll" data-roll="1d4">D4</button>
+        <button class="btn btn-secondary quick-roll" data-roll="1d6">D6</button>
+        <button class="btn btn-secondary quick-roll" data-roll="1d8">D8</button>
+        <button class="btn btn-secondary quick-roll" data-roll="1d10">D10</button>
+        <button class="btn btn-secondary quick-roll" data-roll="1d12">D12</button>
+        <span id="rollResult" class="ml-auto font-bold text-xl text-primary"></span>
+      </div>
+    </div>
+
+    <!-- Tabs Container -->
+    <div class="card flex-1" id="sheetTabs">
+      <div class="tab-nav">
+        <div class="tab-btn active" data-tab="stats">Stats & Skills</div>
+        <div class="tab-btn" data-tab="equipment">Equipment</div>
+        <div class="tab-btn" data-tab="spells">Spell Slots</div>
+        <div class="tab-btn" data-tab="conditions">Conditions</div>
+        <div class="tab-btn" data-tab="features">Features</div>
+      </div>
+
+      <!-- Tab: Stats -->
+      <div data-tab-content="stats" class="animate-fadeIn">
+        <div id="abilities" class="grid grid-cols-3 md:grid-cols-6 gap-4 mb-8"></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div><h3 class="font-bold text-secondary mb-3 border-b pb-2">Saving Throws</h3><div id="saves"></div></div>
+          <div><h3 class="font-bold text-secondary mb-3 border-b pb-2">Skills</h3><div id="skills"></div></div>
+          <div><h3 class="font-bold text-secondary mb-3 border-b pb-2">Passive Senses</h3><div id="senses"></div></div>
+        </div>
+      </div>
+
+      <!-- Tab: Equipment -->
+      <div data-tab-content="equipment" class="hidden animate-fadeIn">
+        <div class="flex gap-2 mb-4" id="equipmentEditor"></div>
+        <div id="equipment" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- Tab: Spells -->
+      <div data-tab-content="spells" class="hidden animate-fadeIn">
+        <div class="flex gap-2 mb-4">
+          <button class="btn btn-secondary" id="shortRest">Short Rest</button>
+          <button class="btn btn-primary" id="longRest">Long Rest</button>
+        </div>
+        <div id="spellSlots" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- Tab: Conditions -->
+      <div data-tab-content="conditions" class="hidden animate-fadeIn">
+        <div class="flex gap-2 mb-4" id="conditionEditor"></div>
+        <div id="conditions" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+      </div>
+
+      <!-- Tab: Features -->
+      <div data-tab-content="features" class="hidden animate-fadeIn">
+        <div class="text-center p-8 text-gray-500">Features imported from D&D Beyond will appear here.</div>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="loading" class="text-center p-20 text-xl">Loading character sheet...</div>
+  <div id="error" class="hidden text-center p-20 text-xl text-danger"></div>
+
+  <script>
+    const socket=io();
+    socket.on('character-updated',updated=>{
+      if(character&&String(updated.id)===String(character.id)){
+        character=updated; render(updated);
+      }
+    });
+    
+    let character=null;
+    const parts=location.pathname.split('/'), username=parts[1], characterId=parts[4];
+    const keys=['str','dex','con','int','wis','cha'];
+    const labels={str:'STRENGTH',dex:'DEXTERITY',con:'CONSTITUTION',int:'INTELLIGENCE',wis:'WISDOM',cha:'CHARISMA'};
+    const skillMap={Acrobatics:'dex','Animal Handling':'wis',Arcana:'int',Athletics:'str',Deception:'cha',History:'int',Insight:'wis',Intimidation:'cha',Investigation:'int',Medicine:'wis',Nature:'int',Perception:'wis',Performance:'cha',Persuasion:'cha',Religion:'int','Sleight of Hand':'dex',Stealth:'dex',Survival:'wis'};
+    const signed=n=>n>=0?'+'+n:n;
+    
+    async function load(){
+      try{
+        let r=await fetch('/api/v2/character/'+encodeURIComponent(characterId)+'/sheet');
+        if(!r.ok) throw Error('Character not found or unavailable.');
+        character=await r.json();
+        render(character);
+      }catch(e){
+        document.getElementById('loading').style.display='none';
+        const err = document.getElementById('error');
+        err.textContent=e.message; err.style.display='block';
+      }
+    }
+    
+    function render(c){
+      document.getElementById('loading').style.display='none';
+      document.getElementById('content').style.display='flex';
+      
+      document.getElementById('avatar').src=c.avatarUrl||'';
+      document.getElementById('name').textContent=c.name;
+      document.getElementById('meta').textContent=c.race+' · '+c.classes.map(x=>x.name).join(' / ');
+      document.getElementById('level').textContent='Level '+c.level;
+      document.getElementById('hp').textContent=c.hp.current+' / '+c.hp.max;
+      document.getElementById('prof').textContent=signed(2+Math.floor((c.level-1)/4));
+      document.getElementById('initiative').textContent=signed(c.modifiers.dex);
+      document.getElementById('armor').textContent=10+c.modifiers.dex;
+      
+      document.getElementById('abilities').innerHTML=keys.map(k=>
+        '<div class="ability-card ability-roll" data-ability="'+k+'"><div class="ability-title">'+labels[k]+'</div><div class="ability-mod text-primary">'+signed(c.modifiers[k])+'</div><div class="ability-score">'+c.stats[k]+'</div></div>'
+      ).join('');
+      
+      document.getElementById('saves').innerHTML=keys.map(k=>
+        '<div class="list-row"><span>'+labels[k].slice(0,3)+'</span><span class="badge badge-success">'+signed(c.modifiers[k])+'</span></div>'
+      ).join('');
+      
+      document.getElementById('skills').innerHTML=Object.entries(skillMap).map(([s,k])=>
+        '<div class="list-row"><span>'+s+'</span><span class="badge badge-success">'+signed(c.modifiers[k])+'</span></div>'
+      ).join('');
+      
+      document.getElementById('senses').innerHTML=[['PERCEPTION',10+c.modifiers.wis],['INVESTIGATION',10+c.modifiers.int],['INSIGHT',10+c.modifiers.wis]].map(x=>
+        '<div class="list-row"><span>'+x[0]+'</span><span class="badge badge-info">'+x[1]+'</span></div>'
+      ).join('');
+      
+      const canEdit=Boolean(localStorage.getItem('token'));
+      
+      if(canEdit) document.getElementById('conditionEditor').innerHTML='<input id="newCondition" placeholder="Condition name" class="input flex-1"><button id="addCondition" class="btn btn-primary">Add</button>';
+      const activeConditions=c.conditions||[];
+      document.getElementById('conditions').innerHTML=activeConditions.length?activeConditions.map(condition=>
+        '<div class="card flex justify-between items-center"><b>'+condition+'</b><button class="btn btn-ghost text-danger" data-condition-remove="'+condition+'">✕</button></div>'
+      ).join(''):'<div class="text-gray-500">No active conditions.</div>';
+      
+      const slots=c.spellSlots||{};
+      document.getElementById('spellSlots').innerHTML=Object.keys(slots).length?Object.entries(slots).map(([level,slot])=>
+        '<div class="card flex justify-between items-center"><div><b>Level '+level+'</b><div class="text-xs text-gray-400">'+slot.current+' / '+slot.max+' slots</div></div><button class="btn btn-accent" data-slot-level="'+level+'">Use</button></div>'
+      ).join(''):'<div class="text-gray-500">No spell slots available.</div>';
+      
+      if(canEdit){
+        document.getElementById('addCondition').onclick=()=>{
+          const val=document.getElementById('newCondition').value.trim();
+          if(val&&!activeConditions.includes(val)) updateSheet({conditions:[...activeConditions,val]});
+        };
+        document.getElementById('shortRest').onclick=()=>{
+          const next=Object.fromEntries(Object.entries(slots).map(([k,s])=>[k,{...s,current:Math.min(s.current+1,s.max)}]));
+          updateSheet({spellSlots:next});
+        };
+        document.getElementById('longRest').onclick=()=>{
+          const next=Object.fromEntries(Object.entries(slots).map(([k,s])=>[k,{...s,current:s.max}]));
+          updateSheet({spellSlots:next});
+        };
+        document.querySelectorAll('[data-condition-remove]').forEach(btn=>btn.onclick=()=>updateSheet({conditions:activeConditions.filter(x=>x!==btn.dataset.conditionRemove)}));
+        document.querySelectorAll('[data-slot-level]').forEach(btn=>btn.onclick=()=>{
+          const lvl=btn.dataset.slotLevel;
+          updateSheet({spellSlots:{...slots,[lvl]:{...slots[lvl],current:Math.max(0,slots[lvl].current-1)}}});
+        });
+      }
+      
+      const items=c.equipment||[];
+      const totalWeight=items.reduce((sum,item)=>sum+Number(item.weight||0)*Number(item.quantity||1),0);
+      const capacity=Number(c.stats.str||10)*15;
+      
+      document.getElementById('equipmentEditor').innerHTML=canEdit?
+        '<input id="newItemName" placeholder="Item name" class="input flex-1"><input id="newItemQuantity" type="number" min="1" value="1" class="input w-20"><input id="newItemWeight" type="number" min="0" step="0.1" value="0" class="input w-20"><button id="addItem" class="btn btn-primary">Add</button>':'';
+        
+      if(canEdit) document.getElementById('addItem').onclick=()=>{
+        const n=document.getElementById('newItemName').value.trim();
+        if(!n)return;
+        updateSheet({equipment:[...items,{id:'custom-'+Date.now(),name:n,quantity:Math.max(1,Number(document.getElementById('newItemQuantity').value||1)),weight:Math.max(0,Number(document.getElementById('newItemWeight').value||0)),equipped:false,attuned:false}]});
+      };
+      
+      document.getElementById('equipment').innerHTML=(items.length?
+        '<div class="col-span-full mb-2 text-sm text-gray-400">Total weight: '+totalWeight.toFixed(1)+' / '+capacity+' lb '+(totalWeight>capacity?'<span class="text-danger font-bold">OVER CAPACITY</span>':'')+'</div>'+
+        items.map((item,index)=>
+          '<div class="card flex flex-col gap-2"><div><b>'+item.name+'</b><div class="text-xs text-gray-400">Qty '+item.quantity+' · '+(Number(item.weight||0)*Number(item.quantity||1)).toFixed(1)+' lb</div></div>'+
+          '<div class="flex gap-2 flex-wrap">'+(item.equipped?'<span class="badge badge-success">Equipped</span>':'')+(item.attuned?'<span class="badge badge-info">Attuned</span>':'')+'</div>'+
+          (canEdit?'<div class="flex gap-2 mt-2 pt-2 border-t border-gray-800"><button class="btn btn-ghost text-xs" data-equipment-equipped="'+index+'">Equip</button><button class="btn btn-ghost text-xs" data-equipment-attuned="'+index+'">Attune</button><button class="btn btn-ghost text-danger text-xs ml-auto" data-equipment-remove="'+index+'">Drop</button></div>':'')+'</div>'
+        ).join(''):'<div class="text-gray-500">No equipment imported.</div>');
+        
+      if(canEdit){
+        document.querySelectorAll('[data-equipment-equipped]').forEach(btn=>btn.onclick=()=>updateSheet({equipment:items.map((it,i)=>i===Number(btn.dataset.equipmentEquipped)?{...it,equipped:!it.equipped}:it)}));
+        document.querySelectorAll('[data-equipment-attuned]').forEach(btn=>btn.onclick=()=>updateSheet({equipment:items.map((it,i)=>i===Number(btn.dataset.equipmentAttuned)?{...it,attuned:!it.attuned}:it)}));
+        document.querySelectorAll('[data-equipment-remove]').forEach(btn=>btn.onclick=()=>updateSheet({equipment:items.filter((_,i)=>i!==Number(btn.dataset.equipmentRemove))}));
+      }
+    }
+    
+    async function updateSheet(changes){
+      const token=localStorage.getItem('token');
+      if(!token){ VTT.Notification?.error('Login as owner to edit.'); return; }
+      const res=await fetch('/api/v2/character/'+encodeURIComponent(character.id),{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(changes)});
+      if(!res.ok){ VTT.Notification?.error('Failed to update.'); return; }
+      character=await res.json(); render(character);
+    }
+    
+    function downloadJson(){
+      if(!character)return;
+      let a=document.createElement('a');
+      a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(character,null,2));
+      a.download=(character.name||'character').replace(/\s+/g,'_')+'.json';
+      a.click();
+    }
+    
+    load();
+    
+    // Quick Rolls
+    document.querySelectorAll('.quick-roll').forEach(btn=>btn.addEventListener('click',()=>{
+      const formula=btn.dataset.roll;
+      const match=formula.match(/1d(\d+)/);
+      if(!match)return;
+      const result=Math.floor(Math.random()*Number(match[1]))+1;
+      const resEl = document.getElementById('rollResult');
+      resEl.textContent=`${formula} = ${result}`;
+      resEl.animate([{transform:'scale(1.2)'},{transform:'scale(1)'}],{duration:200});
+      if(character) socket.emit('send-roll',{roomId:`character-${character.id}`,characterId:String(character.id),characterName:character.name,characterAvatar:character.avatarUrl,rollName:'Quick Roll',formula,result,rolls:[result],modifier:0});
+    }));
+  </script>
+  
   <script src="/js/components.js"></script>
   <script src="/js/theme-toggle.js"></script>
-
-<div style="position:fixed;bottom:10px;right:10px;z-index:9999;"><button data-theme-toggle class="btn btn-ghost">🌙</button></div>
-</body></html>
+  <script>
+    // Initialize Tabs
+    document.addEventListener('DOMContentLoaded', () => {
+      if(window.VTT && VTT.Tabs) new VTT.Tabs(document.getElementById('sheetTabs'));
+    });
+  </script>
+</body>
+</html>
