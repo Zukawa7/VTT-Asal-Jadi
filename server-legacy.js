@@ -372,6 +372,7 @@ app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'log
 app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public', 'register.html')));
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 app.get('/vtt', (req, res) => res.sendFile(path.join(__dirname, 'public', 'vtt.html')));
+app.get('/session-dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'session-dashboard.html')));
 app.get('/:username/dashboard/characters/:characterId', (req, res) => res.sendFile(path.join(__dirname, 'public', 'character-view.html')));
 
 
