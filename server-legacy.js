@@ -28,8 +28,19 @@ const socketRollWindows = new Map();
 const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map((value) => value.trim()).filter(Boolean);
 const isProduction = process.env.NODE_ENV === 'production';
 app.use(cors({ origin: (origin, callback) => {
-  if (!origin || (!isProduction && allowedOrigins.length === 0) || allowedOrigins.includes(origin)) callback(null, true);
-  else callback(new Error('CORS origin is not allowed'));
+  if (!origin || (!isProduction && allowedOrigins.length === 0) || allowedOrigins.includes(origin)) {
+    callback(null, true);
+    return;
+  }
+
+  // If CORS_ORIGIN is not configured, preserve same-origin compatibility.
+  // Production deployments should set CORS_ORIGIN explicitly when other
+  // origins must be restricted.
+  if (allowedOrigins.length === 0) {
+    callback(null, true);
+    return;
+  }
+  callback(new Error('CORS origin is not allowed'));
 } }));
 
 const apiLimiter = rateLimit({ windowMs: 1000, limit: 10, standardHeaders: 'draft-7', legacyHeaders: false });
