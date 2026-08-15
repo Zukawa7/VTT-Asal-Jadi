@@ -67,8 +67,8 @@ describe('DnDBeyondService', () => {
     expect(character.stats.wis).toBe(8);
     expect(character.modifiers.wis).toBe(-1);
 
-    expect(character.equipment).toHaveLength(1);
-    expect(character.equipment[0].name).toBe('Sword');
+    expect(character.equipment!).toHaveLength(1);
+    expect(character.equipment![0].name).toBe('Sword');
   });
 
   it('should throw error on failed fetch', async () => {
