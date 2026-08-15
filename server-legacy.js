@@ -25,6 +25,14 @@ const io = new Server(httpServer, {
 const JWT_SECRET = process.env.JWT_SECRET || 'vtt-jwt-secret-key';
 const socketRollWindows = new Map();
 
+let persistRollHandler = null;
+
+function setRollPersistence(handler) {
+  persistRollHandler = handler;
+}
+
+
+
 const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map((value) => value.trim()).filter(Boolean);
 const isProduction = process.env.NODE_ENV === 'production';
 app.use(cors({ origin: (origin, callback) => {
@@ -438,16 +446,21 @@ io.on('connection', (socket) => {
 
     if (!/^[a-z0-9-]{3,50}$/.test(data.roomId)) return;
     try {
-      await runQuery('INSERT OR IGNORE INTO game_sessions (room_id) VALUES (?)', [data.roomId]);
-      const session = await getQuery('SELECT id FROM game_sessions WHERE room_id = ?', [data.roomId]);
-      await runQuery(
-        `INSERT INTO dice_rolls (session_id, character_id, character_name, roll_name, roll_formula, result, is_critical, rolls_json)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [session.id, data.characterId || null, String(data.characterName || 'Adventurer'), String(data.rollName || 'Roll'),
-          String(data.formula || ''), Number(data.result) || 0,
-          data.rolls?.[0] === 20 || data.rolls?.[0] === 1 ? 1 : 0,
-          JSON.stringify(Array.isArray(data.rolls) ? data.rolls : [])]
-      );
+      if (persistRollHandler) {
+        await persistRollHandler(data);
+      } else {
+        // Fallback for direct legacy execution during the migration.
+        await runQuery('INSERT OR IGNORE INTO game_sessions (room_id) VALUES (?)', [data.roomId]);
+        const session = await getQuery('SELECT id FROM game_sessions WHERE room_id = ?', [data.roomId]);
+        await runQuery(
+          `INSERT INTO dice_rolls (session_id, character_id, character_name, roll_name, roll_formula, result, is_critical, rolls_json)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [session.id, data.characterId || null, String(data.characterName || 'Adventurer'), String(data.rollName || 'Roll'),
+            String(data.formula || ''), Number(data.result) || 0,
+            data.rolls?.[0] === 20 || data.rolls?.[0] === 1 ? 1 : 0,
+            JSON.stringify(Array.isArray(data.rolls) ? data.rolls : [])]
+        );
+      }
     } catch (error) {
       console.error('Failed to persist roll:', error);
     }
@@ -459,7 +472,7 @@ io.on('connection', (socket) => {
   });
 });
 
-export { app, io, httpServer };
+export { app, io, httpServer, setRollPersistence };
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {

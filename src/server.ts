@@ -3,6 +3,8 @@ import { createApiRouter } from './routes/index.js';
 import { loadConfig } from './config/index.js';
 import { logger } from './utils/logger.js';
 import { CharacterSyncService } from './services/CharacterSyncService.js';
+import { RollPersistenceService } from './services/RollPersistenceService.js';
+
 
 export interface ServerConfig {
   port: number;
@@ -24,6 +26,9 @@ async function start(): Promise<void> {
   const legacy = await import('../server-legacy.js');
   const database = new DatabaseService(config.databasePath);
   await database.migrate();
+  const rollPersistence = new RollPersistenceService(database);
+  legacy.setRollPersistence((event: unknown) => rollPersistence.persist(event as never));
+
   legacy.app.use('/api/v2', createApiRouter(database, config.jwtSecret, (character) => {
     legacy.io.emit('character-updated', character);
   }));
