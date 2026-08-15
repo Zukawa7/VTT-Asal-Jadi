@@ -10,6 +10,26 @@ jobs:
     name: Trigger Deploy Webhook
     runs-on: ubuntu-latest
     steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --include=dev --ignore-scripts
+
+      - name: Verify before deploy
+        run: |
+          npm run type-check
+          npm run lint
+          npm run build
+          npm test
+
       - name: Send Webhook request
         run: |
           # The webhook secret is used to generate the signature
