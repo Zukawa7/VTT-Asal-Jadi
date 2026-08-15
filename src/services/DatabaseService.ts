@@ -22,7 +22,7 @@ export class DatabaseService {
       CREATE TABLE IF NOT EXISTS game_sessions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         room_id TEXT UNIQUE NOT NULL,
-        created_by INTEGER NOT NULL,
+        created_by INTEGER,
         name TEXT NOT NULL DEFAULT '',
         description TEXT NOT NULL DEFAULT '',
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,

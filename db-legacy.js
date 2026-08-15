@@ -88,6 +88,7 @@ db.serialize(() => {
     )
   `);
 
+
   // Backward-compatible columns for existing databases.
   db.run('ALTER TABLE dice_rolls ADD COLUMN character_name TEXT', () => {});
   db.run('ALTER TABLE dice_rolls ADD COLUMN roll_name TEXT', () => {});
