@@ -21,6 +21,13 @@ export interface HitPoints {
   temp: number;
 }
 
+export interface SpellSlot {
+  current: number;
+  max: number;
+}
+
+export type SpellSlots = Record<string, SpellSlot>;
+
 export interface EquipmentItem {
   id?: string | number;
   name: string;
@@ -41,6 +48,8 @@ export interface Character {
   stats: AbilityScores;
   modifiers: AbilityScores;
   equipment?: EquipmentItem[];
+  spellSlots?: SpellSlots;
+  conditions?: string[];
 }
 
 export interface DndBeyondCharacterResponse {
