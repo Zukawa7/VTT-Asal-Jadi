@@ -379,22 +379,32 @@ function addLogMessage(data) {
   msgEl.className = 'border-b border-gray-800/60 pb-2 mb-2 last:border-b-0';
 
   if (data.system) {
-    msgEl.innerHTML = `<span class="text-amber-500 font-bold">[SYSTEM]</span> <span class="text-gray-300">${data.text}</span>`;
+    msgEl.innerHTML = `<span class="text-primary font-bold">[SYSTEM]</span> <span class="text-secondary">${data.text}</span>`;
   } else {
-    const avatarImg = `<img src="${data.characterAvatar}" class="w-5 h-5 rounded-full inline-block mr-1.5 align-middle object-cover">`;
+    const avatarImg = `<img src="${data.characterAvatar}" class="w-5 h-5 rounded-full inline-block mr-1.5 align-middle object-cover bg-bg-primary">`;
     const rollsList = `(${data.rolls.join(', ')})`;
     const modStr = data.modifier ? (data.modifier >= 0 ? ` + ${data.modifier}` : ` - ${Math.abs(data.modifier)}`) : '';
     
+    // Critical coloring (assuming 1d20 for simplicity, or using data.isCritical if available)
+    let resultColor = 'text-primary';
+    if (data.formula.includes('d20') && data.rolls.length === 1) {
+      if (data.rolls[0] === 20) resultColor = 'text-success animate-pulse';
+      if (data.rolls[0] === 1) resultColor = 'text-danger animate-shake';
+    }
+    
+    const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
     msgEl.innerHTML = `
-      <div class="flex items-center gap-1 text-xs text-gray-400">
+      <div class="flex items-center gap-1 text-xs text-secondary">
         ${avatarImg}
-        <span class="font-bold text-gray-200">${data.characterName}</span>
-        <span class="text-gray-500">•</span>
+        <span class="font-bold text-primary">${data.characterName}</span>
+        <span class="text-tertiary">•</span>
         <span>${data.rollName}</span>
+        <span class="ml-auto text-tertiary text-[10px]">${timestamp}</span>
       </div>
       <div class="mt-1 flex justify-between items-baseline">
-        <span class="text-amber-400 text-xs">${data.formula} ${rollsList}${modStr}</span>
-        <span class="text-lg font-black text-white bg-gray-800 px-2 py-0.5 rounded border border-gray-700">${data.result}</span>
+        <span class="text-secondary text-xs">${data.formula} ${rollsList}${modStr}</span>
+        <span class="text-lg font-black ${resultColor} bg-bg-tertiary px-2 py-0.5 rounded border border-border-secondary shadow-sm">${data.result}</span>
       </div>
     `;
   }
