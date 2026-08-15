@@ -113,14 +113,31 @@
 
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col gap-6" id="content" style="display:none">
     
-    <!-- Top Stats Bar -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-      <div class="stat-box"><div class="stat-label">Proficiency</div><div id="prof" class="stat-val">+2</div></div>
-      <div class="stat-box"><div class="stat-label">Walking Speed</div><div id="speed" class="stat-val">30 ft.</div></div>
-      <div class="stat-box cursor-pointer hover:bg-hover" onclick="rollStat('Initiative', 'dex')"><div class="stat-label">Initiative</div><div id="initiative" class="stat-val">+0</div></div>
-      <div class="stat-box"><div class="stat-label">Armor Class</div><div id="armor" class="stat-val">10</div></div>
-      <div class="stat-box"><div class="stat-label">Spell Save DC</div><div id="spell-dc" class="stat-val text-accent">-</div></div>
+    <!-- Top Stats Bar (Match Video 4-item row) -->
+    <div class="grid grid-cols-4 gap-2 text-center">
+      <div>
+        <div class="text-[10px] text-tertiary font-bold uppercase mb-1">Proficiency</div>
+        <div class="stat-box py-2"><div id="prof" class="stat-val text-lg">+2</div></div>
+        <div class="text-[10px] text-tertiary font-bold uppercase mt-1">Bonus</div>
+      </div>
+      <div>
+        <div class="text-[10px] text-tertiary font-bold uppercase mb-1">Walking</div>
+        <div class="stat-box py-2"><div id="speed" class="stat-val text-lg">30</div></div>
+        <div class="text-[10px] text-tertiary font-bold uppercase mt-1">Speed</div>
+      </div>
+      <div>
+        <div class="text-[10px] text-tertiary font-bold uppercase mb-1">Initiative</div>
+        <div class="stat-box py-2 cursor-pointer hover:bg-hover" onclick="rollStat('Initiative', 'dex')"><div id="initiative" class="stat-val text-lg">+0</div></div>
+      </div>
+      <div>
+        <div class="text-[10px] text-tertiary font-bold uppercase mb-1">Armor</div>
+        <div class="stat-box py-2"><div id="armor" class="stat-val text-lg">10</div></div>
+        <div class="text-[10px] text-tertiary font-bold uppercase mt-1">Class</div>
+      </div>
     </div>
+
+    <!-- Abilities (Match Video 3x2 Grid) -->
+    <div id="abilities" class="grid grid-cols-3 md:grid-cols-6 gap-3 mb-4 mt-2"></div>
 
     <!-- Quick Actions & Money -->
     <div class="card bg-tertiary flex flex-col md:flex-row justify-between items-center p-3 gap-4">
@@ -151,7 +168,6 @@
 
       <!-- Tab: Stats & Skills -->
       <div data-tab-content="stats" class="animate-fadeIn">
-        <div id="abilities" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mb-8"></div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div><h3 class="font-heading font-bold text-secondary mb-3 border-b border-secondary pb-2">Saving Throws</h3><div id="saves"></div></div>
           <div><h3 class="font-heading font-bold text-secondary mb-3 border-b border-secondary pb-2">Skills</h3><div id="skills"></div></div>
@@ -380,12 +396,21 @@
         </div>`;
       }).join('');
       
-      // Passive Senses
-      document.getElementById('senses').innerHTML = [
-        ['PERCEPTION', 10 + c.modifiers.wis + (c.proficiencies?.skills?.includes('Perception')?profBonus:0)],
-        ['INVESTIGATION', 10 + c.modifiers.int + (c.proficiencies?.skills?.includes('Investigation')?profBonus:0)],
-        ['INSIGHT', 10 + c.modifiers.wis + (c.proficiencies?.skills?.includes('Insight')?profBonus:0)]
-      ].map(x => `<div class="list-row"><span>${x[0]}</span><span class="badge badge-info text-base px-2">${x[1]}</span></div>`).join('');
+      // Passive Senses (Video Layout: 3 circles side-by-side)
+      document.getElementById('senses').innerHTML = `
+        <div class="flex justify-around gap-2 text-center mt-4">
+          ${[
+            ['PERCEPTION', 10 + c.modifiers.wis + (c.proficiencies?.skills?.includes('Perception')?profBonus:0)],
+            ['INVESTIGATION', 10 + c.modifiers.int + (c.proficiencies?.skills?.includes('Investigation')?profBonus:0)],
+            ['INSIGHT', 10 + c.modifiers.wis + (c.proficiencies?.skills?.includes('Insight')?profBonus:0)]
+          ].map(x => `
+            <div class="flex flex-col items-center">
+              <div class="w-12 h-12 rounded-full border-2 border-primary flex items-center justify-center text-lg font-bold bg-bg-secondary text-primary shadow-sm mb-1">${x[1]}</div>
+              <div class="text-[10px] font-bold text-tertiary uppercase">${x[0]}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
       
       // Conditions
       if(canEdit) document.getElementById('conditionEditor').innerHTML='<input id="newCondition" placeholder="Add condition (e.g. Poisoned)" class="input flex-1"><button id="addCondition" class="btn btn-primary">Add</button>';
