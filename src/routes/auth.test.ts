@@ -31,6 +31,44 @@ describe('typed auth routes', () => {
     expect(login.body.token).toEqual(expect.any(String));
   });
 
+  it('returns /me for authenticated user', async () => {
+    const db = createDb();
+    const app = express();
+    app.use(express.json());
+    app.use('/auth', createAuthRouter(db as never, 'test-secret'));
+
+    await request(app).post('/auth/register').send({ username: 'tester', password: 'password123' });
+    const login = await request(app).post('/auth/login').send({ username: 'tester', password: 'password123' });
+    const token = login.body.token;
+
+    const me = await request(app).get('/auth/me').set('Authorization', `Bearer ${token}`);
+    expect(me.status).toBe(200);
+    expect(me.body.username).toBe('tester');
+  });
+
+  it('rejects registration for existing username', async () => {
+    const db = createDb();
+    const app = express();
+    app.use(express.json());
+    app.use('/auth', createAuthRouter(db as never, 'test-secret'));
+
+    await request(app).post('/auth/register').send({ username: 'tester', password: 'password123' });
+    const duplicate = await request(app).post('/auth/register').send({ username: 'tester', password: 'password123' });
+    expect(duplicate.status).toBe(409);
+    expect(duplicate.body.error).toBe('Username is already taken');
+  });
+
+  it('rejects registration with invalid format', async () => {
+    const db = createDb();
+    const app = express();
+    app.use(express.json());
+    app.use('/auth', createAuthRouter(db as never, 'test-secret'));
+
+    const invalid = await request(app).post('/auth/register').send({ username: 'a', password: '123' });
+    expect(invalid.status).toBe(400);
+  });
+
+
   it('rejects invalid credentials', async () => {
     const app = express();
     app.use(express.json());

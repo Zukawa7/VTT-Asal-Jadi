@@ -47,6 +47,49 @@ describe('CharacterSyncService', () => {
     expect(db.rows.get('123')?.user_id).toBe(7);
   });
 
+  it('starts and stops sync timer', () => {
+    vi.useFakeTimers();
+    const db = createDatabase();
+    db.all = vi.fn().mockResolvedValue([]);
+    const service = new CharacterSyncService(db as never, {} as never);
+    service.start(5000);
+    expect(db.all).toHaveBeenCalled(); // immediate call
+    
+    db.all.mockClear();
+    vi.advanceTimersByTime(5000);
+    expect(db.all).toHaveBeenCalled(); // interval call
+
+    service.start(5000); // multiple starts are ignored
+
+    service.stop();
+    db.all.mockClear();
+    vi.advanceTimersByTime(5000);
+    expect(db.all).not.toHaveBeenCalled(); // stopped
+
+    service.stop(); // safe to call again
+    vi.useRealTimers();
+  });
+
+  it('syncs all characters gracefully handling errors', async () => {
+    const db = createDatabase();
+    db.all = vi.fn().mockResolvedValue([{ id: '1', user_id: 1 }, { id: '2', user_id: 2 }]);
+    const mockDndBeyond = {
+      fetchCharacter: vi.fn()
+        .mockResolvedValueOnce({ id: '1', name: 'Char 1' })
+        .mockRejectedValueOnce(new Error('API Error'))
+    };
+    const service = new CharacterSyncService(db as never, mockDndBeyond as never);
+    
+    // Call the private method via any or start
+    service.start(5000);
+    await new Promise(resolve => setTimeout(resolve, 0)); // wait for promise to resolve
+    
+    expect(mockDndBeyond.fetchCharacter).toHaveBeenCalledTimes(2);
+    expect(db.run).toHaveBeenCalledTimes(1); // Only saved the successful one
+    service.stop();
+  });
+
+
   it('updates only the owner character HP', async () => {
     const db = createDatabase();
     const ddb = { fetchCharacter: vi.fn() };
