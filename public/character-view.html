@@ -13,32 +13,70 @@
   
   <script src="/socket.io/socket.io.js"></script>
   <style>
-    .stat-box { text-align: center; background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: var(--radius-md); padding: var(--space-sm); position: relative; }
-    .stat-label { font-size: var(--font-size-xs); color: var(--text-secondary); text-transform: uppercase; font-weight: bold; }
-    .stat-val { font-size: var(--font-size-2xl); font-weight: 900; color: var(--text-primary); }
+    body { background-image: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.5) 100%), url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h40v40H0z" fill="none"/><path d="M0 0h10v10H0zm20 20h10v10H20z" fill="%23000000" fill-opacity="0.05"/></svg>'); }
     
-    .ability-card { text-align: center; padding: var(--space-md); border: 2px solid var(--border-primary); border-radius: var(--radius-lg); position: relative; cursor: pointer; transition: all var(--transition-fast); background: var(--bg-secondary); }
-    .ability-card:hover { border-color: var(--secondary); transform: translateY(-2px); box-shadow: var(--glow-gold); }
-    .ability-title { font-size: var(--font-size-sm); color: var(--text-secondary); text-transform: uppercase; font-weight: bold; }
-    .ability-mod { font-size: var(--font-size-3xl); font-weight: 900; margin: var(--space-sm) 0; color: var(--primary); text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-    .ability-score { position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: var(--bg-primary); border: 1px solid var(--border-primary); border-radius: 999px; padding: 2px 10px; font-weight: bold; font-size: var(--font-size-sm); color: var(--text-primary); }
+    .stat-box { 
+      text-align: center; 
+      background: linear-gradient(145deg, var(--bg-secondary), var(--bg-primary)); 
+      border: 1px solid var(--border-primary); 
+      border-radius: var(--radius-md); 
+      padding: var(--space-sm); 
+      position: relative;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5), var(--shadow-sm);
+    }
+    .stat-box::before, .stat-box::after {
+      content: ''; position: absolute; width: 6px; height: 6px; border: 1px solid var(--border-accent); opacity: 0.3;
+    }
+    .stat-box::before { top: 2px; left: 2px; border-right: none; border-bottom: none; }
+    .stat-box::after { bottom: 2px; right: 2px; border-left: none; border-top: none; }
+    
+    .stat-label { font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; font-weight: bold; font-family: var(--font-heading); letter-spacing: 1px; }
+    .stat-val { font-size: var(--font-size-2xl); font-weight: 900; color: var(--text-primary); text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+    
+    .ability-card { 
+      text-align: center; 
+      padding: var(--space-md) var(--space-sm); 
+      background: linear-gradient(to bottom, var(--bg-tertiary), var(--bg-primary));
+      border: 1px solid var(--border-primary); 
+      border-bottom: 3px solid var(--border-accent);
+      border-radius: var(--radius-md) var(--radius-md) var(--radius-lg) var(--radius-lg); 
+      position: relative; 
+      cursor: pointer; 
+      transition: all var(--transition-fast); 
+      box-shadow: var(--shadow-md);
+    }
+    .ability-card:hover { border-color: var(--secondary); transform: translateY(-3px); box-shadow: var(--glow-gold), var(--shadow-lg); }
+    .ability-title { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; font-weight: bold; font-family: var(--font-heading); letter-spacing: 1px; }
+    .ability-mod { font-size: 2rem; font-weight: 900; margin: 4px 0 12px 0; color: var(--text-primary); text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+    .ability-score { 
+      position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); 
+      background: var(--bg-primary); border: 2px solid var(--border-accent); 
+      border-radius: 999px; padding: 2px 12px; font-weight: bold; font-size: var(--font-size-sm); 
+      color: var(--secondary); box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
 
-    .list-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-sm) 0; border-bottom: 1px solid var(--border-secondary); cursor: pointer; transition: background var(--transition-fast); }
-    .list-row:hover { background: var(--bg-hover); }
+    .list-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background var(--transition-fast); border-radius: 4px; margin-bottom: 2px; }
+    .list-row:hover { background: rgba(255,255,255,0.05); }
     .list-row:last-child { border-bottom: none; }
     
-    .tab-nav { display: flex; gap: var(--space-sm); overflow-x: auto; border-bottom: 2px solid var(--border-secondary); margin-bottom: var(--space-md); padding-bottom: var(--space-xs); }
-    .tab-btn { padding: var(--space-sm) var(--space-md); font-weight: bold; color: var(--text-tertiary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; white-space: nowrap; font-family: var(--font-heading); text-transform: uppercase; }
-    .tab-btn.active { color: var(--secondary); border-bottom-color: var(--secondary); text-shadow: var(--glow-gold); }
-    .tab-btn:hover:not(.active) { color: var(--text-primary); }
+    .tab-nav { display: flex; gap: var(--space-sm); overflow-x: auto; border-bottom: 1px solid var(--border-primary); margin-bottom: var(--space-md); padding-bottom: 0; }
+    .tab-btn { padding: var(--space-sm) var(--space-lg); font-weight: bold; color: var(--text-tertiary); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s; }
+    .tab-btn.active { color: var(--secondary); border-bottom-color: var(--secondary); text-shadow: var(--glow-gold); background: linear-gradient(to top, rgba(214,158,46,0.1), transparent); }
+    .tab-btn:hover:not(.active) { color: var(--text-primary); border-bottom-color: var(--border-secondary); }
     
-    .hp-bar-bg { width: 100%; background: var(--bg-primary); border-radius: 999px; height: 8px; margin-top: 8px; overflow: hidden; border: 1px solid var(--border-primary); }
-    .hp-bar-fill { height: 100%; background: var(--success); transition: width var(--transition-base), background-color var(--transition-base); }
-    .hp-bar-fill.low { background: var(--warning); }
-    .hp-bar-fill.critical { background: var(--danger); animation: pulse 1s infinite; }
+    .hp-bar-bg { width: 100%; background: var(--bg-primary); border-radius: 999px; height: 10px; margin-top: 8px; overflow: hidden; border: 1px solid var(--border-primary); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+    .hp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--success), #27ae60); transition: width var(--transition-base), background-color var(--transition-base); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3); }
+    .hp-bar-fill.low { background: linear-gradient(90deg, var(--warning), #f1c40f); }
+    .hp-bar-fill.critical { background: linear-gradient(90deg, var(--danger), #c0392b); animation: pulse 1s infinite; }
     
-    .prof-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--text-secondary); display: inline-block; margin-right: 8px; }
-    .prof-dot.active { background: var(--text-secondary); }
+    .prof-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--text-tertiary); display: inline-block; margin-right: 8px; transition: all 0.2s; }
+    .prof-dot.active { background: var(--secondary); border-color: var(--secondary); box-shadow: var(--glow-gold); }
+    
+    .currency-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 45px; height: 45px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.3); font-weight: bold; font-size: 0.7rem; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.8); box-shadow: var(--shadow-sm), inset 0 2px 4px rgba(255,255,255,0.3); }
+    .cp { background: radial-gradient(circle at 30% 30%, #cd7f32, #8b4513); }
+    .sp { background: radial-gradient(circle at 30% 30%, #e0e0e0, #808080); color: #333; text-shadow: none; }
+    .gp { background: radial-gradient(circle at 30% 30%, #ffd700, #b8860b); color: #4a3600; text-shadow: none; }
+    .pp { background: radial-gradient(circle at 30% 30%, #f5f5f5, #a9a9a9); color: #333; text-shadow: none; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -87,12 +125,11 @@
     <!-- Quick Actions & Money -->
     <div class="card bg-tertiary flex flex-col md:flex-row justify-between items-center p-3 gap-4">
       <div class="flex gap-4 items-center">
-        <div class="text-sm font-bold text-secondary">WEALTH:</div>
-        <div class="flex gap-2 text-sm" id="wealthContainer">
-          <span class="badge" style="background:#b87333;color:#fff">0 CP</span>
-          <span class="badge" style="background:#c0c0c0;color:#000">0 SP</span>
-          <span class="badge" style="background:#ffd700;color:#000">0 GP</span>
-          <span class="badge" style="background:#e5e4e2;color:#000">0 PP</span>
+        <div class="flex gap-3 text-sm" id="wealthContainer">
+           <div class="flex flex-col items-center"><span class="currency-badge cp">0</span><span class="text-[10px] text-tertiary mt-1">CP</span></div>
+           <div class="flex flex-col items-center"><span class="currency-badge sp">0</span><span class="text-[10px] text-tertiary mt-1">SP</span></div>
+           <div class="flex flex-col items-center"><span class="currency-badge gp">0</span><span class="text-[10px] text-tertiary mt-1">GP</span></div>
+           <div class="flex flex-col items-center"><span class="currency-badge pp">0</span><span class="text-[10px] text-tertiary mt-1">PP</span></div>
         </div>
       </div>
       <div class="flex gap-2">
@@ -308,10 +345,10 @@
       // Wealth
       if(c.currencies) {
         document.getElementById('wealthContainer').innerHTML = 
-          `<span class="badge" style="background:#b87333;color:#fff">${c.currencies.cp||0} CP</span>
-           <span class="badge" style="background:#c0c0c0;color:#000">${c.currencies.sp||0} SP</span>
-           <span class="badge" style="background:#ffd700;color:#000">${c.currencies.gp||0} GP</span>
-           <span class="badge" style="background:#e5e4e2;color:#000">${c.currencies.pp||0} PP</span>`;
+          `<div class="flex flex-col items-center"><span class="currency-badge cp">${c.currencies.cp||0}</span><span class="text-[10px] text-tertiary mt-1">CP</span></div>
+           <div class="flex flex-col items-center"><span class="currency-badge sp">${c.currencies.sp||0}</span><span class="text-[10px] text-tertiary mt-1">SP</span></div>
+           <div class="flex flex-col items-center"><span class="currency-badge gp">${c.currencies.gp||0}</span><span class="text-[10px] text-tertiary mt-1">GP</span></div>
+           <div class="flex flex-col items-center"><span class="currency-badge pp">${c.currencies.pp||0}</span><span class="text-[10px] text-tertiary mt-1">PP</span></div>`;
       }
       
       // Abilities
