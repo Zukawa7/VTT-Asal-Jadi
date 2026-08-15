@@ -151,7 +151,7 @@
     });
 
     // Fetch Characters List
-    async function loadCharacters() {
+    async function loadCharacters(recentCharacter = null) {
       charLoading.classList.remove('hidden');
       charGrid.classList.add('hidden');
       charEmpty.classList.add('hidden');
@@ -175,11 +175,21 @@
         }
 
         const characters = await response.json();
-        renderCharacters(characters);
+        const merged = recentCharacter && !characters.some(character => String(character.id) === String(recentCharacter.id))
+          ? [recentCharacter, ...characters]
+          : characters;
+        renderCharacters(merged);
       } catch (err) {
         console.error(err);
+        if (recentCharacter) {
+          renderCharacters([recentCharacter]);
+          importSuccess.textContent = `Character "${recentCharacter.name}" imported. List sync is temporarily unavailable.`;
+          importSuccess.classList.remove('hidden');
+          return;
+        }
         charLoading.classList.add('hidden');
         charEmpty.classList.remove('hidden');
+        charEmpty.querySelector('p').textContent = err instanceof Error ? err.message : 'Unable to load characters.';
       }
     }
 
@@ -199,6 +209,7 @@
       characters.forEach(char => {
         const card = document.createElement('div');
         card.className = 'bg-gray-800/40 border border-gray-700/50 rounded-lg p-5 flex flex-col justify-between hover:border-amber-500/50 transition-all';
+        card.dataset.characterId = String(char.id);
         
         const classStr = char.classes.map(c => `${c.name} ${c.level}`).join('/') + ` (Lvl ${char.level})`;
         const charUrl = `/${username}/dashboard/characters/${char.id}`;
@@ -266,8 +277,12 @@
         importSuccess.classList.remove('hidden');
         charIdInput.value = '';
         
-        // Reload list
-        loadCharacters();
+        // Reload the list only after the import response has completed.
+        // Also keep the imported character visible if a stale cached API response is returned.
+        await loadCharacters();
+        if (!charGrid.querySelector('[data-character-id="' + CSS.escape(String(data.id)) + '"]')) {
+          renderCharacters([data]);
+        }
       } catch (err) {
         showImportError(err.message);
       } finally {

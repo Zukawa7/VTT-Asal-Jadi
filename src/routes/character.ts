@@ -15,7 +15,10 @@ export function createCharacterRouter(db: DatabaseService, jwtSecret: string, dd
 
   router.get('/', auth, async (_req, res, next) => {
     try {
-      const rows = await db.all<CharacterRow>('SELECT id, character_data, user_id FROM character_sheets WHERE user_id = ?', [res.locals.user.id]);
+      const rows = await db.all<CharacterRow>(`SELECT id, character_data, user_id FROM character_sheets WHERE user_id = ?
+        UNION ALL
+        SELECT id, data AS character_data, user_id FROM characters
+        WHERE user_id = ? AND NOT EXISTS (SELECT 1 FROM character_sheets WHERE character_sheets.id = characters.id)`, [res.locals.user.id, res.locals.user.id]);
       res.json(rows.map((row) => JSON.parse(row.character_data) as Character));
     } catch (error) { next(error); }
   });
@@ -27,8 +30,11 @@ export function createCharacterRouter(db: DatabaseService, jwtSecret: string, dd
       if (!validateCharacterId(rawId)) { res.status(400).json({ error: 'Invalid character ID' }); return; }
       const character = await ddb.fetchCharacter(rawId);
       const userId = res.locals.user.id as number;
+      const characterData = JSON.stringify(character);
       await db.run(`INSERT INTO character_sheets (id, user_id, character_data, last_synced) VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(id) DO UPDATE SET user_id=excluded.user_id, character_data=excluded.character_data, last_synced=CURRENT_TIMESTAMP`, [String(character.id), userId, JSON.stringify(character)]);
+        ON CONFLICT(id) DO UPDATE SET user_id=excluded.user_id, character_data=excluded.character_data, last_synced=CURRENT_TIMESTAMP`, [String(character.id), userId, characterData]);
+      await db.run(`INSERT INTO characters (id, user_id, name, data) VALUES (?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET user_id=excluded.user_id, name=excluded.name, data=excluded.data`, [String(character.id), userId, character.name, characterData]);
       res.json(character);
     } catch (error) { next(error); }
   });
