@@ -22,4 +22,16 @@ describe('DiceRollerService', () => {
     expect(new DiceRollerService().roll('1d20').critical).toBe('failure');
     Math.random = random;
   });
+
+  it('supports advantage and disadvantage formulas', () => {
+    const random = Math.random;
+    let index = 0;
+    const values = [0, 0.999999];
+    Math.random = () => values[index++];
+    expect(new DiceRollerService().roll('2d20h1').keptRolls).toEqual([20]);
+    index = 0;
+    Math.random = () => values[index++];
+    expect(new DiceRollerService().roll('2d20l1').keptRolls).toEqual([1]);
+    Math.random = random;
+  });
 });
