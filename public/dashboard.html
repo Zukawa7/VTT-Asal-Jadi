@@ -223,10 +223,16 @@
 
     // Import Character
     importBtn.addEventListener('click', async () => {
-      const characterId = charIdInput.value.trim();
+      let characterId = charIdInput.value.trim();
       if (!characterId) {
         showImportError('Please enter a Character ID');
         return;
+      }
+
+      // Extract ID if a full URL was provided
+      const match = characterId.match(/(?:characters\/)?(\d+)/i);
+      if (match && match[1]) {
+        characterId = match[1];
       }
 
       importBtn.disabled = true;

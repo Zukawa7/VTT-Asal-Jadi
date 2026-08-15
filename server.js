@@ -214,9 +214,15 @@ app.get('/api/auth/me', authenticateToken, (req, res) => {
 
 // Import character (Authenticated)
 app.post('/api/character/import', authenticateToken, async (req, res) => {
-  const { characterId } = req.body;
+  let { characterId } = req.body;
   if (!characterId) {
     return res.status(400).json({ error: 'Character ID is required' });
+  }
+
+  // Extract ID if a full URL was provided
+  const match = characterId.toString().match(/(?:characters\/)?(\d+)/i);
+  if (match && match[1]) {
+    characterId = match[1];
   }
 
   try {
