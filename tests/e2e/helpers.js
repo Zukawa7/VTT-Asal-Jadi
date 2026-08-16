@@ -492,18 +492,34 @@ export class InMemoryDatabase {
 
     // 5. Dice Rolls
     if (s.startsWith('INSERT INTO dice_rolls')) {
-      const roll = {
-        id: this.nextRollId++,
-        session_id: Number(params[0]),
-        character_id: params[1] ? String(params[1]) : null,
-        character_name: 'Test Character',
-        roll_name: 'Roll',
-        roll_formula: String(params[2]),
-        result: Number(params[3]),
-        is_critical: Number(params[4] ?? 0),
-        rolls_json: JSON.stringify([params[3]]),
-        created_at: new Date().toISOString(),
-      };
+      let roll;
+      if (params.length >= 8) {
+        roll = {
+          id: this.nextRollId++,
+          session_id: Number(params[0]),
+          character_id: params[1] ? String(params[1]) : null,
+          character_name: String(params[2] ?? 'Adventurer'),
+          roll_name: String(params[3] ?? 'Roll'),
+          roll_formula: String(params[4]),
+          result: Number(params[5]),
+          is_critical: Number(params[6] ?? 0),
+          rolls_json: String(params[7] ?? '[]'),
+          created_at: new Date().toISOString(),
+        };
+      } else {
+        roll = {
+          id: this.nextRollId++,
+          session_id: Number(params[0]),
+          character_id: params[1] ? String(params[1]) : null,
+          character_name: 'Test Character',
+          roll_name: 'Roll',
+          roll_formula: String(params[2]),
+          result: Number(params[3]),
+          is_critical: Number(params[4] ?? 0),
+          rolls_json: JSON.stringify([params[3]]),
+          created_at: new Date().toISOString(),
+        };
+      }
       this.diceRolls.push(roll);
       return { lastID: roll.id, changes: 1 };
     }
@@ -631,17 +647,17 @@ export class InMemoryDatabase {
     }
 
     // 6. Dice Rolls aggregates
-    if (s.includes('COUNT(*) AS totalRolls') || s.includes('SELECT COUNT(*) AS totalRolls')) {
+    if (s.includes('COUNT(*) AS totalRolls') || s.includes('SELECT COUNT(*) AS totalRolls') || s.includes('COUNT(*) AS total')) {
       const sessionId = Number(params[0]);
       const matching = this.diceRolls.filter((r) => r.session_id === sessionId);
       if (matching.length === 0) {
-        return { totalRolls: 0, averageResult: 0, criticalCount: 0 };
+        return { total: 0, totalRolls: 0, averageResult: 0, criticalCount: 0 };
       }
       const totalRolls = matching.length;
       const sum = matching.reduce((acc, curr) => acc + curr.result, 0);
       const averageResult = parseFloat((sum / totalRolls).toFixed(2));
       const criticalCount = matching.reduce((acc, curr) => acc + (curr.is_critical ? 1 : 0), 0);
-      return { totalRolls, averageResult, criticalCount };
+      return { total: totalRolls, totalRolls, averageResult, criticalCount };
     }
 
     return undefined;
