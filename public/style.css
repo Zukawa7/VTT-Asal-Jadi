@@ -1,0 +1,21 @@
+/**
+ * ==========================================================================
+ * VTT ASAL JADI - DARK FANTASY OBSIDIAN & GOLD DESIGN SYSTEM
+ * Master Aggregator Stylesheet (style.css)
+ * ==========================================================================
+ */
+
+/* 1. Design Tokens & Typography Imports */
+@import url('./styles/variables.css');
+
+/* 2. Base Theme Rules, Obsidian Canvas, Typography Defaults & Scrollbars */
+@import url('./styles/theme.css');
+
+/* 3. Reusable UI Components (Cards, Buttons, Inputs, Badges, Modals, HP Meters) */
+@import url('./styles/components.css');
+
+/* 4. Keyframe Animations & Critical Roll Visual Effects */
+@import url('./styles/animations.css');
+
+/* 5. Responsive Breakpoints, Touch Targets & Workstation Collapse */
+@import url('./styles/responsive.css');
