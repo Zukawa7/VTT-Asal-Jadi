@@ -1,0 +1,90 @@
+# VTT Asal Jadi AI Rules
+
+Anda adalah AI coding assistant untuk proyek Virtual Tabletop "VTT Asal Jadi". Fokus pada kualitas, stabilitas, dan performa real-time. Selalu pertahankan behavior yang sudah berjalan dan hindari perubahan yang berisiko terhadap pengalaman pengguna saat bermain.
+
+## Stack & Teknologi
+- TypeScript + Node.js + Express 5
+- ESM modules (`import`/`export`)
+- Socket.IO untuk real-time room sync
+- SQLite untuk persistence
+- Vitest untuk unit/integration testing
+- Static frontend di folder `public/` dengan vanilla JS
+- API route terstruktur di `src/routes/` dan service logic di `src/services/`
+
+## Prinsip Utama
+- Jangan pernah merusak fitur yang sudah berjalan.
+- Selalu pastikan kode efisien untuk rendering VTT dan update real-time.
+- Jangan menambah kompleksitas yang tidak perlu.
+- Prioritaskan perubahan kecil, aman, dan testable.
+- Jika unsure, cari pola yang sudah ada di repo sebelum menulis kode baru.
+
+## Gaya Penulisan Kode
+- Gunakan TypeScript secara eksplisit, hindari `any` jika memungkinkan.
+- Gunakan semicolon, single quote untuk string, dan format yang konsisten dengan repo.
+- Functional style dan clear separation of concerns:
+  - route layer untuk HTTP handling
+  - service layer untuk business logic
+  - util layer untuk helper dan validation
+  - middleware untuk auth/security
+- Gunakan `async/await` bukan callback nested.
+- Import path harus konsisten; gunakan extension `.js` saat import TypeScript pada ESM.
+- Gunakan interface/type untuk kontrak data.
+- Nama variabel dan fungsi harus deskriptif:
+  - `camelCase` untuk variabel dan fungsi
+  - `PascalCase` untuk class, interface, type
+  - `UPPER_SNAKE_CASE` untuk konstanta global
+- Hindari dead code, duplicate logic, dan comment yang berlebihan.
+
+## Best Practices Berdasarkan Proyek
+- Validasi input user di boundary layer (route, validator, service).
+- Gunakan `DatabaseService` untuk query, bukan query langsung dari route.
+- Simpan state room dan token pada server-side via `WebSocketManager` agar sinkronisasi tetap konsisten.
+- Untuk data room, map, dan token: lakukan pembatasan safe range dan validasi URL.
+- Untuk operasi VTT:
+  - batasi update berlebih
+  - hindari re-render global jika hanya satu token berubah
+  - gunakan event-driven updates via Socket.IO
+  - simpan state minimal namun konsisten
+- Untuk API REST:
+  - gunakan status code yang benar
+  - return error message yang jelas
+  - jangan mengekspos detail sensitif
+
+## Penanganan Error
+- Selalu gunakan `try/catch` untuk operasi async dan IO.
+- Jangan menelan error tanpa log.
+- Gunakan logger yang sudah ada (`src/utils/logger.ts`) untuk trace error.
+- Hindari crash berkala; bila ada error kritis, return response error yang aman.
+- Saat validasi gagal, langsung reject dengan pesan yang jelas.
+- Pastikan semua operasi database, WebSocket, dan parser input aman terhadap input invalid.
+
+## Aturan Khusus Proyek
+- Jaga kompatibilitas dengan fitur legacy yang sudah ada.
+- Jangan menghapus API/behavior yang sudah dipakai frontend lama.
+- Untuk event real-time, pastikan data yang dikirim ke client konsisten dengan schema `types/events.ts` dan `types/api.ts`.
+- Hindari perubahan besar pada struktur room/session tanpa migrasi yang aman.
+- Jika menambah fitur gameplay, selalu pertimbangkan:
+  - integrasi room sync
+  - validasi roomId
+  - karakter/token update
+  - performance di browser/client
+
+## Security & Stability
+- Validasi semua input room ID, token ID, URL, dan parameter.
+- Gunakan keamanan middleware (`security.ts`) dan auth check (`auth.ts`) saat diperlukan.
+- Jangan membiarkan data tidak terfilter masuk ke database atau socket event.
+- Jaga server tetap stabil saat banyak client join ke room yang sama.
+
+## Checklist Saat Menulis Kode
+- [ ] Apakah perubahan aman untuk fitur yang sudah berjalan?
+- [ ] Apakah update VTT tetap efisien untuk rendering dan syncing?
+- [ ] Apakah saya mengikuti gaya TypeScript repo?
+- [ ] Apakah saya menggunakan validation yang tepat?
+- [ ] Apakah error ditangani dengan logger dan pesan yang jelas?
+- [ ] Apakah saya menulis/menjaga test untuk behavior utama?
+- [ ] Apakah saya tidak menimbulkan regresi pada satu room atau banyak room?
+
+## Output yang Diharapkan
+- Kode harus rapi, maintainable, dan siap dipakai dalam aplikasi VTT.
+- Prioritaskan perubahan yang menambah stabilitas, gameplay, dan real-time sync.
+- Jangan membuat solusi yang “berhasil” secara teori tapi merusak pengalaman pengguna saat bermain.
