@@ -1,25 +1,391 @@
-/* Keyframes & animations */
+/* ==========================================================================
+   VTT ASAL JADI - ANIMATIONS & KEYFRAMES SYSTEM (animations.css)
+   Dark Fantasy Obsidian & Gold Animations, Critical Rolls & Transitions
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. CORE TRANSITIONS & OPACITY FADES
+   -------------------------------------------------------------------------- */
+
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideInUp {
-  from { transform: translate(-50%, -40%); opacity: 0; }
-  to { transform: translate(-50%, -50%); opacity: 1; }
-}
-
-@keyframes slideInDown {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
 }
 
-.animate-fadeIn { animation: fadeIn var(--transition-base) forwards; }
-.animate-slideInUp { animation: slideInUp var(--transition-base) forwards; }
-.animate-slideInDown { animation: slideInDown var(--transition-base) forwards; }
-.animate-fadeOut { animation: fadeOut var(--transition-base) forwards; }
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translate3d(-100%, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. MODAL, POPUP & CARD ENTRY ANIMATIONS
+   -------------------------------------------------------------------------- */
+
+/* Centered modal entry with subtle scale bounce */
+@keyframes modalScale {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.92);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Tab content switch cross-fade */
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Staggered card entrance for grids */
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. GOLDEN GLOW & AMBER PULSES (DARK FANTASY AESTHETIC)
+   -------------------------------------------------------------------------- */
+
+/* Pulsing golden aura for active buttons and highlighted elements */
+@keyframes gold-pulse {
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.4), inset 0 0 4px rgba(245, 158, 11, 0.2);
+    border-color: rgba(245, 158, 11, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.85), inset 0 0 10px rgba(251, 191, 36, 0.4);
+    border-color: #fbbf24;
+  }
+}
+
+/* Ambient amber glow for cards and widgets */
+@keyframes amber-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px rgba(217, 119, 6, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 14px rgba(251, 191, 36, 0.75));
+  }
+}
+
+/* Subtle continuous hover pulse for Roll buttons */
+@keyframes pulse-subtle {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. CRITICAL ROLL CELEBRATIONS (NAT 20 & NAT 1)
+   -------------------------------------------------------------------------- */
+
+/* Natural 20 Golden Shimmer & Triumph Celebration */
+@keyframes nat20-shimmer {
+  0% {
+    transform: scale(1) rotate(0deg);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    filter: brightness(1);
+  }
+  20% {
+    transform: scale(1.1) rotate(-3deg);
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.9), 0 0 50px rgba(251, 191, 36, 0.6);
+    filter: brightness(1.35);
+  }
+  40% {
+    transform: scale(1.06) rotate(3deg);
+    box-shadow: 0 0 35px rgba(251, 191, 36, 1), 0 0 70px rgba(245, 158, 11, 0.7);
+    filter: brightness(1.45);
+  }
+  60% {
+    transform: scale(1.08) rotate(-1deg);
+    box-shadow: 0 0 30px rgba(245, 158, 11, 0.9), 0 0 50px rgba(251, 191, 36, 0.6);
+    filter: brightness(1.25);
+  }
+  80% {
+    transform: scale(1.03) rotate(1deg);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
+    filter: brightness(1.15);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+    filter: brightness(1);
+  }
+}
+
+/* Golden Light Sweep overlay across Nat 20 cards */
+@keyframes gold-sweep {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* Natural 1 Crimson Dread Shake & Glitch Failure */
+@keyframes nat1-dread {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+    filter: brightness(1);
+  }
+  10%, 90% {
+    transform: translate3d(-3px, 1px, 0) rotate(-1.5deg);
+    box-shadow: 0 0 18px rgba(220, 38, 38, 0.8);
+  }
+  20%, 80% {
+    transform: translate3d(3px, -2px, 0) rotate(2deg);
+    box-shadow: 0 0 24px rgba(239, 68, 68, 0.9);
+    filter: brightness(1.2);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-5px, 2px, 0) rotate(-2.5deg);
+    box-shadow: 0 0 30px rgba(185, 28, 28, 1);
+    filter: brightness(0.85);
+  }
+  40%, 60% {
+    transform: translate3d(5px, -1px, 0) rotate(2.5deg);
+    box-shadow: 0 0 26px rgba(239, 68, 68, 0.9);
+    filter: brightness(1.25);
+  }
+}
+
+/* General Error / Validation Shake */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+/* --------------------------------------------------------------------------
+   5. DICE ROLLING & INTERACTIVE TUMBLE ANIMATIONS
+   -------------------------------------------------------------------------- */
+
+/* Polyhedral dice tumbling 3D animation */
+@keyframes diceTumble {
+  0% {
+    transform: scale(0.8) rotate(0deg);
+    opacity: 0.7;
+  }
+  35% {
+    transform: scale(1.25) rotate(140deg);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.95) rotate(290deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+/* Rapid dice vibration jitter on click */
+@keyframes diceShake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-2px, 2px) rotate(-5deg); }
+  50% { transform: translate(2px, -2px) rotate(5deg); }
+  75% { transform: translate(-2px, -1px) rotate(-3deg); }
+}
+
+/* Dice landing impact thud */
+@keyframes diceThud {
+  0% { transform: scale(1.3); }
+  60% { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+
+/* --------------------------------------------------------------------------
+   6. LOADING SPINNER & TELEMETRY HIGHLIGHTS
+   -------------------------------------------------------------------------- */
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Telemetry row highlight on new WebSocket roll */
+@keyframes rollHighlight {
+  0% {
+    background-color: rgba(245, 158, 11, 0.35);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   7. OBS BROADCAST OVERLAY ANIMATIONS
+   -------------------------------------------------------------------------- */
+
+@keyframes overlaySlideIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes overlayBounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  80% {
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes overlayFadeOut {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -25px, 0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   8. UTILITY ANIMATION CLASSES
+   -------------------------------------------------------------------------- */
+
+.animate-fadeIn { animation: fadeIn var(--transition-base, 250ms) ease-out forwards; }
+.animate-fadeOut { animation: fadeOut var(--transition-base, 250ms) ease-in forwards; }
+.animate-slideInUp { animation: slideInUp var(--transition-base, 250ms) cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-slideInDown { animation: slideInDown var(--transition-base, 250ms) cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-slideInLeft { animation: slideInLeft var(--transition-base, 250ms) cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-slideInRight { animation: slideInRight var(--transition-base, 250ms) cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+.animate-modalScale { animation: modalScale 300ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.animate-tabFadeIn { animation: tabFadeIn 200ms ease-out forwards; }
+.animate-cardEnter { animation: cardEnter 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+.animate-gold-pulse { animation: gold-pulse 2s infinite ease-in-out; }
+.animate-amber-glow { animation: amber-glow 2.5s infinite ease-in-out; }
+.animate-pulse-hover:hover { animation: pulse-subtle 1.2s infinite ease-in-out; }
+
+.animate-nat20 { animation: nat20-shimmer 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.animate-nat1 { animation: nat1-dread 0.9s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards; }
+
+.animate-shake { animation: shake 400ms ease-in-out; }
+.animate-dice-tumble { animation: diceTumble 600ms cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+.animate-dice-shake { animation: diceShake 350ms ease-in-out; }
+.animate-dice-thud { animation: diceThud 300ms ease-out forwards; }
+
+.animate-spin { animation: spin 1s linear infinite; }
+.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+.animate-roll-highlight { animation: rollHighlight 1.5s ease-out forwards; }
+
+/* OBS overlay helper bindings */
+body.animation-slide .roll-card { animation: overlaySlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+body.animation-fade .roll-card { animation: fadeIn 0.3s ease-out forwards; }
+body.animation-bounce .roll-card { animation: overlayBounceIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.roll-card.fade-out { animation: overlayFadeOut 0.5s ease-out forwards; }
+
+/* --------------------------------------------------------------------------
+   9. ACCESSIBILITY OVERRIDE (PREFERS-REDUCED-MOTION)
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
