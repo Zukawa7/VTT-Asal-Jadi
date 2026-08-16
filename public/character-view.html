@@ -43,268 +43,344 @@
 </head>
 <body class="bg-[#0a0b10] text-white min-h-screen flex flex-col font-sans">
 
-  <main class="flex-1 w-full max-w-3xl mx-auto px-6 py-10 flex flex-col pb-32" id="content" style="display:none">
+  <!-- Header / Navigation -->
+  <nav class="sticky top-0 z-30 border-b border-[#1c1f2d] bg-[#0a0b10]/90 px-6 py-4 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
+      <div class="flex items-center gap-2 text-xs font-bold text-white">
+        <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
+        <span>VTT ASAL JADI</span>
+      </div>
+      <div class="flex items-center gap-5 text-[10px] text-[#a2a7bd]">
+        <span class="hidden sm:inline">Logged in as <span id="headerUsername" class="font-bold text-[#d4a544]">Username</span></span>
+        <a href="/dashboard" class="hover:text-[#d4a544] transition-colors">Dashboard</a>
+        <a href="/session-dashboard" class="hover:text-[#d4a544] transition-colors">Session Logs</a>
+        <a href="/vtt" class="hover:text-[#d4a544] transition-colors">Open VTT</a>
+        <button id="logoutBtn" class="rounded-md bg-[#8b302d] px-3 py-1.5 text-[10px] font-bold text-white transition hover:bg-[#a63a37]">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- BackgroundGlow -->
+  <div
+    aria-hidden="true"
+    class="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] max-w-none -translate-x-1/2 -translate-y-[340px] rounded-full"
+    style="background: radial-gradient(circle, rgba(212,165,68,0.18) 0%, rgba(212,165,68,0.06) 35%, transparent 70%);"
+  ></div>
+
+  <!-- Loading & Error states -->
+  <div id="loading" class="text-center p-20 text-xl font-bold text-[#d4a544] animate-pulse w-full">Loading character sheet...</div>
+  <div id="error" class="hidden text-center p-20 text-xl text-red-500 w-full"></div>
+
+  <!-- Main Content -->
+  <main class="flex-1 w-full max-w-6xl mx-auto px-6 py-10 flex flex-col pb-32" id="content" style="display:none">
     
-    <!-- 2. Profile Summary Card -->
-    <div class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4">
+    <!-- Section Title -->
+    <div class="mb-6 max-w-2xl">
+      <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#d4a544]">05 / Character sheet</p>
+      <h2 class="mb-2 text-3xl font-extrabold text-white" style="font-family: 'EB Garamond', serif;">Built for the full adventure.</h2>
+      <p class="text-sm leading-6 text-[#a2a7bd]">The character sheet keeps the important details visible while remaining compact enough for the live table.</p>
+    </div>
+
+    <!-- Main Card Container -->
+    <div class="rounded-xl border border-[#26293c] bg-[#121420] p-5 shadow-2xl relative">
       <!-- Corner brackets -->
       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
 
-      <div class="flex items-center gap-4 w-full">
-        <img id="avatar" src="" class="w-16 h-16 rounded-full border border-[#d4a544] object-cover bg-[#0b0c12] flex-shrink-0" alt="Avatar">
-        <div class="flex-1 min-w-0 flex flex-col">
-          <h1 id="name" class="text-xl font-bold text-white uppercase tracking-wider leading-tight" style="word-break: break-word; white-space: normal;">Name</h1>
-          <p id="meta" class="text-[10px] text-[#a2a7bd] mt-1 mb-2" style="word-break: break-word; white-space: normal;">Race · Class</p>
-          <div class="flex gap-2 items-center flex-wrap">
-            <span id="level" class="rounded bg-[#8b302d] px-2 py-0.5 text-[9px] font-bold text-white uppercase">LEVEL 1</span>
-            <span id="alignment" class="text-[9px] text-[#6b7085] whitespace-nowrap">True Neutral</span>
-            <span id="xp" class="text-[9px] text-[#6b7085] whitespace-nowrap">0 XP</span>
+      <!-- Header Row -->
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[#26293c] pb-5">
+        <div class="flex items-center gap-3">
+          <img id="avatar" src="" class="w-12 h-12 rounded-full border border-[#d4a544] object-cover bg-[#0b0c12]" alt="Avatar">
+          <div>
+            <h3 id="name" class="text-lg font-bold text-white uppercase tracking-wider" style="font-family: 'EB Garamond', serif">Name</h3>
+            <p class="text-[10px] text-[#a2a7bd] mt-1 flex items-center gap-2 flex-wrap">
+              <span id="level" class="rounded bg-[#8b302d] px-1.5 py-0.5 text-[8px] font-bold text-white uppercase">LEVEL 1</span>
+              <span id="meta">Race · Class</span>
+              <span class="text-[#6b7085]">•</span>
+              <span id="alignment">True Neutral</span>
+              <span class="text-[#6b7085]">•</span>
+              <span id="xp">0 XP</span>
+            </p>
+          </div>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+          <button id="manageBtn" class="rounded-md border border-[#26293c] bg-[#121420] px-3 py-1.5 text-[10px] font-bold text-white hover:bg-[#181c2c] transition" onclick="location.href='/dashboard/character/edit/'+(character?.id||'')">MANAGE</button>
+          <button id="inspirationBtn" class="rounded-md border border-[#26293c] bg-[#121420] px-3 py-1.5 text-[10px] font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition">INSPIRATION</button>
+          <button class="rounded-md bg-[#8b302d] px-4 py-2 text-[10px] font-bold text-white hover:bg-[#a63a37] transition" onclick="openHpModal()">REST CHARACTER</button>
+        </div>
+      </div>
+
+      <!-- 4 StatCards Grid -->
+      <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- HP Card -->
+        <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative cursor-pointer hover:bg-[#181c2c]/20 transition" onclick="openHpModal()">
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+          <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">HIT POINTS</p>
+          <div class="flex justify-between items-baseline mt-2">
+            <p class="text-2xl font-bold text-white"><span id="hp-current">0</span> <span class="text-xs text-[#6b7085]">/</span> <span id="hp-max" class="text-xs text-[#a2a7bd]">0</span></p>
+            <p id="hp-temp" class="text-[10px] text-blue-400 font-bold"></p>
+          </div>
+          <div class="h-1 bg-[#0a0b10] rounded-full overflow-hidden mt-2">
+            <div id="hp-bar" class="h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- AC Card -->
+        <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+          <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">ARMOR CLASS</p>
+          <p id="armor" class="mt-2 text-2xl font-bold text-white">10</p>
+        </div>
+
+        <!-- Initiative Card -->
+        <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative cursor-pointer hover:bg-[#181c2c]/40 transition" onclick="rollStat('Initiative', 'dex')">
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+          <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">INITIATIVE</p>
+          <p id="initiative" class="mt-2 text-2xl font-bold text-[#d4a544]">+0</p>
+        </div>
+
+        <!-- Speed Card -->
+        <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+          <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">SPEED</p>
+          <p id="speed" class="mt-2 text-2xl font-bold text-white">30 ft.</p>
+        </div>
+      </div>
+
+      <!-- 2-Column Grid -->
+      <div class="mt-5 grid gap-4 lg:grid-cols-[1fr_1.4fr]">
+        <!-- Left Column: Ability Scores -->
+        <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative h-fit">
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+          
+          <div class="mb-4 flex items-center justify-between">
+            <h4 class="text-xs font-bold text-white">ABILITY SCORES</h4>
+            <i data-lucide="bar-chart-3" class="h-4 w-4 text-[#d4a544]"></i>
+          </div>
+          <div id="abilities" class="grid grid-cols-3 gap-2"></div>
+        </div>
+
+        <!-- Right Column: Tabs & Tab Contents -->
+        <div class="flex flex-col gap-4">
+          <!-- Tabs Navigation Chips -->
+          <div class="chips-container" id="tab-chips">
+            <div class="filter-chip active" onclick="switchTab('abilities')">Abilities</div>
+            <div class="filter-chip" onclick="switchTab('skills')">Skills</div>
+            <div class="filter-chip" onclick="switchTab('actions')">Actions</div>
+            <div class="filter-chip" onclick="switchTab('inventory')">Inventory</div>
+            <div class="filter-chip" onclick="switchTab('features')">Features</div>
+            <div class="filter-chip" onclick="switchTab('proficiencies')">Proficiencies</div>
+            <div class="filter-chip" onclick="switchTab('background')">Background</div>
+            <div class="filter-chip" onclick="switchTab('notes')">Notes</div>
+          </div>
+
+          <!-- Tab Contents Container -->
+          <div class="flex-1 flex flex-col gap-4">
+            <!-- Saving Throws & Senses (grouped under Abilities tab) -->
+            <div id="section-abilities" class="tab-section space-y-4" data-tab="abilities">
+              <!-- Saving Throws -->
+              <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+                <div class="mb-4 flex items-center justify-between">
+                  <h4 class="text-xs font-bold text-white">SAVING THROWS</h4>
+                  <span class="text-[10px] text-[#6b7085]">PROFICIENCY</span>
+                </div>
+                <div id="saves" class="grid gap-2 sm:grid-cols-2"></div>
+              </div>
+
+              <!-- Senses -->
+              <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+                <div class="mb-4 flex items-center justify-between">
+                  <h4 class="text-xs font-bold text-white">PASSIVE SENSES</h4>
+                  <i data-lucide="eye" class="h-4 w-4 text-[#d4a544]"></i>
+                </div>
+                <div id="senses" class="flex justify-around gap-2 text-center w-full"></div>
+              </div>
+            </div>
+
+            <!-- Skills Tab -->
+            <div id="section-skills" class="tab-section hidden border border-[#26293c] bg-[#121420] rounded-lg p-4 relative" data-tab="skills">
+              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+              <div class="mb-4 flex items-center justify-between">
+                <h4 class="text-xs font-bold text-white">SKILLS</h4>
+                <span class="text-[10px] text-[#6b7085]">PROFICIENCY</span>
+              </div>
+              <div id="skills" class="grid gap-2 sm:grid-cols-2"></div>
+            </div>
+
+            <!-- Actions Tab (Weapons & Spells) -->
+            <div id="section-actions" class="tab-section hidden space-y-4" data-tab="actions">
+              <!-- Class Resources -->
+              <div id="section-resources" class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative" style="display:none;"></div>
+              
+              <!-- Actions -->
+              <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+                <div class="mb-4 flex items-center justify-between">
+                  <h4 class="text-xs font-bold text-white">ACTIONS</h4>
+                  <span id="spell-attack-header" class="text-[9px] text-white bg-[#0b0c12] px-2 py-1 rounded border border-[#26293c] whitespace-nowrap">ATK +0 | DC 10</span>
+                </div>
+                <div class="chips-container mb-3" id="actions-chips">
+                  <div class="filter-chip active">All</div>
+                  <div class="filter-chip">Attack</div>
+                  <div class="filter-chip">Action</div>
+                  <div class="filter-chip">Bonus Action</div>
+                  <div class="filter-chip">Reaction</div>
+                </div>
+                <div id="attacksContainer" class="space-y-2 text-sm mt-2">
+                  <div class="text-[#6b7085] italic text-xs">No weapons or spells found.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inventory Tab (Currencies & Equipment) -->
+            <div id="section-inventory" class="tab-section hidden space-y-4" data-tab="inventory">
+              <!-- Currencies -->
+              <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+                <div class="mb-4 flex items-center justify-between">
+                  <h4 class="text-xs font-bold text-white">CURRENCIES</h4>
+                  <i data-lucide="coins" class="h-4 w-4 text-[#d4a544]"></i>
+                </div>
+                <div class="flex justify-between items-center mb-2 px-4 w-full">
+                  <div class="flex flex-col items-center">
+                    <span class="w-8 h-8 rounded-full font-bold text-xs text-white border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#cd7f32] to-[#8b4513] cp">0</span>
+                    <span class="text-[9px] text-[#6b7085] mt-1 font-bold">CP</span>
+                  </div>
+                  <div class="flex flex-col items-center">
+                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0b10] border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#e0e0e0] to-[#808080] sp">0</span>
+                    <span class="text-[9px] text-[#6b7085] mt-1 font-bold">SP</span>
+                  </div>
+                  <div class="flex flex-col items-center">
+                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#4a3600] border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#ffd700] to-[#b8860b] gp">0</span>
+                    <span class="text-[9px] text-[#6b7085] mt-1 font-bold">GP</span>
+                  </div>
+                  <div class="flex flex-col items-center">
+                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0b10] border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#f5f5f5] to-[#a9a9a9] pp">0</span>
+                    <span class="text-[9px] text-[#6b7085] mt-1 font-bold">PP</span>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 w-full mt-4">
+                  <button class="rounded-md bg-[#d4a544] py-2.5 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition" onclick="openHpModal()">HEAL / DMG</button>
+                  <button class="rounded-md border border-[#26293c] bg-[#121420] py-2.5 text-xs font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition" onclick="location.href='/vtt?room=character-'+(character?.id||'')">OPEN VTT</button>
+                </div>
+              </div>
+
+              <!-- Equipment -->
+              <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+                <div class="mb-4 flex items-center justify-between">
+                  <h4 class="text-xs font-bold text-white">EQUIPMENT</h4>
+                  <div id="weight-text" class="text-[10px] text-[#a2a7bd] font-bold">WEIGHT: 0 lb</div>
+                </div>
+                <div class="w-full bg-[#0b0c12] rounded h-2 mb-3 border border-[#26293c] overflow-hidden">
+                   <div id="weight-bar" class="h-full bg-[#d4a544]" style="width:0%; transition: width 0.3s, background 0.3s;"></div>
+                </div>
+                <input type="text" id="inventorySearch" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2 text-xs text-white outline-none placeholder:text-[#555b70] mb-3" placeholder="Search items...">
+                <div class="chips-container mb-3" id="inventory-chips">
+                  <div class="filter-chip active">All</div>
+                  <div class="filter-chip">Equipment</div>
+                  <div class="filter-chip">Backpack</div>
+                </div>
+                <div id="equipment" class="space-y-1 mt-2 w-full"></div>
+              </div>
+            </div>
+
+            <!-- Features Tab -->
+            <div id="section-features" class="tab-section hidden space-y-4" data-tab="features">
+              <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+                <div class="mb-4 flex items-center justify-between">
+                  <h4 class="text-xs font-bold text-white">FEATURES & TRAITS</h4>
+                </div>
+                <div class="chips-container mb-3" id="features-chips">
+                  <div class="filter-chip active">All</div>
+                  <div class="filter-chip">Class Features</div>
+                  <div class="filter-chip">Species Traits</div>
+                  <div class="filter-chip">Feats</div>
+                </div>
+                <div id="featuresList" class="space-y-4 text-sm mt-2">
+                   <div class="text-[#6b7085] italic text-xs">Features imported from D&D Beyond will appear here.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Proficiencies Tab -->
+            <div id="section-proficiencies" class="tab-section hidden border border-[#26293c] bg-[#121420] rounded-lg p-4 relative" data-tab="proficiencies">
+              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+              <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Proficiencies & Training</h2>
+              <div class="text-xs space-y-2 text-[#a2a7bd]" id="proficienciesContainer">
+                 <div class="text-[#6b7085] italic text-xs">No proficiency data available.</div>
+              </div>
+            </div>
+
+            <!-- Background Tab -->
+            <div id="section-background" class="tab-section hidden border border-[#26293c] bg-[#121420] rounded-lg p-4 relative" data-tab="background">
+              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r-2 border-b-2"></span>
+              <div id="backgroundContainer">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Background</h2>
+                <div class="text-xs text-[#6b7085] italic">Background details imported from D&DB will appear here.</div>
+              </div>
+            </div>
+
+            <!-- Notes Tab -->
+            <div id="section-notes" class="tab-section hidden border border-[#26293c] bg-[#121420] rounded-lg p-4 relative" data-tab="notes">
+              <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+              <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+              <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+              <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+              <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Notes</h2>
+              <textarea id="charNotes" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544] min-h-[120px] resize-vertical" placeholder="Add character biography or notes here..."></textarea>
+              <button class="w-full mt-3 rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition" id="saveNotesBtn">Save Notes</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    
-    <!-- HP & Manage -->
-    <div class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 flex items-center justify-between gap-4">
-      <!-- Corner brackets -->
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <div class="p-3 rounded-lg bg-[#0b0c12] border border-[#26293c] flex-1 relative cursor-pointer" onclick="openHpModal()">
-        <div class="absolute -top-2 left-1/2 -translate-x-1/2 bg-[#0b0c12] px-2 text-[8px] font-bold text-[#e5c284] tracking-wider uppercase rounded">HIT POINTS</div>
-        <div class="flex justify-center items-baseline gap-1 mt-2">
-          <span id="hp-current" class="text-2xl font-bold text-white">0</span>
-          <span class="text-[#6b7085] text-xs">/</span>
-          <span id="hp-max" class="text-[#a2a7bd] text-xs font-bold">0</span>
-        </div>
-        <div class="h-1.5 bg-[#0a0b10] rounded-full overflow-hidden mt-2">
-          <div id="hp-bar" class="h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
-        </div>
-        <div id="hp-temp" class="absolute top-1 right-2 text-[9px] text-[#a2a7bd]"></div>
-      </div>
-      <div class="flex flex-col gap-2 flex-shrink-0">
-         <button id="manageBtn" class="rounded-md border border-[#26293c] bg-[#121420] px-3 py-1.5 text-[10px] font-bold text-white hover:bg-[#181c2c] transition" onclick="location.href='/dashboard/character/edit/'+(character?.id||'')">MANAGE</button>
-         <button id="inspirationBtn" class="rounded-md border border-[#26293c] bg-[#121420] px-3 py-1.5 text-[10px] font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition">INSPIRATION</button>
-      </div>
-    </div>
-
-    <!-- 3. Quick-Stats Row -->
-    <div class="flex flex-col md:flex-row gap-4 mb-4 w-full">
-      <div class="grid grid-cols-4 gap-2 flex-1 w-full">
-        <div class="flex flex-col items-center w-full">
-          <div class="text-[8px] text-[#6b7085] uppercase font-bold mb-1 text-center">Proficiency</div>
-          <div class="border border-[#26293c] bg-[#121420] rounded-lg p-3 text-center w-full">
-            <div id="prof" class="text-sm font-bold text-white">+2</div>
-          </div>
-        </div>
-        <div class="flex flex-col items-center w-full">
-          <div class="text-[8px] text-[#6b7085] uppercase font-bold mb-1 text-center">Walking</div>
-          <div class="border border-[#26293c] bg-[#121420] rounded-lg p-3 text-center w-full">
-            <div id="speed" class="text-sm font-bold text-white">30</div>
-          </div>
-        </div>
-        <div class="flex flex-col items-center w-full">
-          <div class="text-[8px] text-[#6b7085] uppercase font-bold mb-1 text-center">Initiative</div>
-          <div class="border border-[#26293c] bg-[#121420] rounded-lg p-3 text-center w-full cursor-pointer hover:bg-[#181c2c]/40 transition" onclick="rollStat('Initiative', 'dex')">
-            <div id="initiative" class="text-sm font-bold text-white">+0</div>
-          </div>
-        </div>
-        <div class="flex flex-col items-center w-full">
-          <div class="text-[8px] text-[#6b7085] uppercase font-bold mb-1 text-center">Armor</div>
-          <div class="border border-[#26293c] bg-[#121420] rounded-lg p-3 text-center w-full">
-            <div id="armor" class="text-sm font-bold text-white">10</div>
-          </div>
-        </div>
-      </div>
-      <!-- Desktop & Mobile Defenses/Conditions -->
-      <div class="flex md:flex-col gap-2 justify-center mt-2 md:mt-0 w-full md:w-auto">
-        <button id="defensesBtn" class="flex-1 md:w-24 rounded-md border border-[#26293c] bg-[#121420] px-3 py-2 text-[10px] font-bold text-white hover:bg-[#181c2c] transition uppercase">Defenses</button>
-        <button id="conditionsBtn" class="flex-1 md:w-24 rounded-md border border-[#26293c] bg-[#121420] px-3 py-2 text-[10px] font-bold text-white hover:bg-[#181c2c] transition uppercase">Conditions</button>
-      </div>
-    </div>
-
-    <!-- 4. Currency & Quick Action Card -->
-    <div class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4">
-      <!-- Corner brackets -->
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <div class="flex justify-between items-center mb-4 px-4 w-full">
-        <div class="flex flex-col items-center">
-          <span class="w-8 h-8 rounded-full font-bold text-xs text-white border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#cd7f32] to-[#8b4513] cp">0</span>
-          <span class="text-[9px] text-[#6b7085] mt-1 font-bold">CP</span>
-        </div>
-        <div class="flex flex-col items-center">
-          <span class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0b10] border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#e0e0e0] to-[#808080] sp">0</span>
-          <span class="text-[9px] text-[#6b7085] mt-1 font-bold">SP</span>
-        </div>
-        <div class="flex flex-col items-center">
-          <span class="w-8 h-8 rounded-full font-bold text-xs text-[#4a3600] border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#ffd700] to-[#b8860b] gp">0</span>
-          <span class="text-[9px] text-[#6b7085] mt-1 font-bold">GP</span>
-        </div>
-        <div class="flex flex-col items-center">
-          <span class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0b10] border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#f5f5f5] to-[#a9a9a9] pp">0</span>
-          <span class="text-[9px] text-[#6b7085] mt-1 font-bold">PP</span>
-        </div>
-      </div>
-      <div class="grid grid-cols-2 gap-3 w-full">
-        <button class="rounded-md bg-[#d4a544] py-2.5 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition" onclick="openHpModal()">HEAL / DMG</button>
-        <button class="rounded-md border border-[#26293c] bg-[#121420] py-2.5 text-xs font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition" onclick="location.href='/vtt?room=character-'+(character?.id||'')">OPEN VTT</button>
-      </div>
-    </div>
-
-    <!-- 5. Class Resources -->
-    <div id="section-resources" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4" style="display:none;"></div>
-
-    <!-- Tab Sections -->
-    
-    <!-- Group: Abilities, Saves, Senses -->
-    <div id="section-abilities" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="abilities">
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Ability Scores</h2>
-      <div id="abilities" class="grid grid-cols-3 md:grid-cols-6 gap-2 mt-4 mb-2"></div>
-    </div>
-
-    <!-- Saving Throws -->
-    <div id="section-saves" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="abilities">
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Saving Throws</h2>
-      <div id="saves" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 w-full"></div>
-    </div>
-
-    <!-- Senses -->
-    <div id="section-senses" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="abilities">
-       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-       <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Passive Senses</h2>
-       <div id="senses" class="flex justify-around gap-2 text-center mt-4 w-full"></div>
-    </div>
-
-    <!-- Skills -->
-    <div id="section-skills" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="skills" style="display:none;">
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Skills</h2>
-      <div id="skills" class="w-full"></div>
-    </div>
-
-    <!-- Actions -->
-    <div id="section-actions" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="actions" style="display:none;">
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4 flex justify-between items-center">
-        <span>Actions</span>
-        <span id="spell-attack-header" class="text-[9px] text-white bg-[#0b0c12] px-2 py-1 rounded border border-[#26293c] whitespace-nowrap">ATK +0 | DC 10</span>
-      </h2>
-      <div class="chips-container" id="actions-chips">
-        <div class="filter-chip active">All</div>
-        <div class="filter-chip">Attack</div>
-        <div class="filter-chip">Action</div>
-        <div class="filter-chip">Bonus Action</div>
-        <div class="filter-chip">Reaction</div>
-      </div>
-      <div id="attacksContainer" class="space-y-2 text-sm mt-2">
-        <div class="text-[#6b7085] italic text-xs">No weapons or spells found.</div>
-      </div>
-    </div>
-
-    <!-- Inventory -->
-    <div id="section-inventory" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="inventory" style="display:none;">
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Inventory</h2>
-      <div class="w-full bg-[#0b0c12] rounded h-2 mb-2 border border-[#26293c] overflow-hidden">
-         <div id="weight-bar" class="h-full bg-[#d4a544]" style="width:0%; transition: width 0.3s, background 0.3s;"></div>
-      </div>
-      <div id="weight-text" class="text-[10px] text-[#a2a7bd] font-bold mb-3"></div>
-      
-      <input type="text" id="inventorySearch" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2 text-xs text-white outline-none placeholder:text-[#555b70] mb-3" placeholder="Search items...">
-      
-      <div class="chips-container" id="inventory-chips">
-        <div class="filter-chip active">All</div>
-        <div class="filter-chip">Equipment</div>
-        <div class="filter-chip">Backpack</div>
-      </div>
-      <div id="equipment" class="space-y-1 mt-2 w-full"></div>
-    </div>
-
-    <!-- Features & Traits -->
-    <div id="section-features" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="features" style="display:none;">
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Features & Traits</h2>
-      <div class="chips-container" id="features-chips">
-        <div class="filter-chip active">All</div>
-        <div class="filter-chip">Class Features</div>
-        <div class="filter-chip">Species Traits</div>
-        <div class="filter-chip">Feats</div>
-      </div>
-      <div id="featuresList" class="space-y-4 text-sm mt-2">
-         <div class="text-[#6b7085] italic text-xs">Features imported from D&D Beyond will appear here.</div>
-      </div>
-    </div>
-
-    <!-- Proficiencies & Training -->
-    <div id="section-proficiencies" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="proficiencies" style="display:none;">
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Proficiencies & Training</h2>
-      <div class="text-xs space-y-2 text-[#a2a7bd]" id="proficienciesContainer">
-         <div class="text-[#6b7085] italic text-xs">No proficiency data available.</div>
-      </div>
-    </div>
-
-    <!-- Background -->
-    <div id="section-background" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="background" style="display:none;">
-      <div id="backgroundContainer">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Background</h2>
-        <div class="text-xs text-[#6b7085] italic">Background details imported from D&DB will appear here.</div>
-      </div>
-    </div>
-
-    <!-- Notes -->
-    <div id="section-notes" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="notes" style="display:none;">
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Notes</h2>
-      <textarea id="charNotes" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544] min-h-[120px] resize-vertical" placeholder="Add character biography or notes here..."></textarea>
-      <button class="w-full mt-3 rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition" id="saveNotesBtn">Save Notes</button>
     </div>
 
     <!-- Padding for bottom FABs -->
@@ -312,118 +388,45 @@
 
   </main>
 
-  <div id="loading" class="text-center p-20 text-xl font-bold text-[#d4a544] animate-pulse w-full">Loading character sheet...</div>
-  <div id="error" class="hidden text-center p-20 text-xl text-red-500 w-full"></div>
-
-  <!-- 7. Floating Action Buttons -->
+  <!-- Floating Action Buttons -->
   <div class="fixed bottom-6 right-6 flex gap-3 z-50">
     <div class="w-12 h-12 rounded-full border border-[#26293c] bg-[#121420] flex items-center justify-center text-lg text-white hover:bg-[#181c2c] transition shadow-lg cursor-pointer" id="fabDiceBtn" title="Dice Roller" onclick="openDiceModal()">🎲</div>
     <div class="w-12 h-12 rounded-full border border-[#26293c] bg-[#121420] flex items-center justify-center text-lg text-white hover:bg-[#181c2c] transition shadow-lg cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll Top">▲</div>
-    <div class="w-12 h-12 rounded-full bg-[#d4a544] flex items-center justify-center text-lg text-[#0a0b10] hover:bg-[#e5c284] transition shadow-lg cursor-pointer" id="fabMenuBtn" title="Quick Nav">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-    </div>
   </div>
 
-  <!-- 5. Quick-Navigation Menu (Overlay) -->
-  <div class="fixed inset-0 bg-[#0a0b10]/80 backdrop-blur-sm z-[150] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300" id="navOverlay">
-    <div class="grid grid-cols-2 gap-3 w-[90%] max-w-[400px]">
-      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="abilities" onclick="switchTab('abilities')">
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l pointer-events-none"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 border-b border-r pointer-events-none"></span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-8M6 20V4M18 20v-4"/></svg>
-        <span>Abilities</span>
-      </div>
-      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="skills" onclick="switchTab('skills')">
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
-        <span>Skills</span>
-      </div>
-      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="actions" onclick="switchTab('actions')">
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2L2 14.5 9.5 22 22 9.5 14.5 2zM2 22l5.5-5.5"/></svg>
-        <span>Actions</span>
-      </div>
-      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="inventory" onclick="switchTab('inventory')">
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M8 6V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2"/></svg>
-        <span>Inventory</span>
-      </div>
-      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="features" onclick="switchTab('features')">
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        <span>Features</span>
-      </div>
-      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="proficiencies" onclick="switchTab('proficiencies')">
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5 4 2 7-7-4-7 4 2-7-5-4h7z"/></svg>
-        <span>Proficiencies</span>
-      </div>
-      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="background" onclick="switchTab('background')">
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-        <span>Background</span>
-      </div>
-      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="notes" onclick="switchTab('notes')">
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-        <span>Notes</span>
-      </div>
-    </div>
-  </div>
-
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="/js/components.js"></script>
   
   <script>
-    // Navigation Overlay Logic
-    const fabMenuBtn = document.getElementById('fabMenuBtn');
-    const navOverlay = document.getElementById('navOverlay');
-    
-    fabMenuBtn.addEventListener('click', () => {
-      navOverlay.classList.remove('opacity-0', 'pointer-events-none');
-      navOverlay.classList.add('opacity-100', 'pointer-events-auto');
-    });
-    navOverlay.addEventListener('click', (e) => {
-      if (e.target === navOverlay) {
-        navOverlay.classList.add('opacity-0', 'pointer-events-none');
-        navOverlay.classList.remove('opacity-100', 'pointer-events-auto');
-      }
-    });
+    lucide.createIcons();
+
+    // Set Header Username
+    const savedUsername = localStorage.getItem('username') || 'Player';
+    const headerUsernameEl = document.getElementById('headerUsername');
+    if (headerUsernameEl) {
+      headerUsernameEl.textContent = savedUsername;
+    }
 
     window.switchTab = function(tabName) {
       // 1. Hide all tab sections
       document.querySelectorAll('.tab-section').forEach(el => {
+        el.classList.add('hidden');
         el.style.display = 'none';
       });
       // 2. Show the matching tab sections
       document.querySelectorAll('.tab-section[data-tab="'+tabName+'"]').forEach(el => {
+        el.classList.remove('hidden');
         el.style.display = 'block';
       });
-      // 3. Update active state on nav buttons
-      document.querySelectorAll('.nav-grid .nav-btn').forEach(btn => {
-        if(btn.getAttribute('data-target') === tabName) {
-          btn.classList.add('border-[#d4a544]', 'text-[#d4a544]');
-          btn.classList.remove('border-[#26293c]', 'text-white');
+      // 3. Update active state on tab chips
+      document.querySelectorAll('#tab-chips .filter-chip').forEach(chip => {
+        const name = chip.textContent.trim().toLowerCase();
+        if (name === tabName) {
+          chip.classList.add('active');
         } else {
-          btn.classList.remove('border-[#d4a544]', 'text-[#d4a544]');
-          btn.classList.add('border-[#26293c]', 'text-white');
+          chip.classList.remove('active');
         }
       });
-      // 4. Scroll to top of the tab container smoothly
-      const anchor = document.getElementById('section-'+tabName) || document.getElementById('section-abilities');
-      if (anchor) {
-        const topOffset = anchor.getBoundingClientRect().top + window.scrollY - 20;
-        window.scrollTo({ top: topOffset, behavior: 'smooth' });
-      }
-      
-      navOverlay.classList.add('opacity-0', 'pointer-events-none');
-      navOverlay.classList.remove('opacity-100', 'pointer-events-auto');
     };
 
     // VTT App Logic
@@ -548,21 +551,17 @@
       
       // Armor Class logic (c.ac fallback)
       let ac = c.ac;
-      if (ac === undefined) {
+      if (ac === undefined || ac === null) {
          const armorItem = (c.equipment || []).find(i => i.type === 'armor' && i.equipped);
          const shieldItem = (c.equipment || []).find(i => i.type === 'shield' && i.equipped);
          ac = (armorItem ? (armorItem.ac || 10) : 10) + c.modifiers.dex + (shieldItem ? 2 : 0);
       }
       document.getElementById('armor').textContent = ac;
-      document.getElementById('speed').textContent = (c.speed || 30);
+      document.getElementById('speed').textContent = (c.speed || 30) + ' ft.';
       
       const spellDC = 8 + profBonus + Math.max(c.modifiers.int, c.modifiers.wis, c.modifiers.cha);
       const spellAtk = signed(profBonus + Math.max(c.modifiers.int, c.modifiers.wis, c.modifiers.cha));
       document.getElementById('spell-attack-header').textContent = `ATK ${spellAtk} | DC ${spellDC}`;
-      
-      // Defenses & Conditions Modal Hooks
-      document.getElementById('defensesBtn')?.addEventListener('click', openDefensesModal);
-      document.getElementById('conditionsBtn')?.addEventListener('click', openConditionsModal);
 
       // Wealth
       if(c.currencies) {
