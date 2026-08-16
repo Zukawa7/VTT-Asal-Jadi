@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/styles/tailwind.css">
 </head>
 <body class="bg-[#0a0b10] text-white min-h-screen">
-  <main class="relative min-h-screen overflow-hidden bg-[#0a0b10]">
+  <main class="relative min-h-screen overflow-hidden bg-[#0a0b10] flex items-center justify-center p-6 sm:p-[60px]">
     <!-- DarkModeToggle -->
     <button
       type="button"
@@ -25,135 +25,95 @@
       style="background: radial-gradient(circle, rgba(212,165,68,0.18) 0%, rgba(212,165,68,0.06) 35%, transparent 70%);"
     ></div>
 
-    <section id="login" class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden border-t border-[#1c1f2d] bg-[#0a0b10] p-6 sm:p-[60px]">
-      <div class="relative z-10 w-full max-w-[460px] rounded-[20px] border border-[#26293c] bg-[#121420] p-0 shadow-[0px_16px_40px_#000000a0]">
-        <!-- Corner brackets -->
-        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-        <div class="flex flex-col items-center gap-8 p-6 sm:p-12">
-          <!-- LoginHeader -->
-          <header class="flex w-full flex-col items-center gap-4">
-            <div class="flex h-16 w-16 items-center justify-center rounded-full border border-[#d4a544] bg-[#181c2c] p-4">
-              <span class="text-[28px] leading-none">🎲</span>
-            </div>
-            <div class="flex w-full flex-col items-center gap-2">
-              <h1
-                class="text-center text-[32px] font-extrabold leading-none text-white"
-                style="font-family: 'EB Garamond', Helvetica, serif"
-              >
-                VTT ASAL JADI
-              </h1>
-              <p class="text-center text-sm font-normal leading-none text-[#a2a7bd]">
-                Sign in to manage your D&amp;D Beyond characters
-              </p>
-            </div>
-          </header>
-
-          <!-- LoginForm -->
-          <form id="loginForm" class="flex w-full flex-col gap-5">
-            <!-- Username/Email Field -->
-            <div class="flex w-full flex-col gap-2">
-              <label
-                for="username"
-                class="text-[11px] font-bold leading-none text-[#e5c284]"
-              >
-                USERNAME OR EMAIL
-              </label>
-              <div class="flex items-center gap-2 rounded-lg border border-[#26293c] bg-[#0b0c12] px-4 py-3">
-                <input
-                  id="username"
-                  type="text"
-                  required
-                  autocomplete="username"
-                  placeholder="Enter your username"
-                  class="h-auto flex-1 border-0 bg-transparent p-0 text-sm font-normal leading-none text-white shadow-none outline-none"
-                />
-              </div>
-            </div>
-
-            <!-- Password Field -->
-            <div class="flex w-full flex-col gap-2">
-              <label
-                for="password"
-                class="text-[11px] font-bold leading-none text-[#e5c284]"
-              >
-                PASSWORD
-              </label>
-              <div class="flex items-center gap-2 rounded-lg border border-[#26293c] bg-[#0b0c12] px-4 py-3">
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  autocomplete="current-password"
-                  placeholder="Enter your password"
-                  class="h-auto flex-1 border-0 bg-transparent p-0 text-sm font-normal leading-none text-white shadow-none outline-none"
-                />
-                <button
-                  type="button"
-                  id="togglePassword"
-                  class="text-[#a2a7bd] hover:text-white"
-                  aria-label="Show password"
-                >
-                  <i data-lucide="eye" class="h-4 w-4"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Remember Me & Forgot Password -->
-            <div class="flex w-full items-center justify-between gap-3">
-              <label
-                for="rememberMe"
-                class="flex cursor-pointer items-center gap-2"
-              >
-                <input type="checkbox" id="rememberMe" class="hidden" />
-                <button
-                  type="button"
-                  id="rememberMeBtn"
-                  class="flex h-4 w-4 items-center justify-center rounded border border-[#d4a544] bg-[#0b0c12]"
-                  aria-pressed="false"
-                >
-                  <!-- Checkmark SVG will be toggled here -->
-                </button>
-                <span class="text-[13px] font-normal leading-none text-[#a2a7bd]">
-                  Keep me logged in
-                </span>
-              </label>
-              <button
-                type="button"
-                class="text-[13px] font-medium leading-none text-[#d4a544] hover:text-[#e5c284]"
-              >
-                Forgot Password?
-              </button>
-            </div>
-
-            <!-- Error Message -->
-            <div id="loginError" class="hidden text-sm text-red-500 text-center bg-red-950/20 border border-red-900/50 rounded-lg p-3"></div>
-
-            <!-- LoginFooter -->
-            <footer class="flex w-full flex-col items-center gap-6">
-              <button
-                type="submit"
-                class="h-auto w-full rounded-lg bg-[#d4a544] px-6 py-3.5 text-[15px] font-bold leading-none text-[#0a0b10] shadow-[0px_4px_12px_#d4a54440] transition-colors hover:bg-[#e5c284]"
-              >
-                SIGN IN TO TABLETOP
-              </button>
-              <p class="flex items-start gap-1.5 text-sm font-normal leading-none">
-                <span class="text-[#6b7085]">Don't have an account?</span>
-                <a
-                  href="/register"
-                  class="text-sm font-normal leading-none text-[#d4a544] hover:text-[#e5c284]"
-                >
-                  Register here
-                </a>
-              </p>
-            </footer>
-          </form>
+    <div class="relative z-10 w-full max-w-[460px] rounded-2xl border border-[#26293c] bg-[#121420] p-8 shadow-2xl sm:p-12">
+      <div class="mb-8 text-center">
+        <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[#d4a544] bg-[#181c2c]">
+          <i data-lucide="dice-5" class="h-5 w-5 text-[#d4a544]"></i>
         </div>
+        <h3 class="text-2xl font-extrabold text-white" style="font-family: 'EB Garamond', serif;">VTT ASAL JADI</h3>
+        <p class="mt-2 text-xs text-[#a2a7bd]">Sign in to manage your D&amp;D Beyond characters</p>
       </div>
-    </section>
+
+      <form id="loginForm" class="space-y-4">
+        <!-- Username/Email Field -->
+        <label class="block">
+          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e5c284]">USERNAME OR EMAIL</span>
+          <input
+            id="username"
+            type="text"
+            required
+            autocomplete="username"
+            placeholder="Enter your username"
+            class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]"
+          />
+        </label>
+
+        <!-- Password Field -->
+        <label class="block">
+          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e5c284]">PASSWORD</span>
+          <div class="relative flex items-center">
+            <input
+              id="password"
+              type="password"
+              required
+              autocomplete="current-password"
+              placeholder="Enter your password"
+              class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] pl-3 pr-10 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]"
+            />
+            <button
+              type="button"
+              id="togglePassword"
+              class="absolute right-3 text-[#a2a7bd] hover:text-white"
+              aria-label="Show password"
+            >
+              <i data-lucide="eye" class="h-4 w-4"></i>
+            </button>
+          </div>
+        </label>
+
+        <!-- Remember Me & Forgot Password -->
+        <div class="flex w-full items-center justify-between gap-3">
+          <label
+            for="rememberMe"
+            class="flex cursor-pointer items-center gap-2"
+          >
+            <input type="checkbox" id="rememberMe" class="hidden" />
+            <button
+              type="button"
+              id="rememberMeBtn"
+              class="flex h-4 w-4 items-center justify-center rounded border border-[#d4a544] bg-[#0b0c12]"
+              aria-pressed="false"
+            >
+              <!-- Checkmark SVG will be toggled here -->
+            </button>
+            <span class="text-[13px] font-normal leading-none text-[#a2a7bd]">
+              Keep me logged in
+            </span>
+          </label>
+          <button
+            type="button"
+            class="text-[13px] font-medium leading-none text-[#d4a544] hover:text-[#e5c284]"
+          >
+            Forgot Password?
+          </button>
+        </div>
+
+        <!-- Error Message -->
+        <div id="loginError" class="hidden text-sm text-red-500 text-center bg-red-950/20 border border-red-900/50 rounded-lg p-3"></div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="w-full rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0b10] transition hover:bg-[#e5c284]"
+        >
+          SIGN IN TO TABLETOP
+        </button>
+      </form>
+
+      <p class="mt-6 text-center text-xs text-[#6b7085]">
+        Don't have an account? <a href="/register" class="text-[#d4a544] hover:text-[#e5c284] font-bold">Register here</a>
+      </p>
+    </div>
   </main>
 
   <script src="https://unpkg.com/lucide@latest"></script>
