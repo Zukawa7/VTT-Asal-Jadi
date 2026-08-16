@@ -242,8 +242,8 @@
         <div id="hp-temp" class="absolute top-2 right-2 text-[10px] text-text-secondary"></div>
       </div>
       <div class="flex flex-col gap-2 flex-shrink-0">
-         <button class="btn btn-ghost text-[10px] font-bold border border-border-primary rounded px-3 py-1" onclick="location.href='/dashboard'">MANAGE</button>
-         <button class="btn btn-ghost text-[10px] font-bold border border-border-primary text-text-secondary rounded px-3 py-1">INSPIRATION</button>
+         <button id="manageBtn" class="btn btn-ghost text-[10px] font-bold border border-border-primary rounded px-3 py-1" onclick="location.href='/dashboard/character/edit/'+(character?.id||'')">MANAGE</button>
+         <button id="inspirationBtn" class="btn btn-ghost text-[10px] font-bold border border-border-primary text-text-secondary rounded px-3 py-1">INSPIRATION</button>
       </div>
     </div>
 
@@ -272,22 +272,22 @@
       </div>
       <!-- Desktop & Mobile Defenses/Conditions -->
       <div class="flex md:flex-col gap-2 justify-center mt-2 md:mt-0 w-full md:w-auto">
-        <button class="flex-1 md:w-24 btn btn-ghost text-xs font-bold tracking-widest border border-border-primary rounded uppercase">Defenses</button>
-        <button class="flex-1 md:w-24 btn btn-ghost text-xs font-bold tracking-widest border border-border-primary rounded uppercase">Conditions</button>
+        <button id="defensesBtn" class="flex-1 md:w-24 btn btn-ghost text-xs font-bold tracking-widest border border-border-primary rounded uppercase">Defenses</button>
+        <button id="conditionsBtn" class="flex-1 md:w-24 btn btn-ghost text-xs font-bold tracking-widest border border-border-primary rounded uppercase">Conditions</button>
       </div>
     </div>
 
     <!-- 4. Currency & Quick Action Card -->
     <div class="polyport-card">
       <div class="flex justify-between items-center mb-4 px-4 w-full">
-        <div class="flex flex-col items-center"><span class="currency-badge cp">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">CP</span></div>
-        <div class="flex flex-col items-center"><span class="currency-badge sp">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">SP</span></div>
-        <div class="flex flex-col items-center"><span class="currency-badge gp">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">GP</span></div>
-        <div class="flex flex-col items-center"><span class="currency-badge pp">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">PP</span></div>
+        <div class="flex flex-col items-center"><span class="currency-badge cp cursor-pointer">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">CP</span></div>
+        <div class="flex flex-col items-center"><span class="currency-badge sp cursor-pointer">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">SP</span></div>
+        <div class="flex flex-col items-center"><span class="currency-badge gp cursor-pointer">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">GP</span></div>
+        <div class="flex flex-col items-center"><span class="currency-badge pp cursor-pointer">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">PP</span></div>
       </div>
       <div class="grid grid-cols-2 gap-3 w-full">
         <button class="btn btn-heal py-3 text-xs font-bold tracking-wider" onclick="openHpModal()">HEAL / DMG</button>
-        <button class="btn btn-vtt py-3 text-xs font-bold tracking-wider" onclick="location.href='/vtt?room=character-'+character.id">OPEN VTT</button>
+        <button class="btn btn-vtt py-3 text-xs font-bold tracking-wider" onclick="location.href='/vtt?room=character-'+(character?.id||'')">OPEN VTT</button>
       </div>
     </div>
 
@@ -324,14 +324,14 @@
         <span>Actions</span>
         <span id="spell-attack-header" class="text-[10px] text-text-primary bg-bg-primary px-2 py-1 rounded border border-border-primary whitespace-nowrap">ATK +0 | DC 10</span>
       </h2>
-      <div class="chips-container">
+      <div class="chips-container" id="actions-chips">
         <div class="filter-chip active">All</div>
         <div class="filter-chip">Attack</div>
         <div class="filter-chip">Action</div>
         <div class="filter-chip">Bonus Action</div>
         <div class="filter-chip">Reaction</div>
       </div>
-      <div id="attacksContainer" class="space-y-2 text-sm">
+      <div id="attacksContainer" class="space-y-2 text-sm mt-2">
         <div class="text-text-disabled italic">No weapons or spells found.</div>
       </div>
     </div>
@@ -339,7 +339,7 @@
     <!-- Inventory -->
     <div id="section-inventory" class="polyport-card tab-section" data-tab="inventory" style="display:none;">
       <h2 class="section-title">Inventory</h2>
-      <div class="chips-container">
+      <div class="chips-container" id="inventory-chips">
         <div class="filter-chip active">All</div>
         <div class="filter-chip">Equipment</div>
         <div class="filter-chip">Backpack</div>
@@ -350,7 +350,7 @@
     <!-- Features & Traits -->
     <div id="section-features" class="polyport-card tab-section" data-tab="features" style="display:none;">
       <h2 class="section-title">Features & Traits</h2>
-      <div class="chips-container">
+      <div class="chips-container" id="features-chips">
         <div class="filter-chip active">All</div>
         <div class="filter-chip">Class Features</div>
         <div class="filter-chip">Species Traits</div>
@@ -364,17 +364,17 @@
     <!-- Proficiencies & Training -->
     <div id="section-proficiencies" class="polyport-card tab-section" data-tab="proficiencies" style="display:none;">
       <h2 class="section-title">Proficiencies & Training</h2>
-      <div class="text-sm space-y-2">
-         <div><span class="font-bold text-text-secondary">Armor:</span> <span class="text-text-tertiary">Light Armor, Medium Armor, Shields</span></div>
-         <div><span class="font-bold text-text-secondary">Weapons:</span> <span class="text-text-tertiary">Simple Weapons, Martial Weapons</span></div>
-         <div><span class="font-bold text-text-secondary">Languages:</span> <span class="text-text-tertiary">Common, Elvish</span></div>
+      <div class="text-sm space-y-2" id="proficienciesContainer">
+         <div class="text-text-disabled italic">No proficiency data available.</div>
       </div>
     </div>
 
     <!-- Background -->
     <div id="section-background" class="polyport-card tab-section" data-tab="background" style="display:none;">
-      <h2 class="section-title">Background</h2>
-      <div class="text-sm text-text-tertiary">Acolyte (Background details imported from DDB)</div>
+      <div id="backgroundContainer">
+        <h2 class="section-title">Background</h2>
+        <div class="text-sm text-text-disabled italic">Background details imported from D&DB will appear here.</div>
+      </div>
     </div>
 
     <!-- Notes (P9 Fixed) -->
@@ -394,6 +394,7 @@
 
   <!-- 7. Floating Action Buttons (P11 Fixed Hierarchy) -->
   <div class="fab-container">
+    <div class="fab-item fab-secondary" id="fabDiceBtn" title="Dice Roller" onclick="openDiceModal()">🎲</div>
     <div class="fab-item fab-secondary" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll Top">▲</div>
     <div class="fab-item fab-primary" id="fabMenuBtn" title="Quick Nav">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -556,6 +557,12 @@
       const profBonus = 2 + Math.floor((c.level-1)/4);
       const canEdit = Boolean(localStorage.getItem('token'));
       
+      // Manage button visibility
+      if(!canEdit) {
+        const manageBtn = document.getElementById('manageBtn');
+        if(manageBtn) manageBtn.style.display = 'none';
+      }
+
       // Basic Info
       document.getElementById('avatar').src = c.avatarUrl || '';
       document.getElementById('name').textContent = c.name;
@@ -564,6 +571,22 @@
       document.getElementById('alignment').textContent = c.alignment || 'True Neutral';
       document.getElementById('xp').textContent = (c.xp || 0) + ' XP';
       
+      // Inspiration toggle
+      const inspBtn = document.getElementById('inspirationBtn');
+      if(inspBtn) {
+        if(c.inspiration) {
+          inspBtn.style.borderColor = 'var(--primary)';
+          inspBtn.style.color = 'var(--primary)';
+        } else {
+          inspBtn.style.borderColor = 'var(--border-primary)';
+          inspBtn.style.color = 'var(--text-secondary)';
+        }
+        inspBtn.onclick = () => {
+          if(!canEdit) return;
+          updateSheet({inspiration: !c.inspiration});
+        };
+      }
+
       // HP & Temp HP
       document.getElementById('hp-current').textContent = c.hp.current;
       document.getElementById('hp-max').textContent = c.hp.max;
@@ -573,6 +596,9 @@
       let hpPct = Math.min(100, Math.max(0, (c.hp.current / c.hp.max) * 100));
       const bar = document.getElementById('hp-bar');
       bar.style.width = hpPct + '%';
+      if(hpPct > 50) bar.style.background = 'linear-gradient(90deg, #2ea559, #3ecb6e)';
+      else if(hpPct > 25) bar.style.background = 'linear-gradient(90deg, #b7791f, #d4a544)';
+      else bar.style.background = 'linear-gradient(90deg, #7a2b2b, #a53b3b)';
       
       // Top Stats
       document.getElementById('prof').textContent = signed(profBonus);
@@ -584,6 +610,10 @@
       const spellAtk = signed(profBonus + Math.max(c.modifiers.int, c.modifiers.wis, c.modifiers.cha));
       document.getElementById('spell-attack-header').textContent = `ATK ${spellAtk} | DC ${spellDC}`;
       
+      // Defenses & Conditions Modal Hooks
+      document.getElementById('defensesBtn')?.addEventListener('click', openDefensesModal);
+      document.getElementById('conditionsBtn')?.addEventListener('click', openConditionsModal);
+
       // Wealth
       if(c.currencies) {
         document.querySelector('.cp').textContent = c.currencies.cp||0;
@@ -592,6 +622,20 @@
         document.querySelector('.pp').textContent = c.currencies.pp||0;
       }
       
+      if (canEdit) {
+        ['cp','sp','gp','pp'].forEach(type => {
+          document.querySelector('.currency-badge.'+type).onclick = () => {
+            const content = `
+              <div class="flex flex-col gap-3">
+                <label class="text-xs font-bold text-text-tertiary">Amount (${type.toUpperCase()})</label>
+                <input type="number" id="currencyInput" class="w-full bg-bg-primary border border-border-primary text-text-primary text-center text-lg p-2 rounded" value="${character.currencies?.[type]||0}" min="0">
+                <button class="btn btn-heal py-2 font-bold" onclick="saveCurrency('${type}')">Save</button>
+              </div>`;
+            new VTT.Modal({ title: `Edit ${type.toUpperCase()}`, content, buttons: [] }).open();
+          };
+        });
+      }
+
       // Abilities
       document.getElementById('abilities').innerHTML = keys.map(k =>
         `<div class="ability-card" onclick="rollStat('${labels[k]}','${k}')">
@@ -611,7 +655,7 @@
         </div>`;
       }).join('');
       
-      // Skills (P5 Fixed: visual separation between ability tag and skill name)
+      // Skills
       document.getElementById('skills').innerHTML = Object.entries(skillMap).map(([s,k]) => {
         let isProf = c.proficiencies?.skills?.includes(s);
         let mod = c.modifiers[k] + (isProf ? profBonus : 0);
@@ -637,10 +681,127 @@
         </div>
       `).join('');
       
-      // Equipment (P7 Fixed: Grid format)
-      const items = c.equipment||[];
+      // Actions
+      const weapons = c.equipment?.filter(item => item.type === 'weapon' || item.attackBonus !== undefined) || [];
+      const spells = c.spells?.filter(sp => sp.attackBonus !== undefined || sp.saveDC !== undefined) || [];
+      window._allAttacks = [...weapons, ...spells];
+      renderAttacks(window._allAttacks);
+
+      // Inventory
+      window._allItems = c.equipment || [];
+      renderEquipment(window._allItems);
+      
+      // Features
+      window._allFeatures = c.features || c.traits || [];
+      renderFeatures(window._allFeatures);
+
+      // Proficiencies
+      const profSection = document.getElementById('proficienciesContainer');
+      const prof = c.proficiencyDetails || {};
+      profSection.innerHTML = [
+        ['Armor', prof.armor],
+        ['Weapons', prof.weapons],
+        ['Tools', prof.tools],
+        ['Languages', prof.languages],
+      ].filter(([,v]) => v && v.length)
+       .map(([label, arr]) => `
+        <div>
+          <span class="font-bold text-text-secondary">${label}:</span>
+          <span class="text-text-tertiary"> ${Array.isArray(arr) ? arr.join(', ') : arr}</span>
+        </div>`
+      ).join('') || '<div class="text-text-disabled italic">No proficiency data available.</div>';
+
+      // Background
+      const bgSection = document.getElementById('backgroundContainer');
+      bgSection.innerHTML = `
+        <h2 class="section-title">Background</h2>
+        <div class="space-y-3 text-sm">
+          ${c.background?.name ? `<div class="font-bold text-text-secondary text-base">${c.background.name}</div>` : ''}
+          ${c.background?.description ? `<div class="text-text-tertiary leading-relaxed">${c.background.description}</div>` : ''}
+          ${c.personalityTraits?.length ? `
+            <div>
+              <div class="font-bold text-text-secondary text-xs uppercase tracking-wider mb-1">Personality Traits</div>
+              ${c.personalityTraits.map(t => `<div class="text-text-tertiary">• ${t}</div>`).join('')}
+            </div>` : ''}
+          ${c.ideals?.length ? `
+            <div>
+              <div class="font-bold text-text-secondary text-xs uppercase tracking-wider mb-1">Ideals</div>
+              ${c.ideals.map(t => `<div class="text-text-tertiary">• ${t}</div>`).join('')}
+            </div>` : ''}
+          ${c.bonds?.length ? `
+            <div>
+              <div class="font-bold text-text-secondary text-xs uppercase tracking-wider mb-1">Bonds</div>
+              ${c.bonds.map(t => `<div class="text-text-tertiary">• ${t}</div>`).join('')}
+            </div>` : ''}
+          ${c.flaws?.length ? `
+            <div>
+              <div class="font-bold text-text-secondary text-xs uppercase tracking-wider mb-1">Flaws</div>
+              ${c.flaws.map(t => `<div class="text-text-tertiary">• ${t}</div>`).join('')}
+            </div>` : ''}
+          ${(!c.background && !c.personalityTraits) ? '<div class="text-text-disabled italic">Background details imported from D&amp;D Beyond will appear here.</div>' : ''}
+        </div>`;
+
+      // Notes
+      if(c.notes) document.getElementById('charNotes').value = c.notes;
+        
+      // Event Listeners for Edits (Notes)
+      if(!canEdit) {
+        document.getElementById('charNotes').setAttribute('readonly', true);
+        document.getElementById('saveNotesBtn').style.display = 'none';
+      } else {
+        document.getElementById('saveNotesBtn').onclick = () => {
+          updateSheet({notes: document.getElementById('charNotes').value});
+          VTT.Notification?.success('Notes saved.');
+        };
+        let notesTimer;
+        document.getElementById('charNotes').addEventListener('input', () => {
+          clearTimeout(notesTimer);
+          notesTimer = setTimeout(() => {
+            updateSheet({ notes: document.getElementById('charNotes').value });
+          }, 2000);
+        });
+      }
+    }
+
+    // Attacks Renderer
+    function renderAttacks(list) {
+      if (!list || list.length === 0) {
+        document.getElementById('attacksContainer').innerHTML = '<div class="text-text-disabled italic">No weapons or spells found.</div>';
+        return;
+      }
+      document.getElementById('attacksContainer').innerHTML = list.map(atk => {
+        const atkBonus = signed(atk.attackBonus ?? 0);
+        const dmg = atk.damage || '—';
+        const range = atk.range || '5 ft.';
+        return `
+          <div class="flex items-center justify-between py-2 border-b border-border-primary last:border-0 cursor-pointer hover:bg-bg-hover rounded px-1"
+               onclick="sendRoll('1d20${atkBonus}', '${atk.name} Attack')">
+            <div class="flex-1 min-w-0">
+              <div class="font-bold text-text-secondary text-sm truncate">${atk.name}</div>
+              <div class="text-[10px] text-text-disabled">${atk.type || 'Weapon'} · ${range}</div>
+            </div>
+            <div class="flex gap-2 flex-shrink-0 ml-2">
+              <span class="border border-border-primary bg-bg-primary px-2 py-1 rounded text-xs font-bold text-text-secondary">${atkBonus}</span>
+              <span class="border border-border-primary bg-bg-primary px-2 py-1 rounded text-xs text-text-tertiary">${dmg}</span>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    document.querySelectorAll('#actions-chips .filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#actions-chips .filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const filter = chip.textContent.trim().toLowerCase();
+        const filtered = filter === 'all' ? window._allAttacks : window._allAttacks.filter(item => (item.actionType || '').toLowerCase() === filter);
+        renderAttacks(filtered);
+      });
+    });
+
+    // Equipment Renderer
+    function renderEquipment(items) {
       const totalWeight = items.reduce((sum,item)=>sum+Number(item.weight||0)*Number(item.quantity||1),0);
-      const capacity = Number(c.stats.str||10)*15;
+      const capacity = Number(character.stats.str||10)*15;
       
       document.getElementById('equipment').innerHTML = (items.length ?
         `<div class="mb-3 text-xs text-text-tertiary font-bold">TOTAL WEIGHT: ${totalWeight.toFixed(1)} / ${capacity} lb</div>
@@ -656,18 +817,43 @@
              <div style="width:60px; text-align:right; color:var(--text-tertiary); font-size:0.75rem;">${(Number(item.weight||0)*Number(item.quantity||1)).toFixed(1)} lb</div>
            </div>`
         ).join('') : '<div class="text-text-disabled italic text-sm">No equipment found.</div>');
-
-      // Notes
-      if(c.notes) document.getElementById('charNotes').value = c.notes;
-        
-      // Event Listeners for Edits
-      if(canEdit) {
-        document.getElementById('saveNotesBtn').onclick = () => {
-          updateSheet({notes: document.getElementById('charNotes').value});
-          VTT.Notification?.success('Notes saved.');
-        };
-      }
     }
+
+    document.querySelectorAll('#inventory-chips .filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#inventory-chips .filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const filter = chip.textContent.trim().toLowerCase();
+        const filtered = filter === 'all' ? window._allItems : window._allItems.filter(item => (item.category || '').toLowerCase() === filter);
+        renderEquipment(filtered);
+      });
+    });
+
+    // Features Renderer
+    function renderFeatures(list) {
+      const el = document.getElementById('featuresList');
+      if (!list || list.length === 0) {
+        el.innerHTML = '<div class="text-text-disabled italic">Features imported from D&D Beyond will appear here.</div>';
+        return;
+      }
+      el.innerHTML = list.map(f => `
+        <div class="border-b border-border-primary pb-3 last:border-0">
+          <div class="font-bold text-text-secondary text-sm">${f.name}</div>
+          ${f.source ? `<div class="text-[10px] text-text-disabled mb-1">${f.source}</div>` : ''}
+          <div class="text-xs text-text-tertiary leading-relaxed mt-1">${f.description || ''}</div>
+        </div>`
+      ).join('');
+    }
+
+    document.querySelectorAll('#features-chips .filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#features-chips .filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const filter = chip.textContent.trim().toLowerCase();
+        const filtered = filter === 'all' ? window._allFeatures : window._allFeatures.filter(f => (f.category || f.type || '').toLowerCase().includes(filter));
+        renderFeatures(filtered);
+      });
+    });
     
     async function updateSheet(changes) {
       const token = localStorage.getItem('token');
@@ -684,6 +870,62 @@
       }
     }
     
+    window.saveCurrency = function(type) {
+      const val = parseInt(document.getElementById('currencyInput').value) || 0;
+      updateSheet({ currencies: { ...character.currencies, [type]: val } });
+      document.querySelector('.vtt-modal-close')?.click();
+    };
+
+    function openDefensesModal() {
+      if(!character) return;
+      const immunities = character.damageImmunities?.join(', ') || '—';
+      const resistances = character.damageResistances?.join(', ') || '—';
+      const vulnerabilities = character.damageVulnerabilities?.join(', ') || '—';
+      const content = `
+        <div class="space-y-3 text-sm">
+          <div><span class="font-bold text-text-secondary">Immunities:</span><span class="text-text-tertiary ml-2">${immunities}</span></div>
+          <div><span class="font-bold text-text-secondary">Resistances:</span><span class="text-text-tertiary ml-2">${resistances}</span></div>
+          <div><span class="font-bold text-text-secondary">Vulnerabilities:</span><span class="text-text-tertiary ml-2">${vulnerabilities}</span></div>
+        </div>`;
+      new VTT.Modal({ title: 'Defenses', content, buttons: [] }).open();
+    }
+
+    const dndConditions = ['Blinded','Charmed','Deafened','Exhaustion','Frightened','Grappled','Incapacitated','Invisible','Paralyzed','Petrified','Poisoned','Prone','Restrained','Stunned','Unconscious'];
+    function openConditionsModal() {
+      if(!character) return;
+      const activeConditions = character.conditions || [];
+      const content = `<div class="grid grid-cols-2 gap-2">` +
+        dndConditions.map(cond => `
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded border border-border-primary hover:bg-bg-hover text-sm">
+            <input type="checkbox" class="cond-checkbox" value="${cond}" ${activeConditions.includes(cond)?'checked':''}>
+            <span class="text-text-primary">${cond}</span>
+          </label>`).join('') +
+        `</div>
+        <button class="btn w-full mt-4 font-bold" style="border:1px solid var(--primary); color:var(--primary);"
+          onclick="saveConditions()">Apply</button>`;
+      new VTT.Modal({ title: 'Conditions', content, buttons: [] }).open();
+    }
+
+    window.saveConditions = function() {
+      const checked = [...document.querySelectorAll('.cond-checkbox:checked')].map(c => c.value);
+      updateSheet({ conditions: checked });
+      document.querySelector('.vtt-modal-close')?.click();
+    };
+
+    window.openDiceModal = function() {
+      if(!character) return;
+      const diceTypes = ['d4','d6','d8','d10','d12','d20','d100'];
+      const content = `
+        <div class="grid grid-cols-3 md:grid-cols-4 gap-2 mb-4">
+          ${diceTypes.map(d => `<button class="btn btn-ghost border border-border-primary rounded py-2 font-bold font-serif" onclick="sendRoll('1${d}', '${d} Roll'); document.querySelector('.vtt-modal-close')?.click();">${d}</button>`).join('')}
+        </div>
+        <div class="flex gap-2">
+          <input type="text" id="customRollFormula" class="w-full bg-bg-primary border border-border-primary text-text-primary p-2 rounded" placeholder="e.g. 2d6+4">
+          <button class="btn btn-primary px-4 font-bold" onclick="const f=document.getElementById('customRollFormula').value; if(f) { sendRoll(f, 'Custom Roll'); document.querySelector('.vtt-modal-close')?.click(); }">Roll</button>
+        </div>`;
+      new VTT.Modal({ title: 'Dice Roller', content, buttons: [] }).open();
+    };
+
     // HP Modal Logic
     window.openHpModal = function() {
       if(!character) return;
