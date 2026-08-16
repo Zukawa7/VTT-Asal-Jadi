@@ -5,43 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register - VTT Asal Jadi</title>
   
-  <!-- NEW CSS System -->
+  <!-- Design System CSS -->
   <link rel="stylesheet" href="/styles/variables.css">
   <link rel="stylesheet" href="/styles/animations.css">
   <link rel="stylesheet" href="/styles/components.css">
   <link rel="stylesheet" href="/styles/theme.css">
   <link rel="stylesheet" href="/styles/responsive.css">
 </head>
-<body class="min-h-screen flex items-center justify-center">
-  <div class="card w-full" style="max-width: 400px;">
-    <div class="text-center" style="margin-bottom: var(--space-xl);">
-      <span style="font-size: var(--font-size-3xl);">🎲</span>
-      <h1 class="card-title" style="border: none;">VTT ASAL JADI</h1>
-      <p style="color: var(--text-secondary); font-size: var(--font-size-sm);">Create your account</p>
+<body class="min-h-screen flex items-center justify-center p-4">
+  <div class="card card-fantasy w-full" style="max-width: 420px;">
+    <!-- Fantasy Crest Header -->
+    <div class="text-center" style="margin-bottom: var(--space-lg);">
+      <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(145deg, var(--bg-tertiary), var(--bg-surface)); border: 2px solid var(--gold-500); box-shadow: var(--glow-gold-sm); margin-bottom: var(--space-sm);">
+        <span style="font-size: var(--font-size-3xl); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">⚔️</span>
+      </div>
+      <h1 class="card-title" style="border: none; margin-top: var(--space-xs); font-size: var(--font-size-2xl);">VTT ASAL JADI</h1>
+      <p style="color: var(--text-secondary); font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: var(--tracking-wider); margin-top: 4px;">Create your adventurer account</p>
     </div>
 
     <form id="registerForm" class="flex flex-col gap-4">
-      <div>
-        <label for="username" style="display: block; margin-bottom: var(--space-xs); color: var(--text-secondary); font-size: var(--font-size-xs); text-transform: uppercase; font-weight: bold;">Username</label>
-        <input type="text" id="username" required class="input">
+      <div class="form-group">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" id="username" required placeholder="Choose a username" class="input form-input">
       </div>
 
-      <div>
-        <label for="password" style="display: block; margin-bottom: var(--space-xs); color: var(--text-secondary); font-size: var(--font-size-xs); text-transform: uppercase; font-weight: bold;">Password</label>
-        <input type="password" id="password" required class="input">
+      <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" id="password" required placeholder="Choose a password" class="input form-input">
       </div>
 
-      <div id="registerError" class="hidden" style="color: var(--danger); font-size: var(--font-size-sm); text-align: center;"></div>
-      <div id="registerSuccess" class="hidden" style="color: var(--success); font-size: var(--font-size-sm); text-align: center;"></div>
+      <div class="flex items-center" style="margin-top: -4px;">
+        <label class="form-checkbox-container text-xs" style="color: var(--text-secondary);">
+          <input type="checkbox" id="termsAgree" required class="form-checkbox">
+          <span>I agree to the Terms & Conditions</span>
+        </label>
+      </div>
 
-      <button type="submit" class="btn btn-primary w-full" style="margin-top: var(--space-md);">
+      <div id="registerError" class="hidden" style="color: var(--danger); font-size: var(--font-size-sm); text-align: center; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: var(--radius-sm); padding: var(--space-xs);"></div>
+      <div id="registerSuccess" class="hidden" style="color: var(--success); font-size: var(--font-size-sm); text-align: center; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); border-radius: var(--radius-sm); padding: var(--space-xs);"></div>
+
+      <button type="submit" class="btn btn-primary w-full" style="margin-top: var(--space-sm);">
         Create Account
       </button>
     </form>
 
-    <div style="margin-top: var(--space-lg); text-align: center; font-size: var(--font-size-sm); color: var(--text-secondary);">
+    <div style="margin-top: var(--space-lg); text-align: center; font-size: var(--font-size-sm); color: var(--text-secondary); border-top: 1px solid var(--border-primary); padding-top: var(--space-md);">
       Already have an account? 
-      <a href="/login" style="color: var(--secondary); text-decoration: none;">Sign in here</a>
+      <a href="/login" style="color: var(--gold-400); text-decoration: none; font-weight: bold;">Sign in here</a>
     </div>
   </div>
 
@@ -59,7 +69,7 @@
       registerError.classList.add('hidden');
       registerSuccess.classList.add('hidden');
 
-      const username = document.getElementById('username').value;
+      const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
 
       try {

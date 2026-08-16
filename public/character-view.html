@@ -512,6 +512,7 @@
     
     async function load() {
       try{
+        // Endpoint: GET /api/v2/character/:id/sheet
         let r = await fetch('/api/v2/character/'+encodeURIComponent(characterId)+'/sheet');
         if(!r.ok) throw Error('Character not found or unavailable.');
         character = await r.json();

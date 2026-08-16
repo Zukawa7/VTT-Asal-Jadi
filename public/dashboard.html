@@ -4,15 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - VTT Asal Jadi</title>
-  
-  <style>
-    body {
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-    }
-  </style>
 
-  <!-- NEW CSS System -->
+  <!-- Design System CSS -->
   <link rel="stylesheet" href="/styles/variables.css">
   <link rel="stylesheet" href="/styles/animations.css">
   <link rel="stylesheet" href="/styles/components.css">
@@ -22,12 +15,12 @@
 <body class="min-h-screen flex flex-col font-sans">
   
   <!-- Header -->
-  <header class="card-header" style="margin-bottom:0; border-bottom: 1px solid var(--border-primary); padding: var(--space-md) var(--space-lg); background: var(--bg-secondary);">
+  <header class="card-header" style="margin-bottom:0; border-bottom: 1px solid var(--border-primary); padding: var(--space-md) var(--space-lg); background: var(--bg-surface);">
     <div class="max-w-7xl mx-auto flex justify-between items-center w-full">
       <div class="flex items-center gap-3">
         <span style="font-size: var(--font-size-2xl);">🎲</span>
         <div>
-          <h1 class="text-xl font-bold" style="color: var(--primary);">VTT ASAL JADI</h1>
+          <h1 class="text-xl font-bold" style="color: var(--gold-400); font-family: var(--font-heading);">VTT ASAL JADI</h1>
           <p class="text-xs" style="color: var(--text-secondary);">User Dashboard</p>
         </div>
       </div>
@@ -35,7 +28,7 @@
       <div class="flex items-center gap-4 desktop-nav">
         <div class="text-right hidden sm:block">
           <span class="text-xs block" style="color: var(--text-secondary);">Logged in as</span>
-          <span id="headerUsername" class="font-bold" style="color: var(--primary);">Username</span>
+          <span id="headerUsername" class="font-bold" style="color: var(--gold-400);">Username</span>
         </div>
         <a href="/session-dashboard" class="btn btn-secondary">Session Logs</a>
         <a href="/vtt" class="btn btn-accent">Open VTT</a>
@@ -51,33 +44,40 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
       <!-- Welcome Info (8 cols) -->
-      <div class="lg:col-span-8 card flex flex-col justify-between">
+      <div class="lg:col-span-8 card card-fantasy flex flex-col justify-between">
         <div>
-          <h2 class="text-2xl font-bold" style="color: var(--primary);">Welcome back, <span id="welcomeUsername" style="color: var(--accent);">Player</span>!</h2>
-          <p class="text-sm mt-1" style="color: var(--text-secondary);">
-            This dashboard allows you to import and manage your D&D Beyond characters. You can share your characters' public sheets with your Dungeon Master and other players, or export them as JSON.
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
+            <h2 class="text-2xl font-bold" style="color: var(--gold-400); font-family: var(--font-heading);">
+              Welcome back, <span id="welcomeUsername" style="color: var(--gold-300);">Player</span>!
+            </h2>
+            <div class="badge-gold flex items-center gap-1.5" style="padding: 4px 10px; font-size: 0.75rem;">
+              <span>🐉</span> D&D Beyond: Connected
+            </div>
+          </div>
+          <p class="text-sm mt-1" style="color: var(--text-secondary); line-height: var(--leading-relaxed);">
+            Manage your imported D&D Beyond characters, export stat blocks as JSON, and share live character sheets with your Dungeon Master and party members.
           </p>
         </div>
         <div class="mt-4 pt-4 flex flex-wrap gap-4 text-xs" style="border-top: 1px solid var(--border-primary); color: var(--text-secondary);">
           <div>🔑 Token Status: <span class="font-bold" style="color: var(--success);">Active</span></div>
-          <div>🛡️ Role: <span class="font-bold" style="color: var(--primary);">Adventurer</span></div>
+          <div>🛡️ Role: <span class="font-bold" style="color: var(--gold-400);">Adventurer</span></div>
         </div>
       </div>
 
       <!-- Import Card (4 cols) -->
-      <div class="lg:col-span-4 card flex flex-col justify-between">
+      <div class="lg:col-span-4 card card-fantasy flex flex-col justify-between">
         <div>
-          <h3 class="text-lg font-bold mb-2 flex items-center gap-2" style="color: var(--primary);">
+          <h3 class="text-lg font-bold mb-2 flex items-center gap-2" style="color: var(--gold-400); font-family: var(--font-heading);">
             <span>📥</span> Import Character
           </h3>
           <p class="text-xs mb-4" style="color: var(--text-secondary);">
-            Enter your D&D Beyond Character ID:
+            Enter your D&D Beyond Character ID or URL:
           </p>
           <div class="flex flex-col gap-2">
             <input type="text" id="charIdInput" placeholder="Character ID (e.g. 10293847)" class="input">
             <button id="importBtn" class="btn btn-primary w-full flex justify-center items-center gap-2">
               <span id="importBtnText">Import to Database</span>
-              <div id="importSpinner" class="hidden animate-spin rounded-full h-4 w-4 border-2 border-t-transparent" style="border-color: var(--bg-primary);"></div>
+              <div id="importSpinner" class="hidden animate-spin rounded-full h-4 w-4 border-2 border-t-transparent" style="border-color: #0c0e14;"></div>
             </button>
           </div>
           <div id="importError" class="hidden mt-1 text-xs" style="color: var(--danger);"></div>
@@ -88,8 +88,8 @@
     </div>
 
     <!-- Characters List Section -->
-    <div class="card">
-      <h2 class="text-xl font-bold mb-4 flex items-center gap-2" style="color: var(--primary);">
+    <div class="card card-fantasy">
+      <h2 class="text-xl font-bold mb-4 flex items-center gap-2" style="color: var(--gold-400); font-family: var(--font-heading);">
         <span>🧙‍♂️</span> Your Imported Characters
       </h2>
 
@@ -99,9 +99,9 @@
       </div>
 
       <!-- Empty State -->
-      <div id="charEmpty" class="hidden text-center p-4 border rounded-lg" style="border-color: var(--border-secondary);">
+      <div id="charEmpty" class="hidden text-center p-8 border rounded-lg" style="border-color: var(--border-secondary); background: var(--bg-canvas);">
         <span style="font-size: var(--font-size-3xl);">🐉</span>
-        <h3 class="text-base font-bold mt-2" style="color: var(--text-secondary);">No characters imported yet</h3>
+        <h3 class="text-base font-bold mt-2" style="color: var(--gold-400); font-family: var(--font-heading);">No characters imported yet</h3>
         <p class="text-xs mt-1" style="color: var(--text-tertiary);">Use the panel above to import your first D&D Beyond character.</p>
       </div>
 
@@ -114,8 +114,8 @@
   </main>
 
   <!-- Footer -->
-  <footer style="background: var(--bg-secondary); border-top: 1px solid var(--border-primary); padding: var(--space-md); text-align: center; font-size: var(--font-size-xs); color: var(--text-tertiary);">
-    <p>VTT Asal Jadi - Dashboard</p>
+  <footer style="background: var(--bg-surface); border-top: 1px solid var(--border-primary); padding: var(--space-md); text-align: center; font-size: var(--font-size-xs); color: var(--text-tertiary);">
+    <p>VTT Asal Jadi - Dark Fantasy Tabletop & Character Management</p>
   </footer>
 
   <script>
@@ -206,7 +206,7 @@
 
       characters.forEach(char => {
         const card = document.createElement('div');
-        card.className = 'card flex flex-col justify-between';
+        card.className = 'card card-fantasy polyport-card flex flex-col justify-between';
         card.dataset.characterId = String(char.id);
         
         const classStr = char.classes.map(c => `${c.name} ${c.level}`).join('/') + ` (Lvl ${char.level})`;
@@ -214,11 +214,14 @@
 
         card.innerHTML = `
           <div class="flex items-center gap-4 mb-4">
-            <img src="${char.avatarUrl}" class="w-16 h-16 rounded-full border object-cover" style="border-color: var(--primary); background: var(--bg-secondary);">
+            <img src="${char.avatarUrl}" class="w-16 h-16 rounded-full border object-cover" style="border-color: var(--gold-500); background: var(--bg-tertiary);">
             <div class="min-w-0 flex-1">
-              <h3 class="font-bold truncate text-sm" style="color: var(--primary);">${char.name}</h3>
+              <div class="flex items-center justify-between gap-1">
+                <h3 class="font-bold truncate text-sm" style="color: var(--gold-400); font-family: var(--font-heading);">${char.name}</h3>
+                <span class="badge-level">Lvl ${char.level}</span>
+              </div>
               <p class="text-xs truncate" style="color: var(--text-secondary);">${char.race}</p>
-              <p class="text-xs font-mono truncate" style="color: var(--accent);">${classStr}</p>
+              <p class="text-xs font-mono truncate" style="color: var(--gold-500);">${classStr}</p>
             </div>
           </div>
           <div class="flex justify-between items-center pt-3 mt-2 gap-2" style="border-top: 1px solid var(--border-primary);">
@@ -234,7 +237,7 @@
       });
     }
 
-    // Import Character (Wizard Style Replacement)
+    // Import Character
     importBtn.addEventListener('click', async () => {
       let characterId = charIdInput.value.trim();
       if (!characterId) {

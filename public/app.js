@@ -42,66 +42,79 @@ updateObsUrl();
 joinRoom();
 
 // Event Listeners
-joinRoomBtn.addEventListener('click', () => {
-  currentRoom = roomIdInput.value.trim() || 'default-room';
-  joinRoom();
-  updateObsUrl();
-});
+if (joinRoomBtn) {
+  joinRoomBtn.addEventListener('click', () => {
+    currentRoom = (roomIdInput ? roomIdInput.value.trim() : '') || 'default-room';
+    joinRoom();
+    updateObsUrl();
+  });
+}
 
-importBtn.addEventListener('click', importCharacter);
+if (importBtn) {
+  importBtn.addEventListener('click', importCharacter);
+}
 
 // VTT Map Event Listeners
-setMapBtn.addEventListener('click', () => {
-  const mapUrl = mapUrlInput.value.trim();
-  if (!mapUrl) return;
-  socket.emit('update-map', { roomId: currentRoom, mapUrl });
-});
-
-addTokenBtn.addEventListener('click', () => {
-  if (!currentCharacter) {
-    alert('Please import a character first!');
-    return;
-  }
-  socket.emit('add-token', {
-    roomId: currentRoom,
-    token: {
-      id: currentCharacter.id.toString(),
-      name: currentCharacter.name,
-      avatarUrl: currentCharacter.avatarUrl,
-      x: 0,
-      y: 0
-    }
+if (setMapBtn) {
+  setMapBtn.addEventListener('click', () => {
+    const mapUrl = mapUrlInput ? mapUrlInput.value.trim() : '';
+    if (!mapUrl) return;
+    socket.emit('update-map', { roomId: currentRoom, mapUrl });
   });
-});
+}
+
+if (addTokenBtn) {
+  addTokenBtn.addEventListener('click', () => {
+    if (!currentCharacter) {
+      alert('Please import a character first!');
+      return;
+    }
+    socket.emit('add-token', {
+      roomId: currentRoom,
+      token: {
+        id: currentCharacter.id.toString(),
+        name: currentCharacter.name,
+        avatarUrl: currentCharacter.avatarUrl,
+        x: 0,
+        y: 0
+      }
+    });
+  });
+}
 
 // Drag and Drop for VTT Map
-mapContainer.addEventListener('dragover', (e) => {
-  e.preventDefault();
-});
-
-mapContainer.addEventListener('drop', (e) => {
-  e.preventDefault();
-  const tokenId = e.dataTransfer.getData('text/plain');
-  if (!tokenId) return;
-
-  const rect = mapContainer.getBoundingClientRect();
-  const xCell = Math.floor(((e.clientX - rect.left) / rect.width) * 12);
-  const yCell = Math.floor(((e.clientY - rect.top) / rect.height) * 12);
-
-  const x = Math.max(0, Math.min(11, xCell));
-  const y = Math.max(0, Math.min(11, yCell));
-
-  socket.emit('move-token', {
-    roomId: currentRoom,
-    tokenId,
-    x,
-    y
+if (mapContainer) {
+  mapContainer.addEventListener('dragover', (e) => {
+    e.preventDefault();
   });
-});
+
+  mapContainer.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const tokenId = e.dataTransfer.getData('text/plain');
+    if (!tokenId) return;
+
+    const rect = mapContainer.getBoundingClientRect();
+    const xCell = Math.floor(((e.clientX - rect.left) / rect.width) * 12);
+    const yCell = Math.floor(((e.clientY - rect.top) / rect.height) * 12);
+
+    const x = Math.max(0, Math.min(11, xCell));
+    const y = Math.max(0, Math.min(11, yCell));
+
+    socket.emit('move-token', {
+      roomId: currentRoom,
+      tokenId,
+      x,
+      y
+    });
+  });
+}
 
 // Socket Event Handlers
 function joinRoom() {
   socket.emit('join-room', currentRoom);
+  if (logContainer) {
+    logContainer.innerHTML = '';
+  }
   addLogMessage({
     system: true,
     text: `Connected to room: "${currentRoom}"`
@@ -133,7 +146,7 @@ socket.on('new-roll', (data) => {
 });
 
 socket.on('room-state', (state) => {
-  updateMapBackground(state.mapUrl);
+  if (state.mapUrl) updateMapBackground(state.mapUrl);
   localTokens = state.tokens || {};
   renderTokens(localTokens);
 });
@@ -162,23 +175,48 @@ socket.on('token-removed', (tokenId) => {
 
 // Import Character function
 async function importCharacter() {
-  const charId = charIdInput.value.trim();
-  if (!charId) {
+  const rawInput = charIdInput ? charIdInput.value.trim() : '';
+  if (!rawInput) {
     showImportError('Please enter a valid Character ID');
     return;
   }
 
+  const match = rawInput.match(/(?:characters\/)?(\d+)/i);
+  const charId = match && match[1] ? match[1] : rawInput;
+
   // UI state: loading
-  importBtn.disabled = true;
-  importBtnText.textContent = 'Importing...';
-  importSpinner.classList.remove('hidden');
-  importError.classList.add('hidden');
+  if (importBtn) importBtn.disabled = true;
+  if (importBtnText) importBtnText.textContent = 'Importing...';
+  if (importSpinner) importSpinner.classList.remove('hidden');
+  if (importError) importError.classList.add('hidden');
 
   try {
-    const response = await fetch(`/api/character/${charId}`);
+    const token = localStorage.getItem('token');
+    // First try fetching public/cached sheet
+    let response = await fetch(`/api/v2/character/${encodeURIComponent(charId)}/sheet`);
+    
+    // If not found and user has auth token, import from DDB API
+    if (!response.ok && token) {
+      const importRes = await fetch('/api/v2/character/import', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ characterId: charId })
+      });
+      if (importRes.ok) {
+        response = await fetch(`/api/v2/character/${encodeURIComponent(charId)}/sheet`);
+      }
+    }
+
     if (!response.ok) {
-      const errData = await response.json();
-      throw new Error(errData.error || 'Failed to fetch character');
+      let errText = 'Failed to fetch character';
+      try {
+        const errData = await response.json();
+        errText = errData.error || errText;
+      } catch {}
+      throw new Error(errText);
     }
 
     const data = await response.json();
@@ -194,61 +232,69 @@ async function importCharacter() {
     console.error(err);
     showImportError(err.message || 'An error occurred while importing. Please double-check the ID.');
   } finally {
-    importBtn.disabled = false;
-    importBtnText.textContent = 'Import';
-    importSpinner.classList.add('hidden');
+    if (importBtn) importBtn.disabled = false;
+    if (importBtnText) importBtnText.textContent = 'Import';
+    if (importSpinner) importSpinner.classList.add('hidden');
   }
 }
 
 function showImportError(msg) {
-  importError.textContent = msg;
-  importError.classList.remove('hidden');
+  if (importError) {
+    importError.textContent = msg;
+    importError.classList.remove('hidden');
+  }
 }
 
 // Render character details to UI
 function renderCharacterSheet(char) {
-  charPlaceholder.classList.add('hidden');
-  charSheet.classList.remove('hidden');
+  if (charPlaceholder) charPlaceholder.classList.add('hidden');
+  if (charSheet) charSheet.classList.remove('hidden');
 
-  charAvatar.src = char.avatarUrl;
-  charName.textContent = char.name;
+  if (charAvatar) charAvatar.src = char.avatarUrl || 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png';
+  if (charName) charName.textContent = char.name;
   
   const classStr = char.classes.map(c => `${c.name} ${c.level}`).join('/') + ` (Level ${char.level})`;
-  charSub.textContent = `${char.race} | ${classStr}`;
+  if (charSub) charSub.textContent = `${char.race} | ${classStr}`;
 
-  charCurrentHp.textContent = char.hp.current;
-  charMaxHp.textContent = char.hp.max;
+  if (charCurrentHp) charCurrentHp.textContent = char.hp.current;
+  if (charMaxHp) charMaxHp.textContent = char.hp.max;
   
-  if (char.hp.temp > 0) {
-    charTempHp.textContent = char.hp.temp;
-    charTempHpContainer.classList.remove('hidden');
-  } else {
-    charTempHpContainer.classList.add('hidden');
+  if (charTempHp && charTempHpContainer) {
+    if (char.hp.temp > 0) {
+      charTempHp.textContent = char.hp.temp;
+      charTempHpContainer.classList.remove('hidden');
+    } else {
+      charTempHpContainer.classList.add('hidden');
+    }
   }
 
   // Calculate HP bar percentage
-  const hpPercent = Math.max(0, Math.min(100, (char.hp.current / char.hp.max) * 100));
-  hpBar.style.width = `${hpPercent}%`;
-  
-  // Color HP bar based on health
-  if (hpPercent < 25) {
-    hpBar.className = 'bg-red-600 h-full transition-all duration-300';
-  } else if (hpPercent < 50) {
-    hpBar.className = 'bg-yellow-500 h-full transition-all duration-300';
-  } else {
-    hpBar.className = 'bg-green-500 h-full transition-all duration-300';
+  if (hpBar && char.hp.max > 0) {
+    const hpPercent = Math.max(0, Math.min(100, (char.hp.current / char.hp.max) * 100));
+    hpBar.style.width = `${hpPercent}%`;
+    
+    // Color HP bar based on health
+    if (hpPercent < 25) {
+      hpBar.style.background = 'var(--danger, #ef4444)';
+    } else if (hpPercent < 50) {
+      hpBar.style.background = 'var(--warning, #f59e0b)';
+    } else {
+      hpBar.style.background = 'var(--success, #10b981)';
+    }
   }
 
-  // Render Stats
+  // Render Stats & Modifiers
   const stats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
   stats.forEach(stat => {
     const scoreEl = document.getElementById(`statScore-${stat}`);
     const modEl = document.getElementById(`statMod-${stat}`);
     
-    if (scoreEl && modEl) {
+    if (scoreEl && char.stats && char.stats[stat] !== undefined) {
       scoreEl.textContent = char.stats[stat];
+    }
+    if (modEl && char.modifiers && char.modifiers[stat] !== undefined) {
       const mod = char.modifiers[stat];
-      modEl.textContent = mod >= 0 ? `+${mod}` : mod;
+      modEl.textContent = mod >= 0 ? `+${mod}` : `${mod}`;
     }
   });
 }
@@ -257,7 +303,7 @@ function renderCharacterSheet(char) {
 window.rollStat = function(statLabel, statKey) {
   if (!currentCharacter) return;
   
-  const modifier = currentCharacter.modifiers[statKey];
+  const modifier = currentCharacter.modifiers ? (currentCharacter.modifiers[statKey] || 0) : 0;
   const roll = Math.floor(Math.random() * 20) + 1;
   const total = roll + modifier;
   const sign = modifier >= 0 ? '+' : '';
@@ -277,8 +323,31 @@ window.rollStat = function(statLabel, statKey) {
   socket.emit('send-roll', rollData);
 };
 
-window.rollDice = function(sides) {
-  const roll = Math.floor(Math.random() * sides) + 1;
+window.rollDice = function(sides, mode) {
+  let rolls = [];
+  let result = 0;
+  let rollTitle = `d${sides} Roll`;
+  let formula = `1d${sides}`;
+
+  if (sides === 20 && (mode === 'advantage' || mode === 'disadvantage')) {
+    const r1 = Math.floor(Math.random() * 20) + 1;
+    const r2 = Math.floor(Math.random() * 20) + 1;
+    rolls = [r1, r2];
+    if (mode === 'advantage') {
+      result = Math.max(r1, r2);
+      rollTitle = 'd20 (Advantage)';
+      formula = '2d20kh1';
+    } else {
+      result = Math.min(r1, r2);
+      rollTitle = 'd20 (Disadvantage)';
+      formula = '2d20kl1';
+    }
+  } else {
+    const roll = Math.floor(Math.random() * sides) + 1;
+    rolls = [roll];
+    result = roll;
+  }
+
   const name = currentCharacter ? currentCharacter.name : 'Adventurer';
   const avatar = currentCharacter ? currentCharacter.avatarUrl : 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png';
 
@@ -286,32 +355,33 @@ window.rollDice = function(sides) {
     roomId: currentRoom,
     characterName: name,
     characterAvatar: avatar,
-    rollName: `d${sides} Roll`,
-    formula: `1d${sides}`,
-    result: roll,
-    rolls: [roll],
+    rollName: rollTitle,
+    formula: formula,
+    result: result,
+    rolls: rolls,
     modifier: 0
   };
 
   socket.emit('send-roll', rollData);
 };
 
-
-
 window.openCustomRoll = function() {
-  customRollForm.classList.toggle('hidden');
-  if (!customRollForm.classList.contains('hidden')) {
-    customRollInput.focus();
+  if (customRollForm) {
+    customRollForm.classList.toggle('hidden');
+    if (!customRollForm.classList.contains('hidden') && customRollInput) {
+      customRollInput.focus();
+    }
   }
 };
 
 window.executeCustomRoll = function() {
+  if (!customRollInput) return;
   const formula = customRollInput.value.trim();
   if (!formula) return;
 
   const parsed = parseAndRoll(formula);
   if (!parsed) {
-    alert('Invalid roll formula. Use format like: 2d6+4, d20, 1d100-5');
+    alert('Invalid roll formula. Use format like: 2d6+4, d20, 1d100-5, 4d6kh3');
     return;
   }
 
@@ -336,13 +406,24 @@ window.executeCustomRoll = function() {
 // Dice parser helper
 function parseAndRoll(formula) {
   const cleanFormula = formula.replace(/\s+/g, '').toLowerCase();
-  const match = cleanFormula.match(/^(\d*)d(\d+)([hl]\d+)?([\+\-]\d+)?$/);
+  const match = cleanFormula.match(/^(\d*)d(\d+)([hl]\d+|kh\d+|kl\d+)?([\+\-]\d+)?$/);
   if (!match) return null;
   
   const count = match[1] ? parseInt(match[1]) : 1;
   const sides = parseInt(match[2]);
-  const keepMode = match[3] ? match[3][0] : null;
-  const keepCount = match[3] ? parseInt(match[3].slice(1)) : count;
+  let keepMode = null;
+  let keepCount = count;
+  
+  if (match[3]) {
+    if (match[3].startsWith('kh') || match[3].startsWith('h')) {
+      keepMode = 'h';
+      keepCount = parseInt(match[3].replace(/^[kh]+/, '')) || 1;
+    } else if (match[3].startsWith('kl') || match[3].startsWith('l')) {
+      keepMode = 'l';
+      keepCount = parseInt(match[3].replace(/^[kl]+/, '')) || 1;
+    }
+  }
+  
   const modifier = match[4] ? parseInt(match[4]) : 0;
   
   if (count <= 0 || count > 100 || sides <= 0 || sides > 1000 || keepCount < 1 || keepCount > count) return null;
@@ -370,41 +451,43 @@ function parseAndRoll(formula) {
 
 // Log view management
 function addLogMessage(data) {
+  if (!logContainer) return;
   // Remove placeholder if it exists
   if (logContainer.querySelector('.italic')) {
     logContainer.innerHTML = '';
   }
 
   const msgEl = document.createElement('div');
-  msgEl.className = 'border-b border-gray-800/60 pb-2 mb-2 last:border-b-0';
+  msgEl.className = 'border-b pb-2 mb-2 last:border-b-0';
+  msgEl.style.borderColor = 'var(--border-secondary, rgba(255,255,255,0.08))';
 
   if (data.system) {
-    msgEl.innerHTML = `<span class="text-primary font-bold">[SYSTEM]</span> <span class="text-secondary">${data.text}</span>`;
+    msgEl.innerHTML = `<span style="color: var(--gold-400); font-weight: bold;">[SYSTEM]</span> <span style="color: var(--text-secondary);">${data.text}</span>`;
   } else {
-    const avatarImg = `<img src="${data.characterAvatar}" class="w-5 h-5 rounded-full inline-block mr-1.5 align-middle object-cover bg-bg-primary">`;
-    const rollsList = `(${data.rolls.join(', ')})`;
+    const avatarImg = `<img src="${data.characterAvatar}" class="w-5 h-5 rounded-full inline-block mr-1.5 align-middle object-cover" style="background: var(--bg-tertiary);">`;
+    const rollsList = data.rolls && data.rolls.length ? `(${data.rolls.join(', ')})` : '';
     const modStr = data.modifier ? (data.modifier >= 0 ? ` + ${data.modifier}` : ` - ${Math.abs(data.modifier)}`) : '';
     
-    // Critical coloring (assuming 1d20 for simplicity, or using data.isCritical if available)
-    let resultColor = 'text-primary';
-    if (data.formula.includes('d20') && data.rolls.length === 1) {
-      if (data.rolls[0] === 20) resultColor = 'text-success animate-pulse';
-      if (data.rolls[0] === 1) resultColor = 'text-danger animate-shake';
+    // Critical coloring
+    let resultColor = 'color: var(--gold-400);';
+    if (data.formula && data.formula.includes('d20') && data.rolls && data.rolls.length === 1) {
+      if (data.rolls[0] === 20) resultColor = 'color: var(--success); font-weight: 900;';
+      if (data.rolls[0] === 1) resultColor = 'color: var(--danger); font-weight: 900;';
     }
     
     const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     
     msgEl.innerHTML = `
-      <div class="flex items-center gap-1 text-xs text-secondary">
+      <div class="flex items-center gap-1 text-xs" style="color: var(--text-secondary);">
         ${avatarImg}
-        <span class="font-bold text-primary">${data.characterName}</span>
-        <span class="text-tertiary">•</span>
+        <span class="font-bold" style="color: var(--gold-400);">${data.characterName}</span>
+        <span style="color: var(--text-tertiary);">•</span>
         <span>${data.rollName}</span>
-        <span class="ml-auto text-tertiary text-[10px]">${timestamp}</span>
+        <span class="ml-auto text-[10px]" style="color: var(--text-tertiary);">${timestamp}</span>
       </div>
       <div class="mt-1 flex justify-between items-baseline">
-        <span class="text-secondary text-xs">${data.formula} ${rollsList}${modStr}</span>
-        <span class="text-lg font-black ${resultColor} bg-bg-tertiary px-2 py-0.5 rounded border border-border-secondary shadow-sm">${data.result}</span>
+        <span class="text-xs" style="color: var(--text-secondary);">${data.formula} ${rollsList}${modStr}</span>
+        <span class="text-base font-black px-2 py-0.5 rounded border" style="${resultColor} background: var(--bg-tertiary); border-color: var(--border-secondary);">${data.result}</span>
       </div>
     `;
   }
@@ -413,19 +496,26 @@ function addLogMessage(data) {
   logContainer.scrollTop = logContainer.scrollHeight;
 }
 
+window.addLogMessage = addLogMessage;
+window.logRoll = addLogMessage;
+
 window.clearLog = function() {
-  logContainer.innerHTML = '<div class="text-gray-500 italic">No rolls yet. Join a room and roll some dice!</div>';
+  if (logContainer) {
+    logContainer.innerHTML = '<div class="italic" style="color: var(--text-tertiary);">No rolls yet. Join a room and roll some dice!</div>';
+  }
 };
 
 // VTT Map Helper Functions
 function updateMapBackground(mapUrl) {
-  mapContainer.style.backgroundImage = `url('${mapUrl}')`;
-  mapContainer.style.backgroundSize = 'cover';
-  mapContainer.style.backgroundPosition = 'center';
-  mapUrlInput.value = mapUrl;
+  if (!mapContainer || !mapUrl) return;
+  mapContainer.style.backgroundImage = `linear-gradient(to right, rgba(245, 158, 11, 0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(245, 158, 11, 0.2) 1px, transparent 1px), url('${mapUrl}')`;
+  mapContainer.style.backgroundSize = 'calc(100% / 12) calc(100% / 12), calc(100% / 12) calc(100% / 12), cover';
+  mapContainer.style.backgroundPosition = '0 0, 0 0, center';
+  if (mapUrlInput) mapUrlInput.value = mapUrl;
 }
 
 function renderTokens(tokens) {
+  if (!mapContainer) return;
   // Remove existing token elements
   const tokenEls = mapContainer.querySelectorAll('.token-element');
   tokenEls.forEach(el => el.remove());
@@ -446,11 +536,11 @@ function renderTokens(tokens) {
 
     tokenEl.innerHTML = `
       <div class="relative w-full h-full flex items-center justify-center">
-        <img src="${token.avatarUrl}" class="w-11/12 h-11/12 rounded-full border-2 border-amber-500 object-cover shadow-lg bg-gray-800" title="${token.name}">
+        <img src="${token.avatarUrl}" class="w-11/12 h-11/12 rounded-full border-2 object-cover shadow-lg" style="border-color: var(--gold-500); background: var(--bg-tertiary);" title="${token.name}">
         <!-- Delete Button on Hover -->
-        <button onclick="removeToken('${token.id}')" class="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow z-20">×</button>
+        <button onclick="removeToken('${token.id}')" class="absolute -top-1 -right-1 text-white rounded-full w-4 h-4 text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow z-20" style="background: var(--danger);">×</button>
         <!-- Name Badge on Hover -->
-        <span class="absolute -bottom-5 bg-gray-950/90 text-white text-[9px] px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20 border border-gray-800">${token.name}</span>
+        <span class="absolute -bottom-5 text-white text-[9px] px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20 border" style="background: rgba(12, 14, 20, 0.95); border-color: var(--border-secondary);">${token.name}</span>
       </div>
     `;
 
@@ -467,29 +557,32 @@ window.removeToken = function(tokenId) {
 
 // OBS URL generator
 function updateObsUrl() {
+  if (!obsUrlInput) return;
   const protocol = window.location.protocol;
   const host = window.location.host;
   const url = `${protocol}//${host}/overlay.html?room=${currentRoom}`;
   obsUrlInput.value = url;
 }
 
-window.copyObsUrl = function() {
+window.copyObsUrl = function(btnEvent) {
+  if (!obsUrlInput) return;
   obsUrlInput.select();
   obsUrlInput.setSelectionRange(0, 99999);
   navigator.clipboard.writeText(obsUrlInput.value);
   
-  // Quick visual feedback
-  const copyBtn = event.target;
-  const origText = copyBtn.textContent;
-  copyBtn.textContent = 'Copied!';
-  copyBtn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
-  copyBtn.classList.add('bg-green-600');
-  
-  setTimeout(() => {
-    copyBtn.textContent = origText;
-    copyBtn.classList.remove('bg-green-600');
-    copyBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
-  }, 2000);
+  const targetBtn = (btnEvent && btnEvent.target) ? btnEvent.target : document.querySelector('button[onclick*="copyObsUrl"]');
+  if (targetBtn) {
+    const origText = targetBtn.textContent;
+    targetBtn.textContent = 'Copied!';
+    targetBtn.style.background = 'var(--success, #10b981)';
+    targetBtn.style.color = '#ffffff';
+    
+    setTimeout(() => {
+      targetBtn.textContent = origText;
+      targetBtn.style.background = '';
+      targetBtn.style.color = '';
+    }, 2000);
+  }
 };
 
 // --- DICE POOL LOGIC ---
@@ -507,15 +600,15 @@ window.renderDicePool = function() {
   
   const entries = Object.entries(dicePool).filter(([s, c]) => c > 0);
   if (entries.length === 0) {
-    container.innerHTML = '<span class="text-xs text-gray-500 italic">Click dice to add to pool...</span>';
+    container.innerHTML = '<span class="text-xs italic" style="color: var(--text-tertiary);">Click dice to add to pool...</span>';
     return;
   }
   
   container.innerHTML = entries.map(([sides, count]) => 
-    `<span class="badge badge-accent cursor-pointer hover:bg-red-600" onclick="removeFromPool(${sides})" title="Remove">
-       ${count}d${sides} <span class="ml-1 opacity-50">×</span>
+    `<span class="badge-gold cursor-pointer" style="padding: 2px 6px; font-size: 11px;" onclick="removeFromPool(${sides})" title="Click to remove 1">
+       ${count}d${sides} <span style="opacity: 0.6; margin-left: 2px;">×</span>
      </span>`
-  ).join('');
+  ).join(' ');
 };
 
 window.removeFromPool = function(sides) {
@@ -525,12 +618,15 @@ window.removeFromPool = function(sides) {
   }
 };
 
-document.getElementById('clearPoolBtn')?.addEventListener('click', () => {
-  dicePool = {};
-  renderDicePool();
-  const mod = document.getElementById('diceModifier');
-  if(mod) mod.value = "0";
-});
+const clearPoolBtn = document.getElementById('clearPoolBtn');
+if (clearPoolBtn) {
+  clearPoolBtn.addEventListener('click', () => {
+    dicePool = {};
+    renderDicePool();
+    const mod = document.getElementById('diceModifier');
+    if (mod) mod.value = "0";
+  });
+}
 
 window.rollPool = function() {
   const entries = Object.entries(dicePool).filter(([s, c]) => c > 0);
@@ -571,8 +667,8 @@ window.rollPool = function() {
 
   socket.emit('send-roll', rollData);
   
-  // Optional: clear pool after roll
+  // Clear pool after roll
   dicePool = {};
   renderDicePool();
-  if(document.getElementById('diceModifier')) document.getElementById('diceModifier').value = "0";
+  if (document.getElementById('diceModifier')) document.getElementById('diceModifier').value = "0";
 };

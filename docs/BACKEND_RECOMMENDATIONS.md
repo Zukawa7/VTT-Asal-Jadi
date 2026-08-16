@@ -1159,6 +1159,24 @@ export interface TokenInstance {
 
 ---
 
+### 3.4.7 Legacy & Client Compatibility Event Mapping
+For backward compatibility with existing v1 and legacy WebSocket client implementations, the server gateway bridges the following legacy event identifiers to modern namespaced handlers:
+
+| Legacy Event Identifier | Modern Namespace Event | Direction | Description |
+|---|---|---|---|
+| `join-room` | `join-room` | Client -> Server | Connects socket client to session room |
+| `update-map` | `map:update` | Client -> Server | Updates tactical battle map URL |
+| `add-token` | `token:add` | Client -> Server | Places a character or creature token |
+| `move-token` | `token:move` | Client -> Server | Updates token coordinate on 12x12 grid |
+| `remove-token` | `token:remove` | Client -> Server | Removes token from battle map canvas |
+| `send-roll` | `roll:request` | Client -> Server | Emits client dice roll request |
+| `new-roll` | `roll:result` | Server -> Client | Broadcasts dice roll result payload |
+| `token-moved` | `token:moved` | Server -> Client | Broadcasts token coordinate mutation |
+| `token-added` | `token:added` | Server -> Client | Broadcasts token placement |
+| `token-removed` | `token:removed` | Server -> Client | Broadcasts token removal |
+
+---
+
 ## 3.5 Conflict Resolution: Last-Write-Wins (LWW), Optimistic UI Reconciliation & CRC32 Drift Recovery
 
 ```
@@ -1201,7 +1219,13 @@ export interface TokenInstance {
 # 4. Relational Database Schema, Migrations & ORM Specifications
 
 ## 4.1 Production PostgreSQL / Supabase SQL DDL (12 Tables, 9 ENUMs)
-The following DDL migration script provides a complete, syntactically verified database foundation:
+The relational schema provides a complete, syntactically verified database foundation. For legacy SQLite schema migration compatibility:
+- Legacy `users` table maps to `public.profiles` (extending Supabase `auth.users`).
+- Legacy `characters` table maps to `public.characters`.
+- Legacy `game_sessions` table maps to `public.sessions`.
+- Legacy `dice_rolls` table maps to `public.dice_rolls`.
+
+The following DDL migration script provides the complete PostgreSQL / Supabase definition:
 
 ```sql
 -- ============================================================================

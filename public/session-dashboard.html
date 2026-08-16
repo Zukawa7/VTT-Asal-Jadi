@@ -1,26 +1,212 @@
-<!doctype html>
-<html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Session Dashboard - VTT Asal Jadi</title><script src="/socket.io/socket.io.js"></script>
-  <!-- NEW CSS System -->
-  <link rel="stylesheet" href="/styles/variables.css?v=5">
-  <link rel="stylesheet" href="/styles/animations.css?v=5">
-  <link rel="stylesheet" href="/styles/components.css?v=5">
-  <link rel="stylesheet" href="/styles/theme.css?v=5">
-  <link rel="stylesheet" href="/styles/responsive.css?v=5">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Session Dashboard - VTT Asal Jadi</title>
+  
+  <script src="/socket.io/socket.io.js"></script>
+
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="/styles/variables.css">
+  <link rel="stylesheet" href="/styles/animations.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <link rel="stylesheet" href="/styles/theme.css">
+  <link rel="stylesheet" href="/styles/responsive.css">
 </head>
-<body class="min-h-screen flex flex-col"><main class="flex-1 max-w-7xl w-full mx-auto p-4 space-y-6">
-  <header class="card-header" style="border:none;"><div><p class="text-xs text-primary font-bold uppercase tracking-widest">VTT Asal Jadi</p><h1 class="text-3xl font-bold">Session Dashboard</h1></div><a href="/dashboard" class="btn btn-secondary">Dashboard</a></header>
-  <section class="card"><div class="flex flex-col sm:flex-row gap-3"><input id="room" value="default-room" placeholder="Room ID" class="input"><button id="load" class="btn btn-primary">Load Session</button><button id="csv" class="btn btn-success">Export CSV</button></div><p id="status" class="text-sm text-secondary mt-3"></p></section>
-  <section class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="card"><p class="text-secondary text-sm">Total Rolls</p><p id="total" class="text-4xl font-bold text-primary">0</p></div><div class="card"><p class="text-secondary text-sm">Average Result</p><p id="average" class="text-4xl font-bold text-info">0</p></div><div class="card"><p class="text-secondary text-sm">Critical Rolls</p><p id="critical" class="text-4xl font-bold text-danger">0</p></div></section>
-  <section class="card"><h2 class="text-xl font-bold mb-4">Most Used Formulas</h2><div id="formulas" class="space-y-2"><p class="text-tertiary">No data loaded.</p></div></section>
-  <section class="card"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Recent Rolls</h2><span class="text-xs text-tertiary">Latest 100 rolls</span></div><div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="text-secondary border-b"><tr><th class="py-2">Character</th><th>Action</th><th>Formula</th><th>Result</th><th>Time</th></tr></thead><tbody id="rolls"><tr><td colspan="5" class="py-6 text-center text-tertiary">No data loaded.</td></tr></tbody></table></div></section>
-</main><script>
-const room=document.getElementById('room'),statusEl=document.getElementById('status'),socket=io();
-socket.on('new-roll',data=>{if(data&&data.roomId===room.value.trim().toLowerCase())loadSession()});
-async function loadSession(){const id=room.value.trim().toLowerCase();if(!/^[a-z0-9-]{3,50}$/.test(id)){statusEl.textContent='Invalid room ID';return}statusEl.textContent='Loading...';socket.emit('join-room',id);try{const response=await fetch('/api/v2/rolls/'+encodeURIComponent(id));if(!response.ok)throw Error('Unable to load roll history');const rolls=await response.json();const total=rolls.length;const average=total?rolls.reduce((sum,x)=>sum+Number(x.result||0),0)/total:0;const critical=rolls.filter(x=>x.isCritical).length;document.getElementById('total').textContent=total;document.getElementById('average').textContent=average.toFixed(2);document.getElementById('critical').textContent=critical;const formulaCounts={};rolls.forEach(x=>{formulaCounts[x.formula]=(formulaCounts[x.formula]||0)+1});const formulas=Object.entries(formulaCounts).sort((a,b)=>b[1]-a[1]);document.getElementById('formulas').innerHTML=formulas.length?formulas.map(([formula,uses])=>`<div class="flex justify-between bg-tertiary rounded px-4 py-3 border border-border-secondary"><code>${formula}</code><span class="text-primary font-bold">${uses} uses</span></div>`).join(''):'<p class="text-tertiary">No rolls yet.</p>';document.getElementById('rolls').innerHTML=rolls.length?rolls.map(x=>`<tr class="border-b"><td class="py-3 font-semibold">${x.characterName||'Adventurer'}</td><td>${x.rollName||'Roll'}</td><td><code class="text-primary">${x.formula}</code></td><td class="font-bold ${x.isCritical?'text-danger':'text-primary'}">${x.result}${x.isCritical?' ★':''}</td><td class="text-secondary">${x.createdAt?new Date(x.createdAt).toLocaleString():''}</td></tr>`).join(''):'<tr><td colspan="5" class="py-6 text-center text-tertiary">No rolls yet.</td></tr>';statusEl.textContent=`Session loaded · ${total} rolls`;}catch(e){statusEl.textContent=e.message}}
-document.getElementById('load').onclick=loadSession;document.getElementById('csv').onclick=async()=>{const id=room.value.trim().toLowerCase();const response=await fetch('/api/v2/rolls/'+encodeURIComponent(id));if(!response.ok)return;const rolls=await response.json();const rows=[['Character','Action','Formula','Result','Critical','Created At'],...rolls.map(x=>[x.characterName||'Adventurer',x.rollName||'Roll',x.formula,x.result,x.isCritical?'yes':'no',x.createdAt||''])];const csv=rows.map(row=>row.map(value=>'"'+String(value).replaceAll('"','""')+'"').join(',')).join('\n');const link=document.createElement('a');link.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);link.download=id+'-roll-history.csv';link.click()};loadSession();
-</script>
+<body class="min-h-screen flex flex-col font-sans">
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6 flex flex-col gap-6">
+    
+    <!-- Header -->
+    <header class="card-header flex justify-between items-center flex-wrap gap-4" style="border-bottom: 1px solid var(--border-primary); padding-bottom: var(--space-md);">
+      <div>
+        <p class="text-xs text-primary font-bold uppercase tracking-widest" style="color: var(--gold-500); font-family: var(--font-heading);">VTT Asal Jadi</p>
+        <h1 class="text-3xl font-bold card-title" style="border: none; font-size: var(--font-size-3xl);">Session Telemetry Dashboard</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="/dashboard" class="btn btn-secondary">Dashboard</a>
+        <a href="/vtt" class="btn btn-accent">Open VTT</a>
+      </div>
+    </header>
+
+    <!-- Session Search Bar & Control Panel -->
+    <section class="card card-fantasy">
+      <div class="flex flex-col sm:flex-row gap-3 items-center">
+        <div class="form-group flex-1 w-full" style="margin-bottom: 0;">
+          <input id="room" value="default-room" placeholder="Enter Session Room ID (e.g. default-room)" class="input form-input">
+        </div>
+        <button id="load" class="btn btn-primary">Load Session</button>
+        <button id="csv" class="btn btn-success">Export CSV</button>
+      </div>
+      <p id="status" class="text-xs text-secondary mt-3" style="color: var(--text-secondary);"></p>
+    </section>
+
+    <!-- 3 KPI Metric Cards -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="card metric-card kpi-card">
+        <p class="kpi-label">Total Session Rolls</p>
+        <p id="total" class="kpi-value text-primary">0</p>
+      </div>
+      <div class="card metric-card kpi-card">
+        <p class="kpi-label">Average Dice Result</p>
+        <p id="average" class="kpi-value" style="color: var(--info, #3b82f6);">0</p>
+      </div>
+      <div class="card metric-card kpi-card">
+        <p class="kpi-label">Critical Rolls (Nat 20 / Nat 1)</p>
+        <p id="critical" class="kpi-value" style="color: var(--danger, #ef4444);">0</p>
+      </div>
+    </section>
+
+    <!-- Most Used Formulas Distribution Bar Chart -->
+    <section class="card card-fantasy">
+      <div class="card-header">
+        <h2 class="card-title text-xl">📊 Formula Distribution</h2>
+      </div>
+      <div id="formulas" class="space-y-3 mt-4">
+        <p class="text-tertiary text-sm" style="color: var(--text-tertiary);">No data loaded.</p>
+      </div>
+    </section>
+
+    <!-- Recent Session Rolls Table -->
+    <section class="card card-fantasy">
+      <div class="card-header flex justify-between items-center">
+        <h2 class="card-title text-xl">📜 Recent Session Rolls</h2>
+        <span class="text-xs" style="color: var(--text-tertiary);">Real-time live telemetry stream</span>
+      </div>
+      <div class="overflow-x-auto mt-4">
+        <table class="table-fantasy w-full text-left text-sm" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border-primary); color: var(--gold-400); font-family: var(--font-heading); font-size: var(--font-size-xs); text-transform: uppercase;">
+              <th class="py-3 px-4">Character</th>
+              <th class="py-3 px-4">Action</th>
+              <th class="py-3 px-4">Formula</th>
+              <th class="py-3 px-4">Result</th>
+              <th class="py-3 px-4">Time</th>
+            </tr>
+          </thead>
+          <tbody id="rolls">
+            <tr>
+              <td colspan="5" class="py-6 text-center text-tertiary" style="color: var(--text-tertiary);">No data loaded.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const room = document.getElementById('room');
+    const statusEl = document.getElementById('status');
+    const socket = io();
+
+    socket.on('new-roll', data => {
+      if (data && data.roomId && data.roomId.toLowerCase() === room.value.trim().toLowerCase()) {
+        loadSession();
+      }
+    });
+
+    async function loadSession() {
+      const id = room.value.trim().toLowerCase();
+      if (!/^[a-z0-9-]{3,50}$/.test(id)) {
+        statusEl.textContent = 'Invalid room ID. Must be 3-50 alphanumeric characters or hyphens.';
+        return;
+      }
+      statusEl.textContent = 'Loading session data...';
+      socket.emit('join-room', id);
+
+      try {
+        const response = await fetch('/api/v2/rolls/' + encodeURIComponent(id));
+        if (!response.ok) throw new Error('Unable to load roll history for room: ' + id);
+        
+        const rolls = await response.json();
+        const total = rolls.length;
+        const average = total ? rolls.reduce((sum, x) => sum + Number(x.result || 0), 0) / total : 0;
+        const critical = rolls.filter(x => x.isCritical).length;
+
+        document.getElementById('total').textContent = total;
+        document.getElementById('average').textContent = average.toFixed(2);
+        document.getElementById('critical').textContent = critical;
+
+        // Formula counts
+        const formulaCounts = {};
+        rolls.forEach(x => {
+          formulaCounts[x.formula] = (formulaCounts[x.formula] || 0) + 1;
+        });
+        const formulas = Object.entries(formulaCounts).sort((a, b) => b[1] - a[1]);
+        const maxUses = formulas.length ? formulas[0][1] : 1;
+
+        // Render Distribution Bar Chart
+        if (formulas.length) {
+          document.getElementById('formulas').innerHTML = formulas.map(([formula, uses]) => {
+            const pct = Math.round((uses / maxUses) * 100);
+            return `
+              <div style="background: var(--bg-tertiary); border: 1px solid var(--border-secondary); border-radius: var(--radius-sm); padding: var(--space-sm) var(--space-md);">
+                <div class="flex justify-between items-center mb-1">
+                  <code style="color: var(--gold-400); font-weight: bold; font-family: var(--font-mono);">${formula}</code>
+                  <span style="color: var(--gold-400); font-weight: bold; font-size: var(--font-size-xs);">${uses} ${uses === 1 ? 'use' : 'uses'} (${Math.round((uses / total) * 100)}%)</span>
+                </div>
+                <div class="hp-bar-bg" style="height: 6px; background: var(--bg-canvas); border-radius: 999px; overflow: hidden;">
+                  <div class="hp-bar-fill" style="width: ${pct}%; height: 100%; background: linear-gradient(90deg, var(--gold-600), var(--gold-400)); transition: width var(--transition-normal);"></div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          document.getElementById('formulas').innerHTML = '<p class="text-tertiary text-sm" style="color: var(--text-tertiary);">No rolls recorded in this session yet.</p>';
+        }
+
+        // Render Table
+        if (rolls.length) {
+          document.getElementById('rolls').innerHTML = rolls.map(x => `
+            <tr style="border-bottom: 1px solid var(--border-secondary);">
+              <td class="py-3 px-4 font-semibold" style="color: var(--text-primary);">${x.characterName || 'Adventurer'}</td>
+              <td class="py-3 px-4" style="color: var(--text-secondary);">${x.rollName || 'Roll'}</td>
+              <td class="py-3 px-4"><code style="color: var(--gold-400); font-family: var(--font-mono);">${x.formula}</code></td>
+              <td class="py-3 px-4 font-bold ${x.isCritical ? 'text-danger' : 'text-primary'}" style="color: ${x.isCritical ? 'var(--danger)' : 'var(--gold-400)'}; font-size: var(--font-size-base);">${x.result}${x.isCritical ? ' ★' : ''}</td>
+              <td class="py-3 px-4" style="color: var(--text-tertiary); font-size: var(--font-size-xs);">${x.createdAt ? new Date(x.createdAt).toLocaleString() : ''}</td>
+            </tr>
+          `).join('');
+        } else {
+          document.getElementById('rolls').innerHTML = '<tr><td colspan="5" class="py-6 text-center text-tertiary" style="color: var(--text-tertiary);">No rolls yet in this session.</td></tr>';
+        }
+
+        statusEl.textContent = `Session loaded · ${total} rolls recorded`;
+      } catch (e) {
+        statusEl.textContent = e.message;
+      }
+    }
+
+    document.getElementById('load').onclick = loadSession;
+
+    document.getElementById('csv').onclick = async () => {
+      const id = room.value.trim().toLowerCase();
+      const response = await fetch('/api/v2/rolls/' + encodeURIComponent(id));
+      if (!response.ok) return;
+      const rolls = await response.json();
+      const rows = [
+        ['Character', 'Action', 'Formula', 'Result', 'Critical', 'Created At'],
+        ...rolls.map(x => [
+          x.characterName || 'Adventurer',
+          x.rollName || 'Roll',
+          x.formula,
+          x.result,
+          x.isCritical ? 'yes' : 'no',
+          x.createdAt || ''
+        ])
+      ];
+      const csv = rows.map(row => row.map(value => '"' + String(value).replaceAll('"', '""') + '"').join(',')).join('\n');
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      link.download = id + '-roll-history.csv';
+      link.click();
+    };
+
+    loadSession();
+  </script>
+
   <script src="/js/components.js"></script>
   <script src="/js/theme-toggle.js"></script>
-
-<div style="position:fixed;bottom:10px;right:10px;z-index:9999;"><button data-theme-toggle class="btn btn-ghost">🌙</button></div>
-</body></html>
+  <div style="position:fixed;bottom:10px;right:10px;z-index:var(--z-tooltip);"><button data-theme-toggle class="btn btn-ghost">🌙</button></div>
+</body>
+</html>

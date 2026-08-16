@@ -30,41 +30,53 @@ export class WebSocketManager {
     socket.emit('room-state', this.state(roomId));
   }
 
-  updateMap(roomId: string, mapUrl: string): void {
-    if (!validateRoomId(roomId) || !mapUrl || mapUrl.length > 2000) return;
+  getRoomState(roomId: string): RoomState {
+    return this.state(roomId);
+  }
+
+  setMapUrl(roomId: string, mapUrl: string): boolean {
+    return this.updateMap(roomId, mapUrl);
+  }
+
+  updateMap(roomId: string, mapUrl: string): boolean {
+    if (!validateRoomId(roomId) || !mapUrl || mapUrl.length > 2000) return false;
     try {
       const url = new URL(mapUrl);
-      if (!['http:', 'https:'].includes(url.protocol)) return;
+      if (!['http:', 'https:'].includes(url.protocol)) return false;
     } catch {
-      return;
+      return false;
     }
     this.state(roomId).mapUrl = mapUrl;
     this.io.to(roomId).emit('map-updated', mapUrl);
+    return true;
   }
 
-  addToken(roomId: string, token: TokenState): void {
-    if (!validateRoomId(roomId) || !token?.id || !token.name || !token.avatarUrl) return;
+  addToken(roomId: string, token: TokenState): boolean {
+    if (!validateRoomId(roomId) || !token?.id || !token.name || !token.avatarUrl) return false;
     this.state(roomId).tokens[token.id] = {
       ...token,
       x: Math.max(0, Math.min(11, Number(token.x) || 0)),
       y: Math.max(0, Math.min(11, Number(token.y) || 0)),
     };
     this.io.to(roomId).emit('token-added', this.state(roomId).tokens[token.id]);
+    return true;
   }
 
-  moveToken(roomId: string, tokenId: string, x: number, y: number): void {
-    if (!validateRoomId(roomId) || !tokenId) return;
+  moveToken(roomId: string, tokenId: string, x: number, y: number): boolean {
+    if (!validateRoomId(roomId) || !tokenId) return false;
     const token = this.state(roomId).tokens[tokenId];
-    if (!token || !Number.isInteger(x) || !Number.isInteger(y)) return;
+    if (!token || !Number.isInteger(x) || !Number.isInteger(y)) return false;
     token.x = Math.max(0, Math.min(11, x));
     token.y = Math.max(0, Math.min(11, y));
     this.io.to(roomId).emit('token-moved', { tokenId, x: token.x, y: token.y });
+    return true;
   }
 
-  removeToken(roomId: string, tokenId: string): void {
-    if (!validateRoomId(roomId) || !tokenId || !this.state(roomId).tokens[tokenId]) return;
+  removeToken(roomId: string, tokenId: string): boolean {
+    if (!validateRoomId(roomId) || !tokenId || !this.state(roomId).tokens[tokenId]) return false;
     delete this.state(roomId).tokens[tokenId];
     this.io.to(roomId).emit('token-removed', tokenId);
+    return true;
   }
 
   broadcastRoll(roomId: string, roll: DiceRoll & { characterName?: string }): void {

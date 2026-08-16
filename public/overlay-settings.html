@@ -1,27 +1,161 @@
-<!doctype html>
-<html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Overlay Settings</title>
-  <!-- NEW CSS System -->
-  <link rel="stylesheet" href="/styles/variables.css?v=5">
-  <link rel="stylesheet" href="/styles/animations.css?v=5">
-  <link rel="stylesheet" href="/styles/components.css?v=5">
-  <link rel="stylesheet" href="/styles/theme.css?v=5">
-  <link rel="stylesheet" href="/styles/responsive.css?v=5">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OBS Overlay Settings - VTT Asal Jadi</title>
+
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="/styles/variables.css">
+  <link rel="stylesheet" href="/styles/animations.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <link rel="stylesheet" href="/styles/theme.css">
+  <link rel="stylesheet" href="/styles/responsive.css">
 </head>
-<body class="min-h-screen bg-slate-950 text-slate-100 p-6"><main class="max-w-lg mx-auto bg-slate-900 border border-slate-700 rounded-xl p-6"><h1 class="text-2xl font-bold text-amber-400 mb-6">OBS Overlay Settings</h1><form id="settings" class="space-y-5">
-<label class="block">Room ID<input id="room" class="mt-1 w-full rounded bg-slate-800 border border-slate-700 p-2" placeholder="default-room"></label>
-<label class="block">Position<select id="position" class="mt-1 w-full rounded bg-slate-800 border border-slate-700 p-2"><option>top</option><option>center</option><option>bottom</option></select></label>
-<label class="block">Animation<select id="animationStyle" class="mt-1 w-full rounded bg-slate-800 border border-slate-700 p-2"><option>slide</option><option>fade</option><option>bounce</option></select></label>
-<label class="block">Font size<select id="fontSize" class="mt-1 w-full rounded bg-slate-800 border border-slate-700 p-2"><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select></label>
-<label class="flex items-center gap-3"><input id="showFormula" type="checkbox" class="h-5 w-5"> Show formula</label>
-<label class="block">Auto-hide: <output id="timeoutValue">10</output> seconds<input id="autoHideTimeout" type="range" min="5" max="30" value="10" class="w-full"></label>
-<label class="flex items-center gap-3"><input id="soundEffectsEnabled" type="checkbox" class="h-5 w-5"> Sound effects (reserved)</label>
-<div class="flex gap-3"><button class="flex-1 rounded bg-amber-600 hover:bg-amber-700 p-2 font-bold">Save settings</button><button type="button" id="openOverlay" class="flex-1 rounded bg-slate-700 hover:bg-slate-600 p-2">Open overlay</button></div><p id="status" class="text-sm text-green-400"></p></form></main><script>
-const key='vtt-overlay-config', defaults={position:'bottom',animationStyle:'slide',fontSize:'medium',showFormula:true,autoHideTimeout:10,soundEffectsEnabled:false};
-const $=id=>document.getElementById(id);let config={...defaults};try{config={...config,...JSON.parse(localStorage.getItem(key)||'{}')}}catch{}
-function load(){['position','animationStyle','fontSize'].forEach(id=>$(id).value=config[id]);['showFormula','soundEffectsEnabled'].forEach(id=>$(id).checked=Boolean(config[id]));$('autoHideTimeout').value=config.autoHideTimeout;$('timeoutValue').value=config.autoHideTimeout;$('room').value=new URLSearchParams(location.search).get('room')||''}load();$('autoHideTimeout').oninput=e=>$('timeoutValue').value=e.target.value;$('settings').onsubmit=e=>{e.preventDefault();config={position:$('position').value,animationStyle:$('animationStyle').value,fontSize:$('fontSize').value,showFormula:$('showFormula').checked,autoHideTimeout:Number($('autoHideTimeout').value),soundEffectsEnabled:$('soundEffectsEnabled').checked};localStorage.setItem(key,JSON.stringify(config));$('status').textContent='Settings saved.'};$('openOverlay').onclick=()=>{const p=new URLSearchParams({room:$('room').value||'default-room',position:$('position').value,animation:$('animationStyle').value,fontSize:$('fontSize').value,showFormula:String($('showFormula').checked),timeout:$('autoHideTimeout').value,sound:String($('soundEffectsEnabled').checked)});window.open('/overlay.html?'+p,'_blank')};
-</script>
+<body class="min-h-screen flex flex-col font-sans p-4 sm:p-6">
+  <main class="max-w-lg w-full mx-auto card card-fantasy space-y-6">
+    <div class="card-header flex items-center justify-between">
+      <div>
+        <h1 class="card-title text-2xl" style="color: var(--gold-400);">OBS Overlay HUD</h1>
+        <p class="text-xs" style="color: var(--text-secondary);">Stream Broadcast Settings & Animation Controls</p>
+      </div>
+      <a href="/vtt" class="btn btn-secondary text-xs">VTT Workstation</a>
+    </div>
+
+    <form id="settings" class="space-y-4">
+      <div class="form-group">
+        <label for="room" class="form-label">Session Room ID</label>
+        <input id="room" class="input form-input" placeholder="e.g. default-room">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="form-group">
+          <label for="position" class="form-label">Screen Position</label>
+          <select id="position" class="select form-select">
+            <option value="bottom">Bottom (Standard HUD)</option>
+            <option value="top">Top (Header HUD)</option>
+            <option value="center">Center (Dramatic)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="animationStyle" class="form-label">Card Animation</label>
+          <select id="animationStyle" class="select form-select">
+            <option value="slide">Slide In</option>
+            <option value="fade">Smooth Fade</option>
+            <option value="bounce">Bounce In</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="fontSize" class="form-label">Result Font Size</label>
+        <select id="fontSize" class="select form-select">
+          <option value="small">Small (Compact Stream)</option>
+          <option value="medium">Medium (Standard Stream)</option>
+          <option value="large">Large (Dramatic Focus)</option>
+        </select>
+      </div>
+
+      <div class="flex items-center">
+        <label class="form-checkbox-container text-xs" style="color: var(--text-secondary);">
+          <input id="showFormula" type="checkbox" class="form-checkbox">
+          <span>Show Roll Formula & Breakdown (e.g. 1d20+5 (15))</span>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <div class="flex justify-between items-center mb-1">
+          <label for="autoHideTimeout" class="form-label" style="margin-bottom: 0;">Auto-Dismiss Timeout</label>
+          <span class="text-xs font-bold" style="color: var(--gold-400);"><output id="timeoutValue">10</output> seconds</span>
+        </div>
+        <input id="autoHideTimeout" type="range" min="5" max="30" value="10" class="w-full" style="accent-color: var(--gold-500);">
+      </div>
+
+      <div class="flex items-center">
+        <label class="form-checkbox-container text-xs" style="color: var(--text-secondary);">
+          <input id="soundEffectsEnabled" type="checkbox" class="form-checkbox">
+          <span>Sound Effects Trigger (Reserved)</span>
+        </label>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn btn-primary flex-1">Save Settings</button>
+        <button type="button" id="openOverlay" class="btn btn-secondary flex-1">Launch Overlay</button>
+      </div>
+
+      <p id="status" class="text-xs text-center font-bold" style="color: var(--success);"></p>
+    </form>
+  </main>
+
+  <script>
+    const key = 'vtt-overlay-config';
+    const defaults = {
+      position: 'bottom',
+      animationStyle: 'slide',
+      fontSize: 'medium',
+      showFormula: true,
+      autoHideTimeout: 10,
+      soundEffectsEnabled: false
+    };
+
+    const $ = id => document.getElementById(id);
+    let config = { ...defaults };
+    try {
+      config = { ...config, ...JSON.parse(localStorage.getItem(key) || '{}') };
+    } catch {}
+
+    function load() {
+      ['position', 'animationStyle', 'fontSize'].forEach(id => {
+        if ($(id)) $(id).value = config[id];
+      });
+      ['showFormula', 'soundEffectsEnabled'].forEach(id => {
+        if ($(id)) $(id).checked = Boolean(config[id]);
+      });
+      if ($('autoHideTimeout')) $('autoHideTimeout').value = config.autoHideTimeout;
+      if ($('timeoutValue')) $('timeoutValue').value = config.autoHideTimeout;
+      if ($('room')) $('room').value = new URLSearchParams(location.search).get('room') || '';
+    }
+
+    load();
+
+    if ($('autoHideTimeout')) {
+      $('autoHideTimeout').oninput = e => {
+        $('timeoutValue').value = e.target.value;
+      };
+    }
+
+    $('settings').onsubmit = e => {
+      e.preventDefault();
+      config = {
+        position: $('position').value,
+        animationStyle: $('animationStyle').value,
+        fontSize: $('fontSize').value,
+        showFormula: $('showFormula').checked,
+        autoHideTimeout: Number($('autoHideTimeout').value),
+        soundEffectsEnabled: $('soundEffectsEnabled').checked
+      };
+      localStorage.setItem(key, JSON.stringify(config));
+      $('status').textContent = 'Overlay settings saved successfully!';
+      setTimeout(() => { $('status').textContent = ''; }, 3000);
+    };
+
+    $('openOverlay').onclick = () => {
+      const p = new URLSearchParams({
+        room: $('room').value || 'default-room',
+        position: $('position').value,
+        animation: $('animationStyle').value,
+        fontSize: $('fontSize').value,
+        showFormula: String($('showFormula').checked),
+        timeout: $('autoHideTimeout').value,
+        sound: String($('soundEffectsEnabled').checked)
+      });
+      window.open('/overlay.html?' + p, '_blank');
+    };
+  </script>
+
   <script src="/js/components.js"></script>
   <script src="/js/theme-toggle.js"></script>
-
-<div style="position:fixed;bottom:10px;right:10px;z-index:9999;"><button data-theme-toggle class="btn btn-ghost">🌙</button></div>
-</body></html>
+  <div style="position:fixed;bottom:10px;right:10px;z-index:var(--z-tooltip);"><button data-theme-toggle class="btn btn-ghost">🌙</button></div>
+</body>
+</html>
