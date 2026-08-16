@@ -9,24 +9,18 @@ export interface AbilityScores {
   cha: number;
 }
 
-export interface CharacterClass {
-  name: string;
-  level: number;
-  isStarting?: boolean;
-}
-
-export interface HitPoints {
-  current: number;
-  max: number;
-  temp: number;
-}
-
-export interface SpellSlot {
-  current: number;
-  max: number;
-}
-
+export interface CharacterClass { name: string; level: number; isStarting?: boolean; }
+export interface HitPoints { current: number; max: number; temp: number; }
+export interface SpellSlot { current: number; max: number; }
 export type SpellSlots = Record<string, SpellSlot>;
+export interface Currency { cp: number; sp: number; ep?: number; gp: number; pp: number; }
+export interface Proficiencies { saves: AbilityKey[]; skills: string[]; }
+export interface ProficiencyDetails { armor: string[]; weapons: string[]; tools: string[]; languages: string[]; }
+export interface Resource { name: string; current: number; max: number; resetOn?: string; }
+export interface HitDice { current: number; max: number; dieType: number; }
+export interface Spell { name: string; level: number; prepared?: boolean; attackBonus?: number; saveDC?: number; damage?: string; }
+export interface Feature { name: string; description?: string; category: string; source?: string; uses?: Resource; }
+export interface Background { name?: string; description?: string; }
 
 export interface EquipmentItem {
   id?: string | number;
@@ -35,6 +29,12 @@ export interface EquipmentItem {
   weight?: number;
   equipped?: boolean;
   attuned?: boolean;
+  category?: 'weapon' | 'Equipment' | 'Backpack';
+  type?: string;
+  attackBonus?: number;
+  damage?: string;
+  range?: string;
+  description?: string;
 }
 
 export interface Character {
@@ -47,18 +47,34 @@ export interface Character {
   hp: HitPoints;
   stats: AbilityScores;
   modifiers: AbilityScores;
-  equipment?: EquipmentItem[];
-  spellSlots?: SpellSlots;
+  ac?: number | null;
+  currencies?: Currency;
+  inspiration?: boolean;
+  speed?: number;
+  alignment?: string;
+  xp?: number;
+  damageImmunities?: string[];
+  damageResistances?: string[];
+  damageVulnerabilities?: string[];
   conditions?: string[];
+  proficiencies?: Proficiencies;
+  proficiencyDetails?: ProficiencyDetails;
+  resources?: Resource[];
+  hitDice?: HitDice;
+  equipment?: EquipmentItem[];
+  spells?: Spell[];
+  features?: Feature[];
+  traits?: Feature[];
+  background?: Background;
+  personalityTraits?: string[];
+  ideals?: string[];
+  bonds?: string[];
+  flaws?: string[];
+  spellSlots?: SpellSlots;
 }
 
-export interface DndBeyondCharacterResponse {
-  success: boolean;
-  data?: Record<string, unknown>;
-  message?: string;
-}
+export interface DndBeyondCharacterResponse { success: boolean; data?: Record<string, unknown>; message?: string; }
+export interface DndBeyondStat { id: number; value: number | null; }
 
-export interface DndBeyondStat {
-  id: number;
-  value: number | null;
-}
+export interface DndBeyondModifier { type?: string; subType?: string; }
+export interface DndBeyondLimitedUse { maxUses?: number; numberUsed?: number; resetType?: number; }

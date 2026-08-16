@@ -1,3 +1,5 @@
+
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DnDBeyondService } from './DnDBeyondService.js';
 
@@ -69,6 +71,25 @@ describe('DnDBeyondService', () => {
 
     expect(character.equipment!).toHaveLength(1);
     expect(character.equipment![0].name).toBe('Sword');
+  });
+
+  it('normalizes extended character fields from grouped D&D Beyond payloads', async () => {
+    const payload = { success: true, data: { id: 77, name: 'Zaaderedaaz', currentXp: 900, armorClass: 16, alignmentId: 6, inspiration: true, currencies: { cp: 1, sp: 2, gp: 30, pp: 4 }, race: { fullName: 'Elf', weightSpeeds: { normal: { walk: 35 } }, racialTraits: [{ definition: { name: 'Darkvision' } }] }, stats: [{ id: 1, value: 10 }, { id: 2, value: 16 }, { id: 3, value: 12 }, { id: 4, value: 14 }, { id: 5, value: 10 }, { id: 6, value: 8 }], classes: [{ level: 3, hitDiceUsed: 1, definition: { name: 'Wizard', hitDice: 6 }, classFeatures: [{ definition: { name: 'Arcane Recovery' } }] }], modifiers: { race: [{ type: 'resistance', subType: 'fire' }, { type: 'proficiency', subType: 'perception' }], class: [{ type: 'proficiency', subType: 'intelligence-saving-throws' }, { type: 'proficiency', subType: 'simple-weapons' }], item: [{ type: 'immunity', subType: 'poison' }] }, inventory: [{ id: 9, equipped: true, definition: { name: 'Dagger', filterType: 'Weapon', properties: ['Finesse'], damage: { diceString: '1d4' }, range: 20, longRange: 60 } }], actions: { class: [{ name: 'Arcane Recovery', limitedUse: { maxUses: 1, numberUsed: 0, resetType: 2 } }] }, classSpells: [{ spells: [{ definition: { name: 'Fire Bolt', level: 0 }, prepared: true }] }], background: { definition: { name: 'Sage', shortDescription: 'Researcher' } }, traits: { personalityTraits: 'Curious\\nQuiet' } } };
+    vi.mocked(global.fetch).mockResolvedValueOnce({ ok: true, json: async () => payload } as Response);
+    const character = await service.fetchCharacter('77');
+    expect(character).toMatchObject({ ac: 16, speed: 35, alignment: 'Chaotic Neutral', xp: 900 });
+    expect(character.currencies).toMatchObject({ cp: 1, sp: 2, gp: 30, pp: 4 });
+    expect(character.damageResistances).toEqual(['Fire']);
+    expect(character.damageImmunities).toEqual(['Poison']);
+    expect(character.proficiencies?.saves).toEqual(['int']);
+    expect(character.proficiencies?.skills).toEqual(['Perception']);
+    expect(character.hitDice).toMatchObject({ current: 2, max: 3, dieType: 6 });
+    expect(character.resources?.[0]).toMatchObject({ name: 'Arcane Recovery', current: 1, max: 1, resetOn: 'long rest' });
+    expect(character.equipment?.[0]).toMatchObject({ category: 'weapon', damage: '1d4+3', range: '20/60 ft.' });
+    expect(character.spells?.[0]).toMatchObject({ name: 'Fire Bolt', level: 0, prepared: true, saveDC: 12 });
+    expect(character.features?.map((feature) => feature.name)).toEqual(['Arcane Recovery', 'Darkvision']);
+    expect(character.background).toEqual({ name: 'Sage', description: 'Researcher' });
+    expect(character.personalityTraits).toEqual(['Curious', 'Quiet']);
   });
 
   it('should throw error on failed fetch', async () => {

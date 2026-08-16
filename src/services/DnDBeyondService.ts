@@ -1,6 +1,45 @@
-import type { Character, DndBeyondCharacterResponse, EquipmentItem } from '../types/character.js';
+import type { AbilityKey, Character, CharacterClass, EquipmentItem, Feature, Resource, Spell } from '../types/character.js';
+import type { DndBeyondCharacterResponse } from '../types/character.js';
 
 const DEFAULT_AVATAR = 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png';
+const ABILITIES: AbilityKey[] = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+const ALIGNMENTS: Record<number, string> = {
+  1: 'Lawful Good', 2: 'Neutral Good', 3: 'Chaotic Good', 4: 'Lawful Neutral',
+  5: 'True Neutral', 6: 'Chaotic Neutral', 7: 'Lawful Evil', 8: 'Neutral Evil', 9: 'Chaotic Evil',
+};
+const SKILLS = new Set(['acrobatics', 'animal-handling', 'arcana', 'athletics', 'deception', 'history', 'insight', 'intimidation', 'investigation', 'medicine', 'nature', 'perception', 'performance', 'persuasion', 'religion', 'sleight-of-hand', 'stealth', 'survival']);
+const ABILITY_NAMES: Record<string, AbilityKey> = { strength: 'str', dexterity: 'dex', constitution: 'con', intelligence: 'int', wisdom: 'wis', charisma: 'cha' };
+
+type Dict = Record<string, unknown>;
+const dict = (value: unknown): Dict => value !== null && typeof value === 'object' && !Array.isArray(value) ? value as Dict : {};
+const array = (value: unknown): unknown[] => Array.isArray(value) ? value : [];
+const text = (value: unknown, fallback = ''): string => typeof value === 'string' ? value : value == null ? fallback : String(value);
+const number = (value: unknown, fallback = 0): number => typeof value === 'number' && Number.isFinite(value) ? value : Number.isFinite(Number(value)) ? Number(value) : fallback;
+const bool = (value: unknown, fallback = false): boolean => typeof value === 'boolean' ? value : fallback;
+const title = (value: string): string => value.split(/[-_ ]+/).filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+const stripHtml = (value: string): string => value.replace(/<[^>]*>/g, '').trim();
+const splitText = (value: unknown): string[] => (Array.isArray(value) ? value : typeof value === 'string' ? value.split(/\r?\n|\\n/) : []).map((item) => text(item).trim()).filter(Boolean);
+
+interface Modifier { type: string; subType: string; }
+
+/** D&D Beyond groups modifiers by source: race, class, background, feat and item. */
+export function flattenModifiers(value: unknown): Modifier[] {
+  return Object.values(dict(value)).flatMap((source) => array(source).map((item) => {
+    const modifier = dict(item);
+    return { type: text(modifier.type).toLowerCase(), subType: text(modifier.subType).toLowerCase() };
+  }).filter((modifier) => modifier.type && modifier.subType));
+}
+
+const resetName = (resetType: number): string | undefined => resetType === 1 ? 'short rest' : resetType === 2 ? 'long rest' : resetType >= 0 ? `reset-${resetType}` : undefined;
+
+const toResource = (value: unknown): Resource | undefined => {
+  const item = dict(value);
+  const limit = dict(item.limitedUse);
+  if (Object.keys(limit).length === 0) return undefined;
+  const max = Math.max(0, number(limit.maxUses ?? limit.maxUse));
+  const used = Math.max(0, number(limit.numberUsed ?? limit.used));
+  return { name: text(item.name ?? dict(item.definition).name, 'Resource'), current: Math.max(0, max - used), max, resetOn: resetName(number(limit.resetType, -1)) };
+};
 
 export class DnDBeyondService {
   constructor(private readonly baseUrl = 'https://character-service.dndbeyond.com') {}
@@ -13,25 +52,87 @@ export class DnDBeyondService {
     return this.normalize(payload.data);
   }
 
-  private normalize(data: Record<string, unknown>): Character {
-    const stats = (data.stats as Array<{ id: number; value: number | null }> | undefined) ?? [];
-    const readStat = (id: number): number => stats.find((stat) => stat.id === id)?.value ?? 10;
+  private normalize(data: Dict): Character {
+    const modifiers = flattenModifiers(data.modifiers);
+    const stats = array(data.stats).map(dict);
+    const readStat = (id: number): number => number(stats.find((stat) => number(stat.id) === id)?.value, 10);
     const values = { str: readStat(1), dex: readStat(2), con: readStat(3), int: readStat(4), wis: readStat(5), cha: readStat(6) };
-    const modifiers: Character['modifiers'] = {
-      str: Math.floor((values.str - 10) / 2), dex: Math.floor((values.dex - 10) / 2), con: Math.floor((values.con - 10) / 2),
-      int: Math.floor((values.int - 10) / 2), wis: Math.floor((values.wis - 10) / 2), cha: Math.floor((values.cha - 10) / 2),
-    };
-    const classes = ((data.classes as Array<{ level: number; definition?: { name?: string } }> | undefined) ?? [])
-      .map((item) => ({ name: item.definition?.name ?? 'Unknown', level: item.level }));
-    const equipment: EquipmentItem[] = ((data.inventory as Array<{ id?: number; quantity?: number; equipped?: boolean; isAttuned?: boolean; definition?: { name?: string; weight?: number } }> | undefined) ?? [])
-      .map((item) => ({ id: item.id, name: item.definition?.name ?? 'Unknown Item', quantity: item.quantity ?? 1, weight: item.definition?.weight ?? 0, equipped: item.equipped ?? false, attuned: item.isAttuned ?? false }));
+    const abilityModifiers = Object.fromEntries(ABILITIES.map((key) => [key, Math.floor((values[key] - 10) / 2)])) as unknown as Character['modifiers'];
+    const classesData = array(data.classes).map(dict);
+    const classes = classesData.map((item): CharacterClass => ({ name: text(dict(item.definition).name, 'Unknown'), level: number(item.level) }));
     const level = classes.reduce((total, item) => total + item.level, 0);
-    const maxHp = Number(data.overrideHitPoints ?? data.baseHitPoints ?? 0);
-    return {
-      id: String(data.id), name: String(data.name ?? 'Unnamed Character'),
-      avatarUrl: String(data.avatarUrl ?? (data.decorations as { avatarUrl?: string } | undefined)?.avatarUrl ?? DEFAULT_AVATAR),
-      race: String((data.race as { fullName?: string } | undefined)?.fullName ?? 'Unknown Race'),
-      classes, level, hp: { current: maxHp - Number(data.removedHitPoints ?? 0), max: maxHp, temp: Number(data.temporaryHitPoints ?? 0) }, stats: values, modifiers, equipment,
+    const proficiencyBonus = level > 0 ? Math.ceil(level / 4) + 1 : 2;
+    const saves = modifiers.filter((item) => item.type === 'proficiency' && item.subType.endsWith('-saving-throws')).map((item) => ABILITY_NAMES[item.subType.replace(/-saving-throws$/, '')] ?? item.subType.split('-')[0]).filter((key): key is AbilityKey => ABILITIES.includes(key as AbilityKey));
+    const skills = modifiers.filter((item) => item.type === 'proficiency' && SKILLS.has(item.subType)).map((item) => title(item.subType));
+    const proficiencies = modifiers.filter((item) => item.type === 'proficiency');
+    const proficiencyDetails = {
+      armor: proficiencies.filter((item) => item.subType.includes('armor')).map((item) => title(item.subType)),
+      weapons: proficiencies.filter((item) => item.subType.includes('weapon')).map((item) => title(item.subType)),
+      tools: proficiencies.filter((item) => item.subType.includes('tool')).map((item) => title(item.subType)),
+      languages: modifiers.filter((item) => item.type === 'language').map((item) => title(item.subType)),
     };
+    const equipment = array(data.inventory).map((item) => this.normalizeEquipment(dict(item), abilityModifiers, proficiencyBonus, proficiencyDetails.weapons));
+    const resources = array(dict(data.actions).class).concat(classesData.flatMap((item) => array(item.classFeatures))).map(toResource).filter((item): item is Resource => item !== undefined);
+    const race = dict(data.race);
+    const background = dict(data.background);
+    const backgroundDefinition = dict(background.definition);
+    const maxHp = number(data.overrideHitPoints ?? data.baseHitPoints);
+    const hitDiceMax = classesData.reduce((total, item) => total + number(item.level), 0);
+    const firstDefinition = dict(classesData[0]?.definition);
+    const hitDiceDefinition = firstDefinition.hitDice;
+    const dieType = number(dict(hitDiceDefinition).diceValue ?? hitDiceDefinition);
+    const usedHitDice = classesData.reduce((total, item) => total + number(item.hitDiceUsed), 0);
+    const speed = dict(dict(race.weightSpeeds).normal).walk;
+    const acValue = data.overrideArmorClass ?? data.armorClass;
+    return {
+      id: text(data.id), name: text(data.name, 'Unnamed Character'), avatarUrl: text(data.avatarUrl ?? dict(data.decorations).avatarUrl, DEFAULT_AVATAR),
+      race: text(race.fullName, 'Unknown Race'), classes, level,
+      hp: { current: Math.max(0, maxHp - number(data.removedHitPoints)), max: maxHp, temp: number(data.temporaryHitPoints) }, stats: values, modifiers: abilityModifiers,
+      ac: acValue == null ? null : number(acValue),
+      currencies: { cp: number(dict(data.currencies).cp), sp: number(dict(data.currencies).sp), ep: number(dict(data.currencies).ep), gp: number(dict(data.currencies).gp), pp: number(dict(data.currencies).pp) },
+      inspiration: bool(data.inspiration), speed: number(speed, 30), alignment: ALIGNMENTS[number(data.alignmentId)] ?? text(data.alignment), xp: number(data.currentXp),
+      damageImmunities: modifiers.filter((item) => item.type === 'immunity').map((item) => title(item.subType)), damageResistances: modifiers.filter((item) => item.type === 'resistance').map((item) => title(item.subType)), damageVulnerabilities: modifiers.filter((item) => item.type === 'vulnerability').map((item) => title(item.subType)), conditions: [],
+      proficiencies: { saves: [...new Set(saves)], skills: [...new Set(skills)] }, proficiencyDetails, resources,
+      hitDice: { current: Math.max(0, hitDiceMax - usedHitDice), max: hitDiceMax, dieType }, equipment, spells: this.normalizeSpells(data, abilityModifiers, proficiencyBonus),
+      features: this.normalizeFeatures(data, classesData), traits: this.normalizeFeatures(data, classesData), background: { name: text(backgroundDefinition.name, text(background.name)), description: text(backgroundDefinition.shortDescription ?? backgroundDefinition.description, text(background.description)) },
+      personalityTraits: splitText(dict(data.traits).personalityTraits), ideals: splitText(dict(data.traits).ideals), bonds: splitText(dict(data.traits).bonds), flaws: splitText(dict(data.traits).flaws),
+    };
+  }
+
+  private normalizeEquipment(raw: Dict, modifiers: Character['modifiers'], proficiencyBonus: number, weapons: string[]): EquipmentItem {
+    const definition = dict(raw.definition);
+    const kind = text(definition.filterType ?? definition.type);
+    const isWeapon = /weapon/i.test(kind) || definition.attackType != null;
+    const properties = array(definition.properties).map((value) => text(value)).join(' ').toLowerCase();
+    const ability = properties.includes('finesse') ? Math.max(modifiers.str, modifiers.dex) : /ranged/i.test(kind) ? modifiers.dex : modifiers.str;
+    const proficient = weapons.some((weapon) => kind.toLowerCase().includes(weapon.toLowerCase()) || weapon.toLowerCase().includes(kind.toLowerCase()));
+    const damage = dict(definition.damage);
+    const dice = text(damage.diceString);
+    const damageBonus = number(definition.damageBonus, ability);
+    const range = number(definition.range);
+    const longRange = number(definition.longRange);
+    return {
+      id: typeof raw.id === 'string' || typeof raw.id === 'number' ? raw.id : undefined, name: text(definition.name ?? raw.name, 'Unknown Item'), quantity: number(raw.quantity, 1), weight: number(definition.weight), equipped: bool(raw.equipped), attuned: bool(raw.isAttuned ?? raw.attuned),
+      category: isWeapon ? 'weapon' : /armor|equipment/i.test(kind) ? 'Equipment' : 'Backpack', type: kind,
+      attackBonus: isWeapon ? ability + (proficient ? proficiencyBonus : 0) : undefined,
+      damage: isWeapon && dice ? `${dice}${damageBonus >= 0 ? '+' : ''}${damageBonus}` : undefined,
+      range: isWeapon ? range ? `${range}/${longRange} ft.` : '5 ft.' : undefined, description: text(definition.description),
+    };
+  }
+
+  private normalizeSpells(data: Dict, modifiers: Character['modifiers'], proficiencyBonus: number): Spell[] {
+    const spellData = dict(data.spells);
+    const sources = array(data.classSpells).flatMap((item) => array(dict(item).spells)).concat(array(spellData.class), array(spellData.race));
+    return sources.map((raw) => {
+      const item = dict(raw); const definition = dict(item.definition ?? item); const ability = modifiers.int;
+      return { name: text(definition.name, 'Unknown Spell'), level: number(definition.level), prepared: bool(item.prepared ?? item.alwaysPrepared), attackBonus: ability + proficiencyBonus, saveDC: 8 + ability + proficiencyBonus, damage: text(definition.damage) || undefined };
+    });
+  }
+
+  private normalizeFeatures(data: Dict, classes: Dict[]): Feature[] {
+    const classEntries = classes.flatMap((item) => array(item.classFeatures ?? dict(item.definition).classFeatures).map((raw) => ({ raw, source: text(dict(item.definition).name), category: 'Class Features' })));
+    const race = dict(data.race);
+    const entries = classEntries.concat(array(race.racialTraits).map((raw) => ({ raw, source: text(race.fullName), category: 'Species Traits' }))).concat(array(data.feats).map((raw) => ({ raw, source: 'Feat', category: 'Feats' })));
+    return entries.map(({ raw, source, category }) => { const item = dict(raw); const definition = dict(item.definition ?? item); return { name: text(definition.name, 'Unknown Feature'), description: stripHtml(text(definition.description)), category, source, uses: toResource(item) }; });
   }
 }
