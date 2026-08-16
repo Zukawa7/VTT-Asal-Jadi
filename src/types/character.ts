@@ -19,7 +19,7 @@ export interface ProficiencyDetails { armor: string[]; weapons: string[]; tools:
 export interface Resource { name: string; current: number; max: number; resetOn?: string; }
 export interface HitDice { current: number; max: number; dieType: number; }
 export interface Spell { name: string; level: number; prepared?: boolean; attackBonus?: number; saveDC?: number; damage?: string; }
-export interface Feature { name: string; description?: string; category: string; source?: string; uses?: Resource; }
+export interface Feature { name: string; description?: string; category: string; source?: string; usesResourceName?: string; }
 export interface Background { name?: string; description?: string; }
 
 export interface EquipmentItem {
@@ -29,7 +29,8 @@ export interface EquipmentItem {
   weight?: number;
   equipped?: boolean;
   attuned?: boolean;
-  category?: 'weapon' | 'Equipment' | 'Backpack';
+  category?: 'Equipment' | 'Backpack';
+  isWeapon?: boolean;
   type?: string;
   attackBonus?: number;
   damage?: string;

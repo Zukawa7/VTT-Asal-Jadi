@@ -716,7 +716,7 @@
       `).join('');
       
       // Actions
-      const weapons = c.equipment?.filter(item => item.type === 'weapon' || item.attackBonus !== undefined) || [];
+      const weapons = c.equipment?.filter(item => item.isWeapon === true) || [];
       const spells = c.spells?.filter(sp => sp.attackBonus !== undefined || sp.saveDC !== undefined) || [];
       window._allAttacks = [...weapons, ...spells];
       renderAttacks(window._allAttacks);
@@ -948,7 +948,8 @@
         return;
       }
       el.innerHTML = list.map(f => {
-        const useBtn = f.uses ? `<button class="btn btn-ghost text-[10px] px-2 py-1 border border-border-primary text-text-secondary rounded ml-2 flex-shrink-0" onclick="useFeature('${f.name}')">Use (${f.uses.current}/${f.uses.max})</button>` : '';
+        const resource = f.usesResourceName ? character?.resources?.find(r => r.name === f.usesResourceName) : null;
+        const useBtn = resource ? `<button class="btn btn-ghost text-[10px] px-2 py-1 border border-border-primary text-text-secondary rounded ml-2 flex-shrink-0" onclick="useResourceByName('${resource.name.replace(/'/g, "\\'")}')">Use (${resource.current}/${resource.max})</button>` : '';
         return `
         <div class="border-b border-border-primary pb-3 last:border-0">
           <div class="flex justify-between items-start">
@@ -963,26 +964,16 @@
       }).join('');
     }
 
-    window.useFeature = function(name) {
+    window.useResourceByName = function(resourceName) {
       if(!character || !localStorage.getItem('token')) return;
-      
-      let isFeature = false;
-      let targetArr = character.features || [];
-      let foundIdx = targetArr.findIndex(f => f.name === name);
-      if(foundIdx === -1) {
-        targetArr = character.traits || [];
-        foundIdx = targetArr.findIndex(f => f.name === name);
-      } else {
-        isFeature = true;
-      }
-
+      const resources = character.resources || [];
+      const foundIdx = resources.findIndex(r => r.name === resourceName);
       if(foundIdx !== -1) {
-        const feat = targetArr[foundIdx];
-        if(!feat.uses || feat.uses.current <= 0) { VTT.Notification?.error('No uses left!'); return; }
-        const updatedArr = [...targetArr];
-        updatedArr[foundIdx] = { ...feat, uses: { ...feat.uses, current: feat.uses.current - 1 } };
-        if(isFeature) updateSheet({ features: updatedArr });
-        else updateSheet({ traits: updatedArr });
+        const res = resources[foundIdx];
+        if(res.current <= 0) { VTT.Notification?.error('No uses left!'); return; }
+        const updatedArr = [...resources];
+        updatedArr[foundIdx] = { ...res, current: res.current - 1 };
+        updateSheet({ resources: updatedArr });
       }
     };
 

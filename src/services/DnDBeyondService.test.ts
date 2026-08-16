@@ -85,7 +85,7 @@ describe('DnDBeyondService', () => {
     expect(character.proficiencies?.skills).toEqual(['Perception']);
     expect(character.hitDice).toMatchObject({ current: 2, max: 3, dieType: 6 });
     expect(character.resources?.[0]).toMatchObject({ name: 'Arcane Recovery', current: 1, max: 1, resetOn: 'long rest' });
-    expect(character.equipment?.[0]).toMatchObject({ category: 'weapon', damage: '1d4+3', range: '20/60 ft.' });
+    expect(character.equipment?.[0]).toMatchObject({ category: 'Equipment', isWeapon: true, damage: '1d4+3', range: '20/60 ft.' });
     expect(character.spells?.[0]).toMatchObject({ name: 'Fire Bolt', level: 0, prepared: true, saveDC: 12 });
     expect(character.features?.map((feature) => feature.name)).toEqual(['Arcane Recovery', 'Darkvision']);
     expect(character.background).toEqual({ name: 'Sage', description: 'Researcher' });

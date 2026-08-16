@@ -7,8 +7,16 @@ const ALIGNMENTS: Record<number, string> = {
   1: 'Lawful Good', 2: 'Neutral Good', 3: 'Chaotic Good', 4: 'Lawful Neutral',
   5: 'True Neutral', 6: 'Chaotic Neutral', 7: 'Lawful Evil', 8: 'Neutral Evil', 9: 'Chaotic Evil',
 };
-const SKILLS = new Set(['acrobatics', 'animal-handling', 'arcana', 'athletics', 'deception', 'history', 'insight', 'intimidation', 'investigation', 'medicine', 'nature', 'perception', 'performance', 'persuasion', 'religion', 'sleight-of-hand', 'stealth', 'survival']);
+const SKILL_NAMES: Record<string, string> = {
+  'acrobatics': 'Acrobatics', 'animal-handling': 'Animal Handling', 'arcana': 'Arcana',
+  'athletics': 'Athletics', 'deception': 'Deception', 'history': 'History',
+  'insight': 'Insight', 'intimidation': 'Intimidation', 'investigation': 'Investigation',
+  'medicine': 'Medicine', 'nature': 'Nature', 'perception': 'Perception',
+  'performance': 'Performance', 'persuasion': 'Persuasion', 'religion': 'Religion',
+  'sleight-of-hand': 'Sleight of Hand', 'stealth': 'Stealth', 'survival': 'Survival',
+};
 const ABILITY_NAMES: Record<string, AbilityKey> = { strength: 'str', dexterity: 'dex', constitution: 'con', intelligence: 'int', wisdom: 'wis', charisma: 'cha' };
+const ABILITY_BY_ID: Record<number, AbilityKey> = { 1: 'str', 2: 'dex', 3: 'con', 4: 'int', 5: 'wis', 6: 'cha' };
 
 type Dict = Record<string, unknown>;
 const dict = (value: unknown): Dict => value !== null && typeof value === 'object' && !Array.isArray(value) ? value as Dict : {};
@@ -41,6 +49,12 @@ const toResource = (value: unknown): Resource | undefined => {
   return { name: text(item.name ?? dict(item.definition).name, 'Resource'), current: Math.max(0, max - used), max, resetOn: resetName(number(limit.resetType, -1)) };
 };
 
+function getSpellcastingAbility(classesData: Dict[]): AbilityKey {
+  const casterClass = classesData.find((c) => bool(dict(c).isStartingClass)) ?? classesData[0];
+  const abilityId = number(dict(dict(casterClass).definition).spellCastingAbilityId, 0);
+  return ABILITY_BY_ID[abilityId] ?? 'int';
+}
+
 export class DnDBeyondService {
   constructor(private readonly baseUrl = 'https://character-service.dndbeyond.com') {}
 
@@ -63,7 +77,7 @@ export class DnDBeyondService {
     const level = classes.reduce((total, item) => total + item.level, 0);
     const proficiencyBonus = level > 0 ? Math.ceil(level / 4) + 1 : 2;
     const saves = modifiers.filter((item) => item.type === 'proficiency' && item.subType.endsWith('-saving-throws')).map((item) => ABILITY_NAMES[item.subType.replace(/-saving-throws$/, '')] ?? item.subType.split('-')[0]).filter((key): key is AbilityKey => ABILITIES.includes(key as AbilityKey));
-    const skills = modifiers.filter((item) => item.type === 'proficiency' && SKILLS.has(item.subType)).map((item) => title(item.subType));
+    const skills = modifiers.filter((item) => item.type === 'proficiency' && item.subType in SKILL_NAMES).map((item) => SKILL_NAMES[item.subType] ?? title(item.subType));
     const proficiencies = modifiers.filter((item) => item.type === 'proficiency');
     const proficiencyDetails = {
       armor: proficiencies.filter((item) => item.subType.includes('armor')).map((item) => title(item.subType)),
@@ -93,7 +107,7 @@ export class DnDBeyondService {
       inspiration: bool(data.inspiration), speed: number(speed, 30), alignment: ALIGNMENTS[number(data.alignmentId)] ?? text(data.alignment), xp: number(data.currentXp),
       damageImmunities: modifiers.filter((item) => item.type === 'immunity').map((item) => title(item.subType)), damageResistances: modifiers.filter((item) => item.type === 'resistance').map((item) => title(item.subType)), damageVulnerabilities: modifiers.filter((item) => item.type === 'vulnerability').map((item) => title(item.subType)), conditions: [],
       proficiencies: { saves: [...new Set(saves)], skills: [...new Set(skills)] }, proficiencyDetails, resources,
-      hitDice: { current: Math.max(0, hitDiceMax - usedHitDice), max: hitDiceMax, dieType }, equipment, spells: this.normalizeSpells(data, abilityModifiers, proficiencyBonus),
+      hitDice: { current: Math.max(0, hitDiceMax - usedHitDice), max: hitDiceMax, dieType }, equipment, spells: this.normalizeSpells(data, abilityModifiers, proficiencyBonus, getSpellcastingAbility(classesData)),
       features: this.normalizeFeatures(data, classesData), traits: this.normalizeFeatures(data, classesData), background: { name: text(backgroundDefinition.name, text(background.name)), description: text(backgroundDefinition.shortDescription ?? backgroundDefinition.description, text(background.description)) },
       personalityTraits: splitText(dict(data.traits).personalityTraits), ideals: splitText(dict(data.traits).ideals), bonds: splitText(dict(data.traits).bonds), flaws: splitText(dict(data.traits).flaws),
     };
@@ -113,18 +127,18 @@ export class DnDBeyondService {
     const longRange = number(definition.longRange);
     return {
       id: typeof raw.id === 'string' || typeof raw.id === 'number' ? raw.id : undefined, name: text(definition.name ?? raw.name, 'Unknown Item'), quantity: number(raw.quantity, 1), weight: number(definition.weight), equipped: bool(raw.equipped), attuned: bool(raw.isAttuned ?? raw.attuned),
-      category: isWeapon ? 'weapon' : /armor|equipment/i.test(kind) ? 'Equipment' : 'Backpack', type: kind,
+      category: /armor|weapon|equipment/i.test(kind) ? 'Equipment' : 'Backpack', type: kind, isWeapon,
       attackBonus: isWeapon ? ability + (proficient ? proficiencyBonus : 0) : undefined,
       damage: isWeapon && dice ? `${dice}${damageBonus >= 0 ? '+' : ''}${damageBonus}` : undefined,
       range: isWeapon ? range ? `${range}/${longRange} ft.` : '5 ft.' : undefined, description: text(definition.description),
     };
   }
 
-  private normalizeSpells(data: Dict, modifiers: Character['modifiers'], proficiencyBonus: number): Spell[] {
+  private normalizeSpells(data: Dict, modifiers: Character['modifiers'], proficiencyBonus: number, spellcastingAbility: AbilityKey): Spell[] {
     const spellData = dict(data.spells);
     const sources = array(data.classSpells).flatMap((item) => array(dict(item).spells)).concat(array(spellData.class), array(spellData.race));
     return sources.map((raw) => {
-      const item = dict(raw); const definition = dict(item.definition ?? item); const ability = modifiers.int;
+      const item = dict(raw); const definition = dict(item.definition ?? item); const ability = modifiers[spellcastingAbility];
       return { name: text(definition.name, 'Unknown Spell'), level: number(definition.level), prepared: bool(item.prepared ?? item.alwaysPrepared), attackBonus: ability + proficiencyBonus, saveDC: 8 + ability + proficiencyBonus, damage: text(definition.damage) || undefined };
     });
   }
@@ -133,6 +147,6 @@ export class DnDBeyondService {
     const classEntries = classes.flatMap((item) => array(item.classFeatures ?? dict(item.definition).classFeatures).map((raw) => ({ raw, source: text(dict(item.definition).name), category: 'Class Features' })));
     const race = dict(data.race);
     const entries = classEntries.concat(array(race.racialTraits).map((raw) => ({ raw, source: text(race.fullName), category: 'Species Traits' }))).concat(array(data.feats).map((raw) => ({ raw, source: 'Feat', category: 'Feats' })));
-    return entries.map(({ raw, source, category }) => { const item = dict(raw); const definition = dict(item.definition ?? item); return { name: text(definition.name, 'Unknown Feature'), description: stripHtml(text(definition.description)), category, source, uses: toResource(item) }; });
+    return entries.map(({ raw, source, category }) => { const item = dict(raw); const definition = dict(item.definition ?? item); return { name: text(definition.name, 'Unknown Feature'), description: stripHtml(text(definition.description)), category, source, usesResourceName: toResource(item)?.name }; });
   }
 }
