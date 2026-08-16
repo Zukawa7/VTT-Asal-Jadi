@@ -6,12 +6,37 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dbDir)) {
-  fs.mkdirSync(dbDir);
+function resolveDatabasePath() {
+  if (process.env.DATABASE_PATH) {
+    return process.env.DATABASE_PATH;
+  }
+
+  const localPath = path.resolve(__dirname, 'data', 'vtt.db');
+  if (process.env.VERCEL) {
+    return '/tmp/vtt.db';
+  }
+
+  try {
+    fs.mkdirSync(path.dirname(localPath), { recursive: true });
+    return localPath;
+  } catch (error) {
+    if (error && typeof error === 'object' && 'code' in error && (error.code === 'EROFS' || error.code === 'EACCES')) {
+      return '/tmp/vtt.db';
+    }
+    throw error;
+  }
 }
 
-const dbPath = path.join(dbDir, 'vtt.db');
+const dbPath = resolveDatabasePath();
+const dbDir = path.dirname(dbPath);
+try {
+  fs.mkdirSync(dbDir, { recursive: true });
+} catch (error) {
+  if (!(error && typeof error === 'object' && 'code' in error && (error.code === 'EROFS' || error.code === 'EACCES'))) {
+    throw error;
+  }
+}
+
 const db = new sqlite3.Database(dbPath);
 
 // Initialize tables

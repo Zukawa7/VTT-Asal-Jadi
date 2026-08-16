@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "cleanUrls": false,
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.js"
+    }
+  ]
+}
