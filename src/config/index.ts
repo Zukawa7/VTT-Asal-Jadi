@@ -16,6 +16,12 @@ function requiredSecret(value: string | undefined, name: string, nodeEnv: string
   return `development-${name.toLowerCase()}`;
 }
 
+function resolveDatabasePath(env: NodeJS.ProcessEnv): string {
+  if (env.DATABASE_PATH) return env.DATABASE_PATH;
+  if (env.VERCEL) return '/tmp/vtt.db';
+  return path.resolve('data/vtt.db');
+}
+
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   const nodeEnv = env.NODE_ENV === 'production' || env.NODE_ENV === 'test' ? env.NODE_ENV : 'development';
   const port = Number(env.PORT ?? 3000);
@@ -25,7 +31,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     port,
     jwtSecret: requiredSecret(env.JWT_SECRET, 'JWT_SECRET', nodeEnv),
     webhookSecret: requiredSecret(env.WEBHOOK_SECRET, 'WEBHOOK_SECRET', nodeEnv),
-    databasePath: env.DATABASE_PATH ?? path.resolve('data/vtt.db'),
+    databasePath: resolveDatabasePath(env),
     dndBeyondApiUrl: env.DNDBEYOND_API_URL ?? 'https://character-service.dndbeyond.com',
     characterSyncEnabled: env.CHARACTER_SYNC_ENABLED === 'true',
   };
