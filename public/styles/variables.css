@@ -1,133 +1,283 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+/* ==========================================================================
+   VTT ASAL JADI - DESIGN TOKENS (variables.css)
+   Dark Fantasy Obsidian & Gold Design System
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. TYPOGRAPHY IMPORTS
+   -------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=MedievalSharp&display=swap');
 
 :root {
-  /* PRIMARY COLORS - Rich Medieval (Polyport theme) */
-  --primary: #d4a544;       /* Gold/Amber */
-  --primary-dark: #b8860b;
-  --primary-light: #ecc94b;
-  
-  --secondary: #e8ddc8;     /* Off-white / Cream */
-  --secondary-dark: #c9a86a; /* Faded gold */
-  --secondary-light: #f0e6d2;
-  
-  --accent: #d4a544;        /* Gold/Amber */
-  --accent-dark: #c9a86a;
-  --accent-light: #f0e6d2;
+  /* ------------------------------------------------------------------------
+     2. COLORS: OBSIDIAN / DARK NAVY SURFACES
+     ------------------------------------------------------------------------ */
+  --bg-canvas: #0c0e14;              /* Deepest background base */
+  --bg-surface: #11141d;             /* Primary surface (sidebars, panels, headers) */
+  --bg-card: #181c27;                /* Card background, modals, elevated surfaces */
+  --bg-tertiary: #222738;            /* Inset stat boxes, table rows, input fields */
+  --bg-quaternary: #2a3147;          /* Popovers, dropdowns, active item highlight */
+  --bg-hover: #262d40;               /* Hover background state */
+  --bg-active: #323b54;              /* Active / pressed background state */
+  --bg-disabled: #141722;            /* Disabled element background */
+  --bg-glass: rgba(17, 20, 29, 0.85);/* Translucent glass backdrop */
+  --bg-glass-card: rgba(24, 28, 39, 0.92); /* OBS / floating card glass */
 
-  /* STATUS COLORS */
-  --success: #3ecb6e;
-  --success-dark: #2ea559;
-  --warning: #d4a544;
-  --danger: #a53b3b;
-  --danger-dark: #7a2b2b;
-  --info: #3b6ea5;
-  --info-dark: #4a7fb8;
+  /* Legacy & Semantic Background Aliases (100% Backward Compatible) */
+  --bg-main-dark: var(--bg-canvas);
+  --bg-main-light: var(--bg-surface);
+  --bg-primary: var(--bg-surface);
+  --bg-secondary: var(--bg-card);
 
-  /* BACKGROUNDS - Dark Fantasy Theme */
-  --bg-main-light: #1a140f;
-  --bg-main-dark: #0d0906;
-  --bg-primary: #1a140f; 
-  --bg-secondary: #241b14;
-  --bg-tertiary: #2a2018;
-  --bg-quaternary: #362e2a;
-  --bg-hover: #2a2018;
-  --bg-active: #362e2a;
-  --bg-disabled: #1a140f;
+  /* ------------------------------------------------------------------------
+     3. COLORS: GOLD & AMBER ACCENT PALETTE
+     ------------------------------------------------------------------------ */
+  --gold-50: #fffbeb;
+  --gold-100: #fef3c7;
+  --gold-200: #fde68a;
+  --gold-300: #fcd34d;
+  --gold-400: #fbbf24;               /* Bright gold highlight / Nat 20 text */
+  --gold-500: #f59e0b;               /* Core brand gold / primary CTA */
+  --gold-600: #d97706;               /* Deep gold border / dark accent */
+  --gold-700: #b45309;               /* Burnished gold / pressed state */
+  --gold-800: #92400e;               /* Antique bronze / deep border */
+  --gold-900: #78350f;               /* Dark shadow accent */
 
-  /* TEXT */
-  --text-primary: #e8ddc8;   /* Cream */
-  --text-secondary: #c9a86a; /* Faded Gold */
-  --text-tertiary: #a08c75;
-  --text-disabled: #5c4f45;
+  /* Brand Aliases */
+  --primary: var(--gold-500);
+  --primary-light: var(--gold-400);
+  --primary-dark: var(--gold-600);
+  --secondary: #e2e8f0;              /* Crisp silver/white secondary */
+  --secondary-light: #f8fafc;
+  --secondary-dark: var(--gold-400);
+  --accent: var(--gold-500);
+  --accent-light: var(--gold-400);
+  --accent-dark: var(--gold-600);
 
-  /* BORDERS */
-  --border-primary: rgba(212, 165, 68, 0.25);
-  --border-secondary: rgba(212, 165, 68, 0.15);
-  --border-accent: #d4a544;
+  /* ------------------------------------------------------------------------
+     4. COLORS: SEMANTIC STATUS & D&D MECHANICS
+     ------------------------------------------------------------------------ */
+  --success: #10b981;                /* Emerald heal / token active */
+  --success-light: #34d399;
+  --success-dark: #059669;
+  --success-bg: rgba(16, 185, 129, 0.15);
 
-  /* SHADOWS & GLOWS */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.8);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.7);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.8);
-  --glow-gold: 0 0 10px rgba(214, 158, 46, 0.3);
-  --glow-red: 0 0 10px rgba(155, 44, 44, 0.5);
+  --danger: #ef4444;                 /* Ruby damage / crit fail */
+  --danger-light: #f87171;
+  --danger-dark: #dc2626;
+  --danger-bg: rgba(239, 68, 68, 0.15);
 
-  /* SPACING */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --space-xl: 2rem;
-  --space-2xl: 3rem;
+  --warning: #f59e0b;                /* Amber warning / bloodied */
+  --warning-light: #fbbf24;
+  --warning-dark: #d97706;
+  --warning-bg: rgba(245, 158, 11, 0.15);
 
-  /* TYPOGRAPHY */
-  --font-sans: 'Lora', serif;      /* Elegant body text */
-  --font-heading: 'Cinzel', serif; /* Majestic headings */
-  --font-mono: 'Courier New', monospace;
-  
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 1.875rem;
-  
+  --info: #3b82f6;                   /* Sapphire info / dice modifier */
+  --info-light: #60a5fa;
+  --info-dark: #2563eb;
+  --info-bg: rgba(59, 130, 246, 0.15);
+
+  --color-mana: #3b82f6;             /* Spell slots / mana */
+  --color-mana-light: #60a5fa;
+  --color-mana-bg: rgba(59, 130, 246, 0.15);
+
+  --hp-healthy: #10b981;             /* Dynamic HP states */
+  --hp-bloodied: #f59e0b;
+  --hp-critical: #ef4444;
+  --hp-temp: #0284c7;
+  --hp-bar-bg: #0c0e14;
+
+  /* D&D Currencies */
+  --currency-cp: #cd7f32;
+  --currency-sp: #c0c0c0;
+  --currency-gp: #ffd700;
+  --currency-pp: #e5e4e2;
+
+  /* ------------------------------------------------------------------------
+     5. COLORS: TEXT & PARCHMENT
+     ------------------------------------------------------------------------ */
+  --text-primary: #f3f4f6;           /* Crisp primary text */
+  --text-secondary: #cbd5e1;         /* Muted silver secondary text */
+  --text-tertiary: #94a3b8;          /* Low-emphasis label text */
+  --text-disabled: #475569;          /* Disabled text */
+  --text-gold: var(--gold-400);      /* Gold highlight text */
+  --text-parchment: #f5ede2;         /* Warm parchment flavor text */
+  --text-cream: #e8ddc8;             /* Legacy cream text */
+  --text-dark: #0c0e14;              /* Dark text on gold buttons */
+
+  /* ------------------------------------------------------------------------
+     6. BORDERS & DIVIDERS
+     ------------------------------------------------------------------------ */
+  --border-primary: rgba(245, 158, 11, 0.25);
+  --border-secondary: rgba(255, 255, 255, 0.08);
+  --border-tertiary: rgba(255, 255, 255, 0.04);
+  --border-accent: var(--gold-600);
+  --border-gold-bright: var(--gold-400);
+  --border-gold-solid: var(--gold-500);
+  --border-obsidian: #1e2433;
+
+  /* ------------------------------------------------------------------------
+     7. GLOWS & SHADOWS
+     ------------------------------------------------------------------------ */
+  --glow-gold-sm: 0 0 8px rgba(245, 158, 11, 0.35);
+  --glow-gold-md: 0 0 16px rgba(245, 158, 11, 0.45);
+  --glow-gold-lg: 0 0 28px rgba(245, 158, 11, 0.65);
+  --glow-amber: 0 0 12px rgba(251, 191, 36, 0.4);
+  --glow-gold: var(--glow-gold-sm);
+  --glow-red: 0 0 12px rgba(239, 68, 68, 0.5);
+  --glow-green: 0 0 12px rgba(16, 185, 129, 0.5);
+  --glow-blue: 0 0 12px rgba(59, 130, 246, 0.5);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7), 0 2px 4px -2px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.8), 0 4px 6px -4px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.9), 0 8px 10px -6px rgba(0, 0, 0, 0.8);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.95);
+  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+
+  /* ------------------------------------------------------------------------
+     8. SPACING SCALE
+     ------------------------------------------------------------------------ */
+  --space-2xs: 0.125rem;             /* 2px */
+  --space-xs: 0.25rem;               /* 4px */
+  --space-sm: 0.5rem;                /* 8px */
+  --space-md: 1rem;                  /* 16px */
+  --space-lg: 1.5rem;                /* 24px */
+  --space-xl: 2rem;                  /* 32px */
+  --space-2xl: 3rem;                 /* 48px */
+  --space-3xl: 4rem;                 /* 64px */
+
+  /* ------------------------------------------------------------------------
+     9. TYPOGRAPHY FONTS & SIZES
+     ------------------------------------------------------------------------ */
+  --font-display: 'Cinzel', Georgia, serif;
+  --font-fantasy: 'MedievalSharp', cursive, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Fira Code', ui-monospace, Menlo, Monaco, Consolas, monospace;
+
+  --font-heading: var(--font-display);
+  --font-serif: var(--font-display);
+  --font-body: var(--font-sans);
+
+  --font-size-2xs: 0.625rem;         /* 10px */
+  --font-size-xs: 0.75rem;           /* 12px */
+  --font-size-sm: 0.875rem;          /* 14px */
+  --font-size-base: 1rem;            /* 16px */
+  --font-size-lg: 1.125rem;          /* 18px */
+  --font-size-xl: 1.25rem;           /* 20px */
+  --font-size-2xl: 1.5rem;           /* 24px */
+  --font-size-3xl: 1.875rem;         /* 30px */
+  --font-size-4xl: 2.25rem;          /* 36px */
+  --font-size-5xl: 3rem;             /* 48px */
+
+  --font-weight-light: 300;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
   --font-weight-black: 900;
 
-  /* BORDER RADIUS */
-  --radius-sm: 2px;
-  --radius-md: 4px;
-  --radius-lg: 6px;
-  --radius-xl: 8px;
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+  --tracking-epic: 0.15em;
 
-  /* TRANSITIONS */
-  --transition-fast: 150ms ease-in-out;
-  --transition-base: 250ms ease-in-out;
-  --transition-slow: 350ms ease-in-out;
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
 
-  /* Z-INDEX */
+  /* ------------------------------------------------------------------------
+     10. BORDER RADII
+     ------------------------------------------------------------------------ */
+  --radius-none: 0px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* ------------------------------------------------------------------------
+     11. TRANSITIONS
+     ------------------------------------------------------------------------ */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ------------------------------------------------------------------------
+     12. Z-INDEX SCALE
+     ------------------------------------------------------------------------ */
+  --z-negative: -1;
+  --z-base: 0;
+  --z-canvas: 10;
+  --z-elevated: 20;
+  --z-header: 50;
   --z-dropdown: 100;
+  --z-overlay: 500;
+  --z-drawer: 800;
   --z-modal-backdrop: 1000;
   --z-modal: 1001;
-  --z-tooltip: 1100;
   --z-notification: 1200;
+  --z-toast: 1200;
+  --z-tooltip: 1300;
+  --z-fab: 1400;
+  --z-max: 9999;
 }
 
+/* --------------------------------------------------------------------------
+   LIGHT / PARCHMENT THEME OVERRIDES
+   -------------------------------------------------------------------------- */
 [data-theme="light"] {
-  --primary: #9b2c2c;
-  --bg-primary: #f4ecd8;      /* Parchment texture feel */
-  --bg-secondary: #e6dac3;
-  --bg-tertiary: #d8c8ad;
-  --text-primary: #2d1f1a;
-  --text-secondary: #742a2a;
-  --border-primary: #bdae93;
-  --border-secondary: #d8c8ad;
+  --bg-canvas: #f5f1e8;
+  --bg-surface: #ede4d3;
+  --bg-card: #e4d8c0;
+  --bg-tertiary: #dcd0b8;
+  --bg-quaternary: #d0c2a8;
+  --bg-hover: rgba(180, 83, 9, 0.08);
+  --bg-active: rgba(180, 83, 9, 0.15);
+  --bg-disabled: #e0d5be;
+  --bg-glass: rgba(237, 228, 211, 0.85);
+  --bg-glass-card: rgba(228, 216, 192, 0.92);
+
+  --bg-main-dark: var(--bg-canvas);
+  --bg-main-light: var(--bg-surface);
+  --bg-primary: var(--bg-surface);
+  --bg-secondary: var(--bg-card);
+
+  --text-primary: #292524;
+  --text-secondary: #57534e;
+  --text-tertiary: #78716c;
+  --text-disabled: #a8a29e;
+  --text-gold: #b45309;
+  --text-parchment: #292524;
+  --text-cream: #44403c;
+  --text-dark: #0c0e14;
+
+  --primary: #b45309;
+  --primary-light: #d97706;
+  --primary-dark: #92400e;
+  --secondary: #44403c;
+  --secondary-light: #292524;
+  --secondary-dark: #78350f;
+  --accent: #b45309;
+  --accent-light: #d97706;
+  --accent-dark: #92400e;
+
+  --border-primary: rgba(180, 83, 9, 0.3);
+  --border-secondary: rgba(0, 0, 0, 0.12);
+  --border-tertiary: rgba(0, 0, 0, 0.06);
+  --border-accent: #b45309;
+  --border-gold-bright: #d97706;
+  --border-gold-solid: #b45309;
+  --border-obsidian: #dcd0b8;
+
+  --shadow-sm: 0 1px 3px rgba(41, 37, 36, 0.1);
+  --shadow-md: 0 4px 6px rgba(41, 37, 36, 0.15);
+  --shadow-lg: 0 10px 15px rgba(41, 37, 36, 0.2);
+  --shadow-xl: 0 20px 25px rgba(41, 37, 36, 0.25);
+  --shadow-inner: inset 0 2px 4px rgba(41, 37, 36, 0.1);
 }
-
-* { box-sizing: border-box; }
-
-body {
-  background-image: radial-gradient(circle at top center, var(--bg-main-light) 0%, var(--bg-main-dark) 100%),
-                    url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h40v40H0z" fill="none"/><path d="M0 0h10v10H0zm20 20h10v10H20z" fill="%23000000" fill-opacity="0.05"/></svg>');
-  background-color: var(--bg-main-dark);
-  background-attachment: fixed;
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  font-size: var(--font-size-base);
-  line-height: 1.6;
-  transition: background-color var(--transition-base), color var(--transition-base);
-}
-
-h1, h2, h3, h4, h5, h6, .card-title, .font-heading {
-  font-family: var(--font-heading);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-html { scroll-behavior: smooth; }
