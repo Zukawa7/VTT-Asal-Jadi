@@ -19,7 +19,7 @@ VTT.Modal = class {
     backdrop.id = 'modalBackdrop';
     
     const dialog = document.createElement('div');
-    dialog.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1001] w-[90%] max-w-[500px] rounded-2xl border border-[#26293c] bg-[#121420] p-0 shadow-[0px_16px_40px_#000000a0] flex flex-col overflow-hidden';
+    dialog.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1001] w-[90%] max-w-[500px] rounded-2xl border border-[#26283b] bg-[#11131f] p-0 shadow-[0px_16px_40px_#000000a0] flex flex-col overflow-hidden';
     dialog.style.transform = 'translate(-50%, -50%)';
     
     const corners = `
@@ -31,18 +31,18 @@ VTT.Modal = class {
 
     dialog.innerHTML = `
       ${corners}
-      <div class="flex items-center justify-between px-6 py-4 border-b border-[#26293c]">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-[#26283b]">
         <h2 class="text-sm font-bold text-white uppercase tracking-wider" style="font-family: 'EB Garamond', serif;">${this.title}</h2>
         <button class="text-[#6b7085] hover:text-white text-lg font-bold" id="modalClose">×</button>
       </div>
-      <div class="p-6 max-h-[70vh] overflow-y-auto text-sm text-[#a2a7bd]">
+      <div class="p-6 max-h-[70vh] overflow-y-auto text-sm text-[#a1a7bc]">
         ${this.content}
       </div>
-      <div class="flex justify-end gap-3 px-6 py-4 border-t border-[#26293c]/50 bg-[#0d0e15]/50">
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-[#26283b]/50 bg-[#0d0e15]/50">
         ${this.buttons.map((btn, i) => {
           const btnClass = btn.variant === 'btn-accent' || btn.variant === 'btn-primary'
-            ? 'rounded-md bg-[#d4a544] px-4 py-2 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition'
-            : 'rounded-md border border-[#26293c] bg-[#121420] px-4 py-2 text-xs font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition';
+            ? 'rounded-md bg-[#d4a544] px-4 py-2 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition'
+            : 'rounded-md border border-[#26283b] bg-[#11131f] px-4 py-2 text-xs font-bold text-[#a1a7bc] hover:bg-[#181c2c] transition';
           return `
             <button class="${btnClass}" data-action="${i}">
               ${btn.label}
@@ -91,11 +91,11 @@ VTT.Notification = class {
     const borderColors = { success: 'border-l-green-500', error: 'border-l-red-500', warning: 'border-l-yellow-500', info: 'border-l-blue-500' }[type] || 'border-l-blue-500';
     
     const notif = document.createElement('div');
-    notif.className = `pointer-events-auto flex items-center gap-3 p-4 rounded-xl border border-[#26293c] border-l-4 ${borderColors} bg-[#121420]/95 backdrop-blur-md shadow-[0px_8px_32px_rgba(0,0,0,0.8)] relative overflow-hidden transition-all duration-300`;
+    notif.className = `pointer-events-auto flex items-center gap-3 p-4 rounded-xl border border-[#26283b] border-l-4 ${borderColors} bg-[#11131f]/95 backdrop-blur-md shadow-[0px_8px_32px_rgba(0,0,0,0.8)] relative overflow-hidden transition-all duration-300`;
     
     notif.innerHTML = `
       <span style="font-size: 1.25rem;">${icon}</span>
-      <span class="text-xs text-[#a2a7bd]">${message}</span>
+      <span class="text-xs text-[#a1a7bc]">${message}</span>
       <button class="text-[#6b7085] hover:text-white font-bold ml-auto" style="width: 24px; height: 24px; padding: 0;">×</button>
     `;
     

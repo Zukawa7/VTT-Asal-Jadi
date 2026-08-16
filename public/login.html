@@ -6,13 +6,13 @@
   <title>Login - VTT Asal Jadi</title>
   <link rel="stylesheet" href="/styles/tailwind.css">
 </head>
-<body class="bg-[#0a0b10] text-white min-h-screen">
-  <main class="relative min-h-screen overflow-hidden bg-[#0a0b10] flex items-center justify-center p-6 sm:p-[60px]">
+<body class="bg-[#0a0a0f] text-white min-h-screen">
+  <main class="relative min-h-screen overflow-hidden bg-[#0a0a0f] flex items-center justify-center p-6 sm:p-[60px]">
     <!-- DarkModeToggle -->
     <button
       type="button"
       data-theme-toggle
-      class="absolute right-6 top-6 z-20 flex items-center gap-2 rounded-full border border-[#26293c] bg-[#121420] px-3 py-3 text-white transition-colors hover:bg-[#181c2c] sm:right-10 sm:top-10"
+      class="absolute right-6 top-6 z-20 flex items-center gap-2 rounded-full border border-[#26283b] bg-[#11131f] px-3 py-3 text-white transition-colors hover:bg-[#181c2c] sm:right-10 sm:top-10"
     >
       <i data-lucide="moon" class="h-4 w-4"></i>
       <span class="text-xs font-normal">DARK MODE</span>
@@ -25,32 +25,32 @@
       style="background: radial-gradient(circle, rgba(212,165,68,0.18) 0%, rgba(212,165,68,0.06) 35%, transparent 70%);"
     ></div>
 
-    <div class="relative z-10 w-full max-w-[460px] rounded-2xl border border-[#26293c] bg-[#121420] p-8 shadow-2xl sm:p-12">
+    <div class="relative z-10 w-full max-w-[460px] rounded-2xl border border-[#26283b] bg-[#11131f] p-8 shadow-2xl sm:p-12">
       <div class="mb-8 text-center">
         <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[#d4a544] bg-[#181c2c]">
           <i data-lucide="dice-5" class="h-5 w-5 text-[#d4a544]"></i>
         </div>
         <h3 class="text-2xl font-extrabold text-white" style="font-family: 'EB Garamond', serif;">VTT ASAL JADI</h3>
-        <p class="mt-2 text-xs text-[#a2a7bd]">Sign in to manage your D&amp;D Beyond characters</p>
+        <p class="mt-2 text-xs text-[#a1a7bc]">Sign in to manage your D&amp;D Beyond characters</p>
       </div>
 
       <form id="loginForm" class="space-y-4">
         <!-- Username/Email Field -->
         <label class="block">
-          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e5c284]">USERNAME OR EMAIL</span>
+          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]">USERNAME OR EMAIL</span>
           <input
             id="username"
             type="text"
             required
             autocomplete="username"
             placeholder="Enter your username"
-            class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]"
+            class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]"
           />
         </label>
 
         <!-- Password Field -->
         <label class="block">
-          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e5c284]">PASSWORD</span>
+          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]">PASSWORD</span>
           <div class="relative flex items-center">
             <input
               id="password"
@@ -58,12 +58,12 @@
               required
               autocomplete="current-password"
               placeholder="Enter your password"
-              class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] pl-3 pr-10 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]"
+              class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] pl-3 pr-10 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]"
             />
             <button
               type="button"
               id="togglePassword"
-              class="absolute right-3 text-[#a2a7bd] hover:text-white"
+              class="absolute right-3 text-[#a1a7bc] hover:text-white"
               aria-label="Show password"
             >
               <i data-lucide="eye" class="h-4 w-4"></i>
@@ -81,18 +81,18 @@
             <button
               type="button"
               id="rememberMeBtn"
-              class="flex h-4 w-4 items-center justify-center rounded border border-[#d4a544] bg-[#0b0c12]"
+              class="flex h-4 w-4 items-center justify-center rounded border border-[#d4a544] bg-[#0a0c11]"
               aria-pressed="false"
             >
               <!-- Checkmark SVG will be toggled here -->
             </button>
-            <span class="text-[13px] font-normal leading-none text-[#a2a7bd]">
+            <span class="text-[13px] font-normal leading-none text-[#a1a7bc]">
               Keep me logged in
             </span>
           </label>
           <button
             type="button"
-            class="text-[13px] font-medium leading-none text-[#d4a544] hover:text-[#e5c284]"
+            class="text-[13px] font-medium leading-none text-[#d4a544] hover:text-[#e4c183]"
           >
             Forgot Password?
           </button>
@@ -104,14 +104,14 @@
         <!-- Submit Button -->
         <button
           type="submit"
-          class="w-full rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0b10] transition hover:bg-[#e5c284]"
+          class="w-full rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0a0f] transition hover:bg-[#e4c183]"
         >
           SIGN IN TO TABLETOP
         </button>
       </form>
 
       <p class="mt-6 text-center text-xs text-[#6b7085]">
-        Don't have an account? <a href="/register" class="text-[#d4a544] hover:text-[#e5c284] font-bold">Register here</a>
+        Don't have an account? <a href="/register" class="text-[#d4a544] hover:text-[#e4c183] font-bold">Register here</a>
       </p>
     </div>
   </main>
@@ -145,16 +145,16 @@
       rememberMeCheckbox.checked = checked;
       rememberMeBtn.setAttribute('aria-pressed', checked ? 'true' : 'false');
       if (checked) {
-        rememberMeBtn.classList.remove('bg-[#0b0c12]');
+        rememberMeBtn.classList.remove('bg-[#0a0c11]');
         rememberMeBtn.classList.add('bg-[#d4a544]');
         rememberMeBtn.innerHTML = `
-          <svg viewBox="0 0 12 12" class="h-3 w-3 text-[#0a0b10]" fill="none" stroke="currentColor" stroke-width="2">
+          <svg viewBox="0 0 12 12" class="h-3 w-3 text-[#0a0a0f]" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M2 6l3 3 5-6" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         `;
       } else {
         rememberMeBtn.classList.remove('bg-[#d4a544]');
-        rememberMeBtn.classList.add('bg-[#0b0c12]');
+        rememberMeBtn.classList.add('bg-[#0a0c11]');
         rememberMeBtn.innerHTML = '';
       }
     });

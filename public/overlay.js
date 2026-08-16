@@ -51,7 +51,7 @@ socket.on('new-roll', (data) => {
 
 function createRollCard(data) {
   const card = document.createElement('div');
-  card.className = 'roll-card border border-[#26293c] bg-[#121420]/95 backdrop-blur-md rounded-xl p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.8)] flex items-center justify-between gap-4 transition-all duration-500 relative';
+  card.className = 'roll-card border border-[#26283b] bg-[#11131f]/95 backdrop-blur-md rounded-xl p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.8)] flex items-center justify-between gap-4 transition-all duration-500 relative';
   
   const corners = `
     <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l pointer-events-none"></span>
@@ -60,7 +60,7 @@ function createRollCard(data) {
     <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b pointer-events-none"></span>
   `;
 
-  let resultClass = 'text-white border-[#26293c] bg-[#0b0c12]';
+  let resultClass = 'text-white border-[#26283b] bg-[#0a0c11]';
   let badgeText = '';
   if (String(data.formula || '').startsWith('1d20')) {
     const rawRoll = data.rolls?.[0];
@@ -69,14 +69,14 @@ function createRollCard(data) {
       badgeText = '<span class="badge text-[#d4a544] text-[9px] font-bold uppercase tracking-wider mb-1">Nat 20!</span>';
     }
     if (rawRoll === 1) {
-      resultClass = 'text-[#8b302d] border-[#8b302d] bg-[#8b302d]/10';
-      badgeText = '<span class="badge text-[#8b302d] text-[9px] font-bold uppercase tracking-wider mb-1">Crit Fail</span>';
+      resultClass = 'text-[#8a1d1d] border-[#8a1d1d] bg-[#8a1d1d]/10';
+      badgeText = '<span class="badge text-[#8a1d1d] text-[9px] font-bold uppercase tracking-wider mb-1">Crit Fail</span>';
     }
   }
-  const avatarImg = `<img src="${data.characterAvatar || ''}" class="w-10 h-10 rounded-full border border-[#26293c] object-cover bg-[#0b0c12]">`;
+  const avatarImg = `<img src="${data.characterAvatar || ''}" class="w-10 h-10 rounded-full border border-[#26283b] object-cover bg-[#0a0c11]">`;
   const formula = `${data.formula || ''} (${(data.rolls || []).join(', ')})`;
   const modifier = data.modifier ? (data.modifier >= 0 ? ` + ${data.modifier}` : ` - ${Math.abs(data.modifier)}`) : '';
-  const formulaMarkup = overlayConfig.showFormula ? `<p class="formula text-[#e5c284] font-mono text-[10px] truncate">${formula}${modifier}</p>` : '';
+  const formulaMarkup = overlayConfig.showFormula ? `<p class="formula text-[#e4c183] font-mono text-[10px] truncate">${formula}${modifier}</p>` : '';
   
   card.innerHTML = `
     ${corners}
@@ -84,7 +84,7 @@ function createRollCard(data) {
       <div>${avatarImg}</div>
       <div class="min-w-0">
         <h3 class="font-bold text-white text-xs truncate">${data.characterName || 'Adventurer'}</h3>
-        <p class="roll-name text-[#a2a7bd] text-[10px] truncate">${data.rollName || 'Roll'}</p>
+        <p class="roll-name text-[#a1a7bc] text-[10px] truncate">${data.rollName || 'Roll'}</p>
         ${formulaMarkup}
       </div>
     </div>

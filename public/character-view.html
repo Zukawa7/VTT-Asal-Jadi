@@ -13,15 +13,15 @@
     .chips-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; }
     .chips-container::-webkit-scrollbar { height: 4px; }
     .chips-container::-webkit-scrollbar-track { background: transparent; }
-    .chips-container::-webkit-scrollbar-thumb { background: #26293c; border-radius: 4px; }
+    .chips-container::-webkit-scrollbar-thumb { background: #26283b; border-radius: 4px; }
 
     .filter-chip {
       flex-shrink: 0;
       padding: 6px 14px;
       border-radius: 9999px;
-      border: 1px solid #26293c;
-      background: #0b0c12;
-      color: #a2a7bd;
+      border: 1px solid #26283b;
+      background: #0a0c11;
+      color: #a1a7bc;
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
@@ -32,30 +32,30 @@
     }
     .filter-chip:hover {
       border-color: #d4a544;
-      color: #e5c284;
+      color: #e4c183;
     }
     .filter-chip.active {
       background: #d4a544;
       border-color: #d4a544;
-      color: #0a0b10;
+      color: #0a0a0f;
     }
   </style>
 </head>
-<body class="bg-[#0a0b10] text-white min-h-screen flex flex-col font-sans">
+<body class="bg-[#0a0a0f] text-white min-h-screen flex flex-col font-sans">
 
   <!-- Header / Navigation -->
-  <nav class="sticky top-0 z-30 border-b border-[#1c1f2d] bg-[#0a0b10]/90 px-6 py-4 backdrop-blur">
+  <nav class="sticky top-0 z-30 border-b border-[#1c1f2d] bg-[#0a0a0f]/90 px-6 py-4 backdrop-blur">
     <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
       <div class="flex items-center gap-2 text-xs font-bold text-white">
         <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
         <span>VTT ASAL JADI</span>
       </div>
-      <div class="flex items-center gap-5 text-[10px] text-[#a2a7bd]">
+      <div class="flex items-center gap-5 text-[10px] text-[#a1a7bc]">
         <span class="hidden sm:inline">Logged in as <span id="headerUsername" class="font-bold text-[#d4a544]">Username</span></span>
         <a href="/dashboard" class="hover:text-[#d4a544] transition-colors">Dashboard</a>
         <a href="/session-dashboard" class="hover:text-[#d4a544] transition-colors">Session Logs</a>
         <a href="/vtt" class="hover:text-[#d4a544] transition-colors">Open VTT</a>
-        <button id="logoutBtn" class="rounded-md bg-[#8b302d] px-3 py-1.5 text-[10px] font-bold text-white transition hover:bg-[#a63a37]">Logout</button>
+        <button id="logoutBtn" class="rounded-md bg-[#8a1d1d] px-3 py-1.5 text-[10px] font-bold text-white transition hover:bg-[#a63a37]">Logout</button>
       </div>
     </div>
   </nav>
@@ -78,11 +78,11 @@
     <div class="mb-6 max-w-2xl">
       <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#d4a544]">05 / Character sheet</p>
       <h2 class="mb-2 text-3xl font-extrabold text-white" style="font-family: 'EB Garamond', serif;">Built for the full adventure.</h2>
-      <p class="text-sm leading-6 text-[#a2a7bd]">The character sheet keeps the important details visible while remaining compact enough for the live table.</p>
+      <p class="text-sm leading-6 text-[#a1a7bc]">The character sheet keeps the important details visible while remaining compact enough for the live table.</p>
     </div>
 
     <!-- Main Card Container -->
-    <div class="rounded-xl border border-[#26293c] bg-[#121420] p-5 shadow-2xl relative">
+    <div class="rounded-xl border border-[#26283b] bg-[#11131f] p-5 shadow-2xl relative">
       <!-- Corner brackets -->
       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
@@ -90,13 +90,13 @@
       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
 
       <!-- Header Row -->
-      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[#26293c] pb-5">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[#26283b] pb-5">
         <div class="flex items-center gap-3">
-          <img id="avatar" src="" class="w-12 h-12 rounded-full border border-[#d4a544] object-cover bg-[#0b0c12]" alt="Avatar">
+          <img id="avatar" src="" class="w-12 h-12 rounded-full border border-[#d4a544] object-cover bg-[#0a0c11]" alt="Avatar">
           <div>
             <h3 id="name" class="text-lg font-bold text-white uppercase tracking-wider" style="font-family: 'EB Garamond', serif">Name</h3>
-            <p class="text-[10px] text-[#a2a7bd] mt-1 flex items-center gap-2 flex-wrap">
-              <span id="level" class="rounded bg-[#8b302d] px-1.5 py-0.5 text-[8px] font-bold text-white uppercase">LEVEL 1</span>
+            <p class="text-[10px] text-[#a1a7bc] mt-1 flex items-center gap-2 flex-wrap">
+              <span id="level" class="rounded bg-[#8a1d1d] px-1.5 py-0.5 text-[8px] font-bold text-white uppercase">LEVEL 1</span>
               <span id="meta">Race · Class</span>
               <span class="text-[#6b7085]">•</span>
               <span id="alignment">True Neutral</span>
@@ -106,32 +106,32 @@
           </div>
         </div>
         <div class="flex gap-2 flex-wrap">
-          <button id="manageBtn" class="rounded-md border border-[#26293c] bg-[#121420] px-3 py-1.5 text-[10px] font-bold text-white hover:bg-[#181c2c] transition" onclick="location.href='/dashboard/character/edit/'+(character?.id||'')">MANAGE</button>
-          <button id="inspirationBtn" class="rounded-md border border-[#26293c] bg-[#121420] px-3 py-1.5 text-[10px] font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition">INSPIRATION</button>
-          <button class="rounded-md bg-[#8b302d] px-4 py-2 text-[10px] font-bold text-white hover:bg-[#a63a37] transition" onclick="openHpModal()">REST CHARACTER</button>
+          <button id="manageBtn" class="rounded-md border border-[#26283b] bg-[#11131f] px-3 py-1.5 text-[10px] font-bold text-white hover:bg-[#181c2c] transition" onclick="location.href='/dashboard/character/edit/'+(character?.id||'')">MANAGE</button>
+          <button id="inspirationBtn" class="rounded-md border border-[#26283b] bg-[#11131f] px-3 py-1.5 text-[10px] font-bold text-[#a1a7bc] hover:bg-[#181c2c] transition">INSPIRATION</button>
+          <button class="rounded-md bg-[#8a1d1d] px-4 py-2 text-[10px] font-bold text-white hover:bg-[#a63a37] transition" onclick="openHpModal()">REST CHARACTER</button>
         </div>
       </div>
 
       <!-- 4 StatCards Grid -->
       <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <!-- HP Card -->
-        <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative cursor-pointer hover:bg-[#181c2c]/20 transition" onclick="openHpModal()">
+        <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative cursor-pointer hover:bg-[#181c2c]/20 transition" onclick="openHpModal()">
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
           <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">HIT POINTS</p>
           <div class="flex justify-between items-baseline mt-2">
-            <p class="text-2xl font-bold text-white"><span id="hp-current">0</span> <span class="text-xs text-[#6b7085]">/</span> <span id="hp-max" class="text-xs text-[#a2a7bd]">0</span></p>
+            <p class="text-2xl font-bold text-white"><span id="hp-current">0</span> <span class="text-xs text-[#6b7085]">/</span> <span id="hp-max" class="text-xs text-[#a1a7bc]">0</span></p>
             <p id="hp-temp" class="text-[10px] text-blue-400 font-bold"></p>
           </div>
-          <div class="h-1 bg-[#0a0b10] rounded-full overflow-hidden mt-2">
+          <div class="h-1 bg-[#0a0a0f] rounded-full overflow-hidden mt-2">
             <div id="hp-bar" class="h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
           </div>
         </div>
 
         <!-- AC Card -->
-        <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+        <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
@@ -141,7 +141,7 @@
         </div>
 
         <!-- Initiative Card -->
-        <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative cursor-pointer hover:bg-[#181c2c]/40 transition" onclick="rollStat('Initiative', 'dex')">
+        <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative cursor-pointer hover:bg-[#181c2c]/40 transition" onclick="rollStat('Initiative', 'dex')">
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
@@ -151,7 +151,7 @@
         </div>
 
         <!-- Speed Card -->
-        <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+        <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
@@ -164,7 +164,7 @@
       <!-- 2-Column Grid -->
       <div class="mt-5 grid gap-4 lg:grid-cols-[1fr_1.4fr]">
         <!-- Left Column: Ability Scores -->
-        <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative h-fit">
+        <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative h-fit">
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
           <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
@@ -196,7 +196,7 @@
             <!-- Saving Throws & Senses (grouped under Abilities tab) -->
             <div id="section-abilities" class="tab-section space-y-4" data-tab="abilities">
               <!-- Saving Throws -->
-              <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+              <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
@@ -209,7 +209,7 @@
               </div>
 
               <!-- Senses -->
-              <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+              <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
@@ -223,7 +223,7 @@
             </div>
 
             <!-- Skills Tab -->
-            <div id="section-skills" class="tab-section hidden border border-[#26293c] bg-[#121420] rounded-lg p-4 relative" data-tab="skills">
+            <div id="section-skills" class="tab-section hidden border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative" data-tab="skills">
               <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
               <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
               <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
@@ -238,17 +238,17 @@
             <!-- Actions Tab (Weapons & Spells) -->
             <div id="section-actions" class="tab-section hidden space-y-4" data-tab="actions">
               <!-- Class Resources -->
-              <div id="section-resources" class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative" style="display:none;"></div>
+              <div id="section-resources" class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative" style="display:none;"></div>
               
               <!-- Actions -->
-              <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+              <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
                 <div class="mb-4 flex items-center justify-between">
                   <h4 class="text-xs font-bold text-white">ACTIONS</h4>
-                  <span id="spell-attack-header" class="text-[9px] text-white bg-[#0b0c12] px-2 py-1 rounded border border-[#26293c] whitespace-nowrap">ATK +0 | DC 10</span>
+                  <span id="spell-attack-header" class="text-[9px] text-white bg-[#0a0c11] px-2 py-1 rounded border border-[#26283b] whitespace-nowrap">ATK +0 | DC 10</span>
                 </div>
                 <div class="chips-container mb-3" id="actions-chips">
                   <div class="filter-chip active">All</div>
@@ -266,7 +266,7 @@
             <!-- Inventory Tab (Currencies & Equipment) -->
             <div id="section-inventory" class="tab-section hidden space-y-4" data-tab="inventory">
               <!-- Currencies -->
-              <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+              <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
@@ -277,42 +277,42 @@
                 </div>
                 <div class="flex justify-between items-center mb-2 px-4 w-full">
                   <div class="flex flex-col items-center">
-                    <span class="w-8 h-8 rounded-full font-bold text-xs text-white border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#cd7f32] to-[#8b4513] cp">0</span>
+                    <span class="w-8 h-8 rounded-full font-bold text-xs text-white border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#cd7f32] to-[#8b4513] cp">0</span>
                     <span class="text-[9px] text-[#6b7085] mt-1 font-bold">CP</span>
                   </div>
                   <div class="flex flex-col items-center">
-                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0b10] border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#e0e0e0] to-[#808080] sp">0</span>
+                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0a0f] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#e0e0e0] to-[#808080] sp">0</span>
                     <span class="text-[9px] text-[#6b7085] mt-1 font-bold">SP</span>
                   </div>
                   <div class="flex flex-col items-center">
-                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#4a3600] border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#ffd700] to-[#b8860b] gp">0</span>
+                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#4a3600] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#ffd700] to-[#b8860b] gp">0</span>
                     <span class="text-[9px] text-[#6b7085] mt-1 font-bold">GP</span>
                   </div>
                   <div class="flex flex-col items-center">
-                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0b10] border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#f5f5f5] to-[#a9a9a9] pp">0</span>
+                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0a0f] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#f5f5f5] to-[#a9a9a9] pp">0</span>
                     <span class="text-[9px] text-[#6b7085] mt-1 font-bold">PP</span>
                   </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3 w-full mt-4">
-                  <button class="rounded-md bg-[#d4a544] py-2.5 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition" onclick="openHpModal()">HEAL / DMG</button>
-                  <button class="rounded-md border border-[#26293c] bg-[#121420] py-2.5 text-xs font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition" onclick="location.href='/vtt?room=character-'+(character?.id||'')">OPEN VTT</button>
+                  <button class="rounded-md bg-[#d4a544] py-2.5 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition" onclick="openHpModal()">HEAL / DMG</button>
+                  <button class="rounded-md border border-[#26283b] bg-[#11131f] py-2.5 text-xs font-bold text-[#a1a7bc] hover:bg-[#181c2c] transition" onclick="location.href='/vtt?room=character-'+(character?.id||'')">OPEN VTT</button>
                 </div>
               </div>
 
               <!-- Equipment -->
-              <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+              <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
                 <div class="mb-4 flex items-center justify-between">
                   <h4 class="text-xs font-bold text-white">EQUIPMENT</h4>
-                  <div id="weight-text" class="text-[10px] text-[#a2a7bd] font-bold">WEIGHT: 0 lb</div>
+                  <div id="weight-text" class="text-[10px] text-[#a1a7bc] font-bold">WEIGHT: 0 lb</div>
                 </div>
-                <div class="w-full bg-[#0b0c12] rounded h-2 mb-3 border border-[#26293c] overflow-hidden">
+                <div class="w-full bg-[#0a0c11] rounded h-2 mb-3 border border-[#26283b] overflow-hidden">
                    <div id="weight-bar" class="h-full bg-[#d4a544]" style="width:0%; transition: width 0.3s, background 0.3s;"></div>
                 </div>
-                <input type="text" id="inventorySearch" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2 text-xs text-white outline-none placeholder:text-[#555b70] mb-3" placeholder="Search items...">
+                <input type="text" id="inventorySearch" class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2 text-xs text-white outline-none placeholder:text-[#555b70] mb-3" placeholder="Search items...">
                 <div class="chips-container mb-3" id="inventory-chips">
                   <div class="filter-chip active">All</div>
                   <div class="filter-chip">Equipment</div>
@@ -324,7 +324,7 @@
 
             <!-- Features Tab -->
             <div id="section-features" class="tab-section hidden space-y-4" data-tab="features">
-              <div class="border border-[#26293c] bg-[#121420] rounded-lg p-4 relative">
+              <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
                 <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
@@ -345,38 +345,38 @@
             </div>
 
             <!-- Proficiencies Tab -->
-            <div id="section-proficiencies" class="tab-section hidden border border-[#26293c] bg-[#121420] rounded-lg p-4 relative" data-tab="proficiencies">
+            <div id="section-proficiencies" class="tab-section hidden border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative" data-tab="proficiencies">
               <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
               <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
               <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
               <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-              <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Proficiencies & Training</h2>
-              <div class="text-xs space-y-2 text-[#a2a7bd]" id="proficienciesContainer">
+              <h2 class="text-xs font-bold uppercase tracking-wider text-[#e4c183] border-b border-[#26283b] pb-2 mb-4">Proficiencies & Training</h2>
+              <div class="text-xs space-y-2 text-[#a1a7bc]" id="proficienciesContainer">
                  <div class="text-[#6b7085] italic text-xs">No proficiency data available.</div>
               </div>
             </div>
 
             <!-- Background Tab -->
-            <div id="section-background" class="tab-section hidden border border-[#26293c] bg-[#121420] rounded-lg p-4 relative" data-tab="background">
+            <div id="section-background" class="tab-section hidden border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative" data-tab="background">
               <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
               <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
               <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
               <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r-2 border-b-2"></span>
               <div id="backgroundContainer">
-                <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Background</h2>
+                <h2 class="text-xs font-bold uppercase tracking-wider text-[#e4c183] border-b border-[#26283b] pb-2 mb-4">Background</h2>
                 <div class="text-xs text-[#6b7085] italic">Background details imported from D&DB will appear here.</div>
               </div>
             </div>
 
             <!-- Notes Tab -->
-            <div id="section-notes" class="tab-section hidden border border-[#26293c] bg-[#121420] rounded-lg p-4 relative" data-tab="notes">
+            <div id="section-notes" class="tab-section hidden border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative" data-tab="notes">
               <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
               <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
               <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
               <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-              <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Notes</h2>
-              <textarea id="charNotes" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544] min-h-[120px] resize-vertical" placeholder="Add character biography or notes here..."></textarea>
-              <button class="w-full mt-3 rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition" id="saveNotesBtn">Save Notes</button>
+              <h2 class="text-xs font-bold uppercase tracking-wider text-[#e4c183] border-b border-[#26283b] pb-2 mb-4">Notes</h2>
+              <textarea id="charNotes" class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544] min-h-[120px] resize-vertical" placeholder="Add character biography or notes here..."></textarea>
+              <button class="w-full mt-3 rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition" id="saveNotesBtn">Save Notes</button>
             </div>
           </div>
         </div>
@@ -390,8 +390,8 @@
 
   <!-- Floating Action Buttons -->
   <div class="fixed bottom-6 right-6 flex gap-3 z-50">
-    <div class="w-12 h-12 rounded-full border border-[#26293c] bg-[#121420] flex items-center justify-center text-lg text-white hover:bg-[#181c2c] transition shadow-lg cursor-pointer" id="fabDiceBtn" title="Dice Roller" onclick="openDiceModal()">🎲</div>
-    <div class="w-12 h-12 rounded-full border border-[#26293c] bg-[#121420] flex items-center justify-center text-lg text-white hover:bg-[#181c2c] transition shadow-lg cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll Top">▲</div>
+    <div class="w-12 h-12 rounded-full border border-[#26283b] bg-[#11131f] flex items-center justify-center text-lg text-white hover:bg-[#181c2c] transition shadow-lg cursor-pointer" id="fabDiceBtn" title="Dice Roller" onclick="openDiceModal()">🎲</div>
+    <div class="w-12 h-12 rounded-full border border-[#26283b] bg-[#11131f] flex items-center justify-center text-lg text-white hover:bg-[#181c2c] transition shadow-lg cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll Top">▲</div>
   </div>
 
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -524,10 +524,10 @@
       if(inspBtn) {
         if(c.inspiration) {
           inspBtn.classList.add('border-[#d4a544]', 'text-[#d4a544]');
-          inspBtn.classList.remove('border-[#26293c]', 'text-[#a2a7bd]');
+          inspBtn.classList.remove('border-[#26283b]', 'text-[#a1a7bc]');
         } else {
           inspBtn.classList.remove('border-[#d4a544]', 'text-[#d4a544]');
-          inspBtn.classList.add('border-[#26293c]', 'text-[#a2a7bd]');
+          inspBtn.classList.add('border-[#26283b]', 'text-[#a1a7bc]');
         }
         inspBtn.onclick = () => {
           if(!canEdit) return;
@@ -576,9 +576,9 @@
           document.querySelector('.currency-badge.'+type).onclick = () => {
             const content = `
               <div class="flex flex-col gap-3">
-                <label class="text-xs font-bold text-[#a2a7bd]">Amount (${type.toUpperCase()})</label>
-                <input type="number" id="currencyInput" class="w-full bg-[#0b0c12] border border-[#26293c] text-white text-center text-lg p-2 rounded outline-none focus:border-[#d4a544]" value="${character.currencies?.[type]||0}" min="0">
-                <button class="w-full rounded bg-[#d4a544] py-2 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284]" onclick="saveCurrency('${type}')">Save</button>
+                <label class="text-xs font-bold text-[#a1a7bc]">Amount (${type.toUpperCase()})</label>
+                <input type="number" id="currencyInput" class="w-full bg-[#0a0c11] border border-[#26283b] text-white text-center text-lg p-2 rounded outline-none focus:border-[#d4a544]" value="${character.currencies?.[type]||0}" min="0">
+                <button class="w-full rounded bg-[#d4a544] py-2 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183]" onclick="saveCurrency('${type}')">Save</button>
               </div>`;
             new VTT.Modal({ title: `Edit ${type.toUpperCase()}`, content, buttons: [] }).open();
           };
@@ -594,10 +594,10 @@
           <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
           <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
           <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-          <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Resources</h2>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-[#e4c183] border-b border-[#26283b] pb-2 mb-4">Resources</h2>
           <div class="space-y-3">
             ${c.resources.map((r, i) => `
-              <div class="flex justify-between items-center bg-[#0b0c12] p-2.5 rounded border border-[#26293c] hover:bg-[#181c2c]/20 transition">
+              <div class="flex justify-between items-center bg-[#0a0c11] p-2.5 rounded border border-[#26283b] hover:bg-[#181c2c]/20 transition">
                  <div class="text-xs font-bold text-white">${r.name} <span class="text-[9px] text-[#6b7085] font-normal ml-1">(${r.resetOn || 'Rest'})</span></div>
                  <div class="flex gap-1 flex-wrap justify-end" style="max-width: 50%;">
                    ${Array.from({length: Math.min(20, r.max || 0)}).map((_, j) => `
@@ -613,7 +613,7 @@
 
       // Abilities
       document.getElementById('abilities').innerHTML = keys.map(k =>
-        `<div class="rounded-md bg-[#0b0c12] p-3 text-center border border-[#26293c] hover:border-[#d4a544] transition cursor-pointer" onclick="rollStat('${labels[k]}','${k}')">
+        `<div class="rounded-md bg-[#0a0c11] p-3 text-center border border-[#26283b] hover:border-[#d4a544] transition cursor-pointer" onclick="rollStat('${labels[k]}','${k}')">
           <div class="text-[9px] text-[#6b7085] uppercase tracking-wider leading-none mb-1 text-center truncate">${labels[k]}</div>
           <div class="text-lg font-bold text-white my-0.5">${signed(c.modifiers[k])}</div>
           <div class="text-[9px] text-[#d4a544] font-bold mt-0.5">${c.stats[k]}</div>
@@ -625,12 +625,12 @@
         let isProf = c.proficiencies?.saves?.includes(k);
         let mod = c.modifiers[k] + (isProf ? profBonus : 0);
         return `
-        <div class="flex items-center justify-between rounded bg-[#0b0c12] px-3 py-2 text-[10px] text-[#a2a7bd] border border-[#26293c]/50 hover:bg-[#181c2c]/30 transition cursor-pointer mb-2" onclick="sendRoll('1d20${signed(mod)}', '${labels[k]} Save')">
+        <div class="flex items-center justify-between rounded bg-[#0a0c11] px-3 py-2 text-[10px] text-[#a1a7bc] border border-[#26283b]/50 hover:bg-[#181c2c]/30 transition cursor-pointer mb-2" onclick="sendRoll('1d20${signed(mod)}', '${labels[k]} Save')">
           <span class="text-xs text-white flex items-center w-full">
             <span class="w-2 h-2 rounded-full border mr-2 flex-shrink-0 ${isProf ? 'border-[#d4a544] bg-[#d4a544]' : 'border-[#6b7085] bg-transparent'}"></span>
             <span>${labels[k]}</span>
           </span>
-          <span class="border border-[#26293c] bg-[#0b0c12] px-2 py-0.5 rounded text-xs font-bold text-[#d4a544]">${signed(mod)}</span>
+          <span class="border border-[#26283b] bg-[#0a0c11] px-2 py-0.5 rounded text-xs font-bold text-[#d4a544]">${signed(mod)}</span>
         </div>`;
       }).join('');
       
@@ -639,13 +639,13 @@
         let isProf = c.proficiencies?.skills?.includes(s);
         let mod = c.modifiers[k] + (isProf ? profBonus : 0);
         return `
-        <div class="flex items-center justify-between rounded bg-[#0b0c12] px-3 py-2 text-[10px] text-[#a2a7bd] border border-[#26293c]/50 hover:bg-[#181c2c]/30 transition cursor-pointer mb-2" onclick="sendRoll('1d20${signed(mod)}', '${s} Check')">
+        <div class="flex items-center justify-between rounded bg-[#0a0c11] px-3 py-2 text-[10px] text-[#a1a7bc] border border-[#26283b]/50 hover:bg-[#181c2c]/30 transition cursor-pointer mb-2" onclick="sendRoll('1d20${signed(mod)}', '${s} Check')">
           <span class="text-xs text-white flex items-center w-full min-w-0">
             <span class="w-2 h-2 rounded-full border mr-2 flex-shrink-0 ${isProf ? 'border-[#d4a544] bg-[#d4a544]' : 'border-[#6b7085] bg-transparent'}"></span>
             <span class="text-[9px] text-[#6b7085] uppercase mr-2 w-7 inline-block text-right font-bold">${k}</span>
             <span class="truncate pr-2">${s}</span>
           </span>
-          <span class="border border-[#26293c] bg-[#0b0c12] px-2 py-0.5 rounded text-xs font-bold text-[#d4a544] flex-shrink-0">${signed(mod)}</span>
+          <span class="border border-[#26283b] bg-[#0a0c11] px-2 py-0.5 rounded text-xs font-bold text-[#d4a544] flex-shrink-0">${signed(mod)}</span>
         </div>`;
       }).join('');
       
@@ -656,7 +656,7 @@
         ['INSIGHT', 10 + c.modifiers.wis + (c.proficiencies?.skills?.includes('Insight')?profBonus:0)]
       ].map(x => `
         <div class="flex flex-col items-center flex-1">
-          <div class="w-12 h-12 md:w-14 md:h-14 rounded-full border border-[#d4a544] bg-[#0b0c12] flex items-center justify-center text-sm font-bold text-white mb-1 shadow-md">${x[1]}</div>
+          <div class="w-12 h-12 md:w-14 md:h-14 rounded-full border border-[#d4a544] bg-[#0a0c11] flex items-center justify-center text-sm font-bold text-white mb-1 shadow-md">${x[1]}</div>
           <div class="text-[9px] font-bold text-[#6b7085] uppercase text-center">${x[0]}</div>
         </div>
       `).join('');
@@ -687,36 +687,36 @@
        .map(([label, arr]) => `
         <div class="mb-2 last:mb-0">
           <span class="font-bold text-white">${label}:</span>
-          <span class="text-[#a2a7bd]"> ${Array.isArray(arr) ? arr.join(', ') : arr}</span>
+          <span class="text-[#a1a7bc]"> ${Array.isArray(arr) ? arr.join(', ') : arr}</span>
         </div>`
       ).join('') || '<div class="text-[#6b7085] italic text-xs">No proficiency data available.</div>';
 
       // Background
       const bgSection = document.getElementById('backgroundContainer');
       bgSection.innerHTML = `
-        <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Background</h2>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-[#e4c183] border-b border-[#26283b] pb-2 mb-4">Background</h2>
         <div class="space-y-4 text-xs">
           ${c.background?.name ? `<div class="font-bold text-white text-sm">${c.background.name}</div>` : ''}
-          ${c.background?.description ? `<div class="text-[#a2a7bd] leading-relaxed">${c.background.description}</div>` : ''}
+          ${c.background?.description ? `<div class="text-[#a1a7bc] leading-relaxed">${c.background.description}</div>` : ''}
           ${c.personalityTraits?.length ? `
             <div>
-              <div class="font-bold text-[#e5c284] text-[9px] uppercase tracking-wider mb-1">Personality Traits</div>
-              ${c.personalityTraits.map(t => `<div class="text-[#a2a7bd]">• ${t}</div>`).join('')}
+              <div class="font-bold text-[#e4c183] text-[9px] uppercase tracking-wider mb-1">Personality Traits</div>
+              ${c.personalityTraits.map(t => `<div class="text-[#a1a7bc]">• ${t}</div>`).join('')}
             </div>` : ''}
           ${c.ideals?.length ? `
             <div>
-              <div class="font-bold text-[#e5c284] text-[9px] uppercase tracking-wider mb-1">Ideals</div>
-              ${c.ideals.map(t => `<div class="text-[#a2a7bd]">• ${t}</div>`).join('')}
+              <div class="font-bold text-[#e4c183] text-[9px] uppercase tracking-wider mb-1">Ideals</div>
+              ${c.ideals.map(t => `<div class="text-[#a1a7bc]">• ${t}</div>`).join('')}
             </div>` : ''}
           ${c.bonds?.length ? `
             <div>
-              <div class="font-bold text-[#e5c284] text-[9px] uppercase tracking-wider mb-1">Bonds</div>
-              ${c.bonds.map(t => `<div class="text-[#a2a7bd]">• ${t}</div>`).join('')}
+              <div class="font-bold text-[#e4c183] text-[9px] uppercase tracking-wider mb-1">Bonds</div>
+              ${c.bonds.map(t => `<div class="text-[#a1a7bc]">• ${t}</div>`).join('')}
             </div>` : ''}
           ${c.flaws?.length ? `
             <div>
-              <div class="font-bold text-[#e5c284] text-[9px] uppercase tracking-wider mb-1">Flaws</div>
-              ${c.flaws.map(t => `<div class="text-[#a2a7bd]">• ${t}</div>`).join('')}
+              <div class="font-bold text-[#e4c183] text-[9px] uppercase tracking-wider mb-1">Flaws</div>
+              ${c.flaws.map(t => `<div class="text-[#a1a7bc]">• ${t}</div>`).join('')}
             </div>` : ''}
           ${(!c.background && !c.personalityTraits) ? '<div class="text-[#6b7085] italic text-xs">Background details imported from D&amp;D Beyond will appear here.</div>' : ''}
         </div>`;
@@ -769,7 +769,7 @@
       if(spells.length) {
          const levels = [...new Set(spells.map(s => s.level))].sort((a,b)=>a-b);
          levels.forEach(lv => {
-           html += `<div class="text-[9px] tracking-wider font-bold text-[#e5c284] uppercase mt-4 mb-2 border-b border-[#26293c] pb-1">${lv===0?'Cantrips':'Level '+lv}</div>`;
+           html += `<div class="text-[9px] tracking-wider font-bold text-[#e4c183] uppercase mt-4 mb-2 border-b border-[#26283b] pb-1">${lv===0?'Cantrips':'Level '+lv}</div>`;
            html += spells.filter(s => s.level === lv).map(renderAtkRow).join('');
          });
       }
@@ -783,7 +783,7 @@
         const prepIcon = atk.level !== undefined ? (atk.prepared ? '<span class="text-[#d4a544] mr-2" title="Prepared">★</span>' : '<span class="text-[#6b7085] mr-2" title="Not Prepared">☆</span>') : '';
         const op = (atk.level !== undefined && !atk.prepared && atk.level > 0) ? 'opacity-50' : '';
         return `
-          <div class="flex items-center justify-between py-2 border-b border-[#26293c] last:border-0 hover:bg-[#181c2c]/30 rounded px-1.5 transition ${op}">
+          <div class="flex items-center justify-between py-2 border-b border-[#26283b] last:border-0 hover:bg-[#181c2c]/30 rounded px-1.5 transition ${op}">
             <div class="flex-1 min-w-0 flex items-center">
               ${atk.level !== undefined ? `<div class="cursor-pointer" onclick="event.stopPropagation(); toggleSpellPrep('${atk.name}')">${prepIcon}</div>` : ''}
               <div>
@@ -792,8 +792,8 @@
               </div>
             </div>
             <div class="flex gap-2 flex-shrink-0 ml-2">
-              <span class="border border-[#26293c] bg-[#0b0c12] px-2.5 py-1 rounded text-xs font-bold text-[#d4a544] cursor-pointer hover:border-[#d4a544] transition" onclick="event.stopPropagation(); sendRoll('1d20${atkBonus}', '${atk.name} Attack')">${atkBonus}</span>
-              <span class="border border-[#26293c] bg-[#0b0c12] px-2.5 py-1 rounded text-xs text-[#a2a7bd] cursor-pointer hover:border-[#d4a544] transition" onclick="event.stopPropagation(); rollDamage('${dmg}', '${atk.name}')">${dmg}</span>
+              <span class="border border-[#26283b] bg-[#0a0c11] px-2.5 py-1 rounded text-xs font-bold text-[#d4a544] cursor-pointer hover:border-[#d4a544] transition" onclick="event.stopPropagation(); sendRoll('1d20${atkBonus}', '${atk.name} Attack')">${atkBonus}</span>
+              <span class="border border-[#26283b] bg-[#0a0c11] px-2.5 py-1 rounded text-xs text-[#a1a7bc] cursor-pointer hover:border-[#d4a544] transition" onclick="event.stopPropagation(); rollDamage('${dmg}', '${atk.name}')">${dmg}</span>
             </div>
           </div>`;
     }
@@ -812,11 +812,11 @@
     document.querySelectorAll('#actions-chips .filter-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         document.querySelectorAll('#actions-chips .filter-chip').forEach(c => {
-          c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0b10]', 'border-[#d4a544]');
-          c.classList.add('bg-[#0b0c12]', 'text-[#a2a7bd]', 'border-[#26293c]');
+          c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
+          c.classList.add('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
         });
-        chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0b10]', 'border-[#d4a544]');
-        chip.classList.remove('bg-[#0b0c12]', 'text-[#a2a7bd]', 'border-[#26293c]');
+        chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
+        chip.classList.remove('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
         
         const filter = chip.textContent.trim().toLowerCase();
         const filtered = filter === 'all' ? window._allAttacks : window._allAttacks.filter(item => (item.actionType || '').toLowerCase() === filter);
@@ -833,19 +833,19 @@
       const wPct = Math.min(100, (allItemsWeight/capacity)*100);
       const wBar = document.getElementById('weight-bar');
       wBar.style.width = wPct + '%';
-      if(wPct >= 100) wBar.style.background = '#8b302d';
+      if(wPct >= 100) wBar.style.background = '#8a1d1d';
       else wBar.style.background = '#d4a544';
 
       document.getElementById('equipment').innerHTML = (items.length ?
-         `<div class="flex justify-between items-center pb-1 mb-1 border-b border-[#26293c] text-[9px] text-[#6b7085] uppercase font-bold mt-2">
+         `<div class="flex justify-between items-center pb-1 mb-1 border-b border-[#26283b] text-[9px] text-[#6b7085] uppercase font-bold mt-2">
            <div style="flex:1;">Name</div>
            <div style="width:40px; text-align:center;">Qty</div>
            <div style="width:60px; text-align:right;">Weight</div>
          </div>` +
         items.map((item,index) =>
-          `<div class="flex justify-between items-center py-2 border-b border-[#26293c] last:border-b-0 text-xs w-full cursor-pointer hover:bg-[#181c2c]/30 rounded transition px-1.5" onclick="openItemModal(${window._allItems.indexOf(item)})">
+          `<div class="flex justify-between items-center py-2 border-b border-[#26283b] last:border-b-0 text-xs w-full cursor-pointer hover:bg-[#181c2c]/30 rounded transition px-1.5" onclick="openItemModal(${window._allItems.indexOf(item)})">
              <div style="flex:1; text-align:left; font-weight:bold; color:#white; word-break:break-word; padding-right:8px;">${item.equipped ? '<span class="text-[#d4a544] font-bold mr-1">E</span> ' : ''}${item.name}</div>
-             <div style="width:40px; text-align:center; color:#a2a7bd; font-size:0.75rem;">${item.quantity}</div>
+             <div style="width:40px; text-align:center; color:#a1a7bc; font-size:0.75rem;">${item.quantity}</div>
              <div style="width:60px; text-align:right; color:#6b7085; font-size:0.7rem;">${(Number(item.weight||0)*Number(item.quantity||1)).toFixed(1)} lb</div>
            </div>`
         ).join('') : '<div class="text-[#6b7085] italic text-xs mt-2">No equipment found.</div>');
@@ -865,11 +865,11 @@
     document.querySelectorAll('#inventory-chips .filter-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         document.querySelectorAll('#inventory-chips .filter-chip').forEach(c => {
-          c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0b10]', 'border-[#d4a544]');
-          c.classList.add('bg-[#0b0c12]', 'text-[#a2a7bd]', 'border-[#26293c]');
+          c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
+          c.classList.add('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
         });
-        chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0b10]', 'border-[#d4a544]');
-        chip.classList.remove('bg-[#0b0c12]', 'text-[#a2a7bd]', 'border-[#26293c]');
+        chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
+        chip.classList.remove('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
         
         const event = new Event('input');
         document.getElementById('inventorySearch')?.dispatchEvent(event);
@@ -881,8 +881,8 @@
       const item = window._allItems[index];
       const canEdit = Boolean(localStorage.getItem('token'));
       const content = `
-        <div class="text-xs text-[#a2a7bd] mb-4 leading-relaxed">${item.description || 'No description available.'}</div>
-        ${canEdit ? `<button class="w-full rounded border border-[#26293c] bg-[#121420] text-white py-2 text-xs font-bold uppercase tracking-wider hover:bg-[#181c2c] transition" onclick="toggleEquip(${index})">${item.equipped ? 'Unequip Item' : 'Equip Item'}</button>` : ''}
+        <div class="text-xs text-[#a1a7bc] mb-4 leading-relaxed">${item.description || 'No description available.'}</div>
+        ${canEdit ? `<button class="w-full rounded border border-[#26283b] bg-[#11131f] text-white py-2 text-xs font-bold uppercase tracking-wider hover:bg-[#181c2c] transition" onclick="toggleEquip(${index})">${item.equipped ? 'Unequip Item' : 'Equip Item'}</button>` : ''}
       `;
       new VTT.Modal({ title: item.name, content, buttons: [] }).open();
     };
@@ -904,9 +904,9 @@
       }
       el.innerHTML = list.map(f => {
         const resource = f.usesResourceName ? character?.resources?.find(r => r.name === f.usesResourceName) : null;
-        const useBtn = resource ? `<button class="rounded border border-[#26293c] bg-[#121420] text-[#a2a7bd] text-[10px] px-2 py-1 hover:bg-[#181c2c] transition ml-2 flex-shrink-0" onclick="useResourceByName('${resource.name.replace(/'/g, "\\'")}')">Use (${resource.current}/${resource.max})</button>` : '';
+        const useBtn = resource ? `<button class="rounded border border-[#26283b] bg-[#11131f] text-[#a1a7bc] text-[10px] px-2 py-1 hover:bg-[#181c2c] transition ml-2 flex-shrink-0" onclick="useResourceByName('${resource.name.replace(/'/g, "\\'")}')">Use (${resource.current}/${resource.max})</button>` : '';
         return `
-        <div class="border-b border-[#26293c] pb-3 last:border-0">
+        <div class="border-b border-[#26283b] pb-3 last:border-0">
           <div class="flex justify-between items-start">
              <div class="flex-1 min-w-0">
                <div class="font-bold text-white text-xs">${f.name}</div>
@@ -914,7 +914,7 @@
              </div>
              ${useBtn}
           </div>
-          <div class="text-xs text-[#a2a7bd] leading-relaxed mt-1">${f.description || ''}</div>
+          <div class="text-xs text-[#a1a7bc] leading-relaxed mt-1">${f.description || ''}</div>
         </div>`;
       }).join('');
     }
@@ -935,11 +935,11 @@
     document.querySelectorAll('#features-chips .filter-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         document.querySelectorAll('#features-chips .filter-chip').forEach(c => {
-          c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0b10]', 'border-[#d4a544]');
-          c.classList.add('bg-[#0b0c12]', 'text-[#a2a7bd]', 'border-[#26293c]');
+          c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
+          c.classList.add('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
         });
-        chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0b10]', 'border-[#d4a544]');
-        chip.classList.remove('bg-[#0b0c12]', 'text-[#a2a7bd]', 'border-[#26293c]');
+        chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
+        chip.classList.remove('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
         
         const filter = chip.textContent.trim().toLowerCase();
         const filtered = filter === 'all' ? window._allFeatures : window._allFeatures.filter(f => (f.category || f.type || '').toLowerCase().includes(filter));
@@ -974,7 +974,7 @@
       const resistances = character.damageResistances?.join(', ') || '—';
       const vulnerabilities = character.damageVulnerabilities?.join(', ') || '—';
       const content = `
-        <div class="space-y-3 text-xs text-[#a2a7bd]">
+        <div class="space-y-3 text-xs text-[#a1a7bc]">
           <div><span class="font-bold text-white">Immunities:</span><span class="ml-2">${immunities}</span></div>
           <div><span class="font-bold text-white">Resistances:</span><span class="ml-2">${resistances}</span></div>
           <div><span class="font-bold text-white">Vulnerabilities:</span><span class="ml-2">${vulnerabilities}</span></div>
@@ -988,12 +988,12 @@
       const activeConditions = character.conditions || [];
       const content = `<div class="grid grid-cols-2 gap-2">` +
         dndConditions.map(cond => `
-          <label class="flex items-center gap-2 cursor-pointer p-2 rounded border border-[#26293c] bg-[#0b0c12] hover:bg-[#181c2c]/40 text-xs transition">
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded border border-[#26283b] bg-[#0a0c11] hover:bg-[#181c2c]/40 text-xs transition">
             <input type="checkbox" class="cond-checkbox accent-[#d4a544]" value="${cond}" ${activeConditions.includes(cond)?'checked':''}>
             <span class="text-white">${cond}</span>
           </label>`).join('') +
         `</div>
-        <button class="w-full rounded bg-[#d4a544] py-2 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition mt-4"
+        <button class="w-full rounded bg-[#d4a544] py-2 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition mt-4"
           onclick="saveConditions()">Apply Conditions</button>`;
       new VTT.Modal({ title: 'Conditions', content, buttons: [] }).open();
     }
@@ -1009,11 +1009,11 @@
       const diceTypes = ['d4','d6','d8','d10','d12','d20','d100'];
       const content = `
         <div class="grid grid-cols-3 md:grid-cols-4 gap-2 mb-4">
-          ${diceTypes.map(d => `<button class="rounded border border-[#26293c] bg-[#0b0c12] hover:bg-[#181c2c] text-white py-2 font-bold font-serif text-sm transition" onclick="sendRoll('1${d}', '${d} Roll'); document.querySelector('.vtt-modal-close')?.click();">${d}</button>`).join('')}
+          ${diceTypes.map(d => `<button class="rounded border border-[#26283b] bg-[#0a0c11] hover:bg-[#181c2c] text-white py-2 font-bold font-serif text-sm transition" onclick="sendRoll('1${d}', '${d} Roll'); document.querySelector('.vtt-modal-close')?.click();">${d}</button>`).join('')}
         </div>
         <div class="flex gap-2">
-          <input type="text" id="customRollFormula" class="flex-1 rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2 text-xs text-white outline-none placeholder:text-[#555b70]" placeholder="e.g. 2d6+4">
-          <button class="rounded bg-[#d4a544] px-4 py-2 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition" onclick="const f=document.getElementById('customRollFormula').value; if(f) { sendRoll(f, 'Custom Roll'); document.querySelector('.vtt-modal-close')?.click(); }">Roll</button>
+          <input type="text" id="customRollFormula" class="flex-1 rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2 text-xs text-white outline-none placeholder:text-[#555b70]" placeholder="e.g. 2d6+4">
+          <button class="rounded bg-[#d4a544] px-4 py-2 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition" onclick="const f=document.getElementById('customRollFormula').value; if(f) { sendRoll(f, 'Custom Roll'); document.querySelector('.vtt-modal-close')?.click(); }">Roll</button>
         </div>`;
       new VTT.Modal({ title: 'Dice Roller', content, buttons: [] }).open();
     };
@@ -1025,24 +1025,24 @@
       const canEdit = Boolean(localStorage.getItem('token'));
       const content = `
         <div class="flex flex-col gap-4">
-          <div class="flex justify-between items-center bg-[#0b0c12] p-2.5 rounded border border-[#26293c]">
+          <div class="flex justify-between items-center bg-[#0a0c11] p-2.5 rounded border border-[#26283b]">
             <div class="text-xs font-bold text-white">Hit Dice: <span class="text-[#d4a544] ml-1">${hd.current}/${hd.max} ${hd.type}</span></div>
-            ${canEdit ? `<button class="rounded border border-[#26293c] bg-[#121420] px-3 py-1 text-[10px] font-bold text-white hover:bg-[#181c2c] transition" onclick="spendHitDie()">SPEND</button>` : ''}
+            ${canEdit ? `<button class="rounded border border-[#26283b] bg-[#11131f] px-3 py-1 text-[10px] font-bold text-white hover:bg-[#181c2c] transition" onclick="spendHitDie()">SPEND</button>` : ''}
           </div>
           ${canEdit ? `
           <div class="flex gap-2">
-            <button class="flex-1 rounded border border-[#26293c] bg-[#0b0c12] py-2 text-[10px] font-bold uppercase tracking-wider text-white hover:border-[#d4a544] transition" onclick="shortRest()">Short Rest</button>
-            <button class="flex-1 rounded border border-[#26293c] bg-[#0b0c12] py-2 text-[10px] font-bold uppercase tracking-wider text-white hover:border-[#d4a544] transition" onclick="longRest()">Long Rest</button>
+            <button class="flex-1 rounded border border-[#26283b] bg-[#0a0c11] py-2 text-[10px] font-bold uppercase tracking-wider text-white hover:border-[#d4a544] transition" onclick="shortRest()">Short Rest</button>
+            <button class="flex-1 rounded border border-[#26283b] bg-[#0a0c11] py-2 text-[10px] font-bold uppercase tracking-wider text-white hover:border-[#d4a544] transition" onclick="longRest()">Long Rest</button>
           </div>
-          <hr class="border-[#26293c] my-1">
+          <hr class="border-[#26283b] my-1">
           <div class="flex gap-4">
             <div class="flex-1">
-              <label class="text-[10px] font-bold text-[#e5c284] block mb-2 uppercase tracking-wider">Amount</label>
-              <input type="number" id="hpAmount" class="w-full bg-[#0b0c12] border border-[#26293c] text-white text-center text-xl font-bold p-3 rounded focus:border-[#d4a544] outline-none" value="1" min="1">
+              <label class="text-[10px] font-bold text-[#e4c183] block mb-2 uppercase tracking-wider">Amount</label>
+              <input type="number" id="hpAmount" class="w-full bg-[#0a0c11] border border-[#26283b] text-white text-center text-xl font-bold p-3 rounded focus:border-[#d4a544] outline-none" value="1" min="1">
             </div>
           </div>
           <div class="flex gap-2 mt-2">
-            <button class="flex-1 bg-[#8b302d] text-white py-3 rounded text-xs font-bold uppercase tracking-wider hover:bg-[#a63a37] transition" onclick="applyHp(-1)">Damage</button>
+            <button class="flex-1 bg-[#8a1d1d] text-white py-3 rounded text-xs font-bold uppercase tracking-wider hover:bg-[#a63a37] transition" onclick="applyHp(-1)">Damage</button>
             <button class="flex-1 bg-green-600 text-white py-3 rounded text-xs font-bold uppercase tracking-wider hover:bg-green-500 transition" onclick="applyHp(1)">Heal</button>
             <button class="flex-1 bg-blue-600 text-white py-3 rounded text-xs font-bold uppercase tracking-wider hover:bg-blue-500 transition" onclick="applyTempHp()">Temp HP</button>
           </div>

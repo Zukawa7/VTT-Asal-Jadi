@@ -6,20 +6,20 @@
   <title>Dashboard - VTT Asal Jadi</title>
   <link rel="stylesheet" href="/styles/tailwind.css">
 </head>
-<body class="bg-[#0a0b10] text-white min-h-screen flex flex-col font-sans">
+<body class="bg-[#0a0a0f] text-white min-h-screen flex flex-col font-sans">
   
   <!-- Header / Navigation -->
-  <nav class="sticky top-0 z-30 border-b border-[#1c1f2d] bg-[#0a0b10]/90 px-6 py-4 backdrop-blur">
+  <nav class="sticky top-0 z-30 border-b border-[#1c1f2d] bg-[#0a0a0f]/90 px-6 py-4 backdrop-blur">
     <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
       <div class="flex items-center gap-2 text-xs font-bold text-white">
         <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
         <span>VTT ASAL JADI</span>
       </div>
-      <div class="flex items-center gap-5 text-[10px] text-[#a2a7bd]">
+      <div class="flex items-center gap-5 text-[10px] text-[#a1a7bc]">
         <span class="hidden sm:inline">Logged in as <span id="headerUsername" class="font-bold text-[#d4a544]">Username</span></span>
         <a href="/session-dashboard" class="hover:text-[#d4a544] transition-colors">Session Logs</a>
         <a href="/vtt" class="hover:text-[#d4a544] transition-colors">Open VTT</a>
-        <button id="logoutBtn" class="rounded-md bg-[#8b302d] px-3 py-1.5 text-[10px] font-bold text-white transition hover:bg-[#a63a37]">Logout</button>
+        <button id="logoutBtn" class="rounded-md bg-[#8a1d1d] px-3 py-1.5 text-[10px] font-bold text-white transition hover:bg-[#a63a37]">Logout</button>
       </div>
     </div>
   </nav>
@@ -33,7 +33,7 @@
       <h2 class="mb-2 text-3xl font-extrabold text-white" style="font-family: 'EB Garamond', serif;">
         Welcome back, <span id="welcomeUsername">Player</span>!
       </h2>
-      <p class="text-sm leading-6 text-[#a2a7bd]">
+      <p class="text-sm leading-6 text-[#a1a7bc]">
         Manage your imported characters, review recent sessions, and jump back into the tabletop in one glance.
       </p>
     </div>
@@ -41,7 +41,7 @@
     <!-- Main Grid -->
     <div class="grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
       <!-- Left panel: Characters List -->
-      <div class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative">
+      <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-6 relative">
         <!-- Corner brackets -->
         <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
         <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
@@ -50,18 +50,18 @@
 
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-xs text-[#a2a7bd]">Manage your imported D&amp;D Beyond characters.</p>
+            <p class="text-xs text-[#a1a7bc]">Manage your imported D&amp;D Beyond characters.</p>
             <p class="mt-2 text-[11px] text-[#6b7085]">Token Status: <span class="text-[#d4a544] font-bold">Active</span> · Role: <span class="text-[#d4a544] font-bold">Adventurer</span></p>
           </div>
         </div>
 
         <!-- Loading State -->
         <div id="charLoading" class="text-center p-8 mt-6">
-          <p class="text-xs text-[#a2a7bd]">Loading characters...</p>
+          <p class="text-xs text-[#a1a7bc]">Loading characters...</p>
         </div>
 
         <!-- Empty State -->
-        <div id="charEmpty" class="hidden text-center p-8 mt-6 border border-dashed border-[#26293c] rounded-lg bg-[#0b0c12]">
+        <div id="charEmpty" class="hidden text-center p-8 mt-6 border border-dashed border-[#26283b] rounded-lg bg-[#0a0c11]">
           <i data-lucide="dice-5" class="mx-auto mb-2 h-8 w-8 text-[#d4a544]"></i>
           <h3 class="text-sm font-bold text-white" style="font-family: 'EB Garamond', serif;">NO CHARACTERS IMPORTED YET</h3>
           <p class="text-[10px] text-[#6b7085] mt-1">Use the panel on the right to import your first D&amp;D Beyond character.</p>
@@ -74,7 +74,7 @@
       </div>
 
       <!-- Right panel: Import Character Form -->
-      <div class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative h-fit">
+      <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-6 relative h-fit">
         <!-- Corner brackets -->
         <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
         <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
@@ -88,13 +88,13 @@
 
         <div class="space-y-4">
           <label class="block">
-            <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e5c284]">Character ID or URL</span>
-            <input type="text" id="charIdInput" placeholder="Character ID (e.g. 10293847)" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]" />
+            <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]">Character ID or URL</span>
+            <input type="text" id="charIdInput" placeholder="Character ID (e.g. 10293847)" class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]" />
           </label>
 
-          <button id="importBtn" class="w-full rounded-md bg-[#d4a544] py-3 text-[10px] font-bold text-[#0a0b10] flex justify-center items-center gap-2">
+          <button id="importBtn" class="w-full rounded-md bg-[#d4a544] py-3 text-[10px] font-bold text-[#0a0a0f] flex justify-center items-center gap-2">
             <span id="importBtnText">IMPORT TO DATABASE</span>
-            <div id="importSpinner" class="hidden animate-spin rounded-full h-3 w-3 border-2 border-t-transparent border-[#0a0b10]"></div>
+            <div id="importSpinner" class="hidden animate-spin rounded-full h-3 w-3 border-2 border-t-transparent border-[#0a0a0f]"></div>
           </button>
 
           <div id="importError" class="hidden text-xs text-red-500 bg-red-950/20 border border-red-900/50 rounded p-2"></div>
@@ -106,7 +106,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-[#1c1f2d] bg-[#0a0b10] py-6 text-center text-xs text-[#6b7085]">
+  <footer class="border-t border-[#1c1f2d] bg-[#0a0a0f] py-6 text-center text-xs text-[#6b7085]">
     <p>VTT Asal Jadi - Dark Fantasy Tabletop & Character Management</p>
   </footer>
 
@@ -201,7 +201,7 @@
 
       characters.forEach(char => {
         const card = document.createElement('div');
-        card.className = 'overflow-hidden rounded-lg border border-[#26293c] bg-[#0b0c12] flex flex-col justify-between';
+        card.className = 'overflow-hidden rounded-lg border border-[#26283b] bg-[#0a0c11] flex flex-col justify-between';
         card.dataset.characterId = String(char.id);
         
         const classStr = char.classes.map(c => `${c.name} ${c.level}`).join('/') + ` (Lvl ${char.level})`;
@@ -209,9 +209,9 @@
 
         card.innerHTML = `
           <!-- Top header with gradient and avatar -->
-          <div class="relative h-20 bg-gradient-to-br from-[#36454e] to-[#121420] p-3 flex items-end">
-            <img src="${char.avatarUrl || 'https://via.placeholder.com/150'}" class="absolute -bottom-5 left-3 w-12 h-12 rounded-full border-2 border-[#d4a544] object-cover bg-[#0b0c12]">
-            <div class="absolute top-3 right-3 bg-[#0a0b10]/80 px-2 py-0.5 rounded text-[9px] font-bold text-[#d4a544] border border-[#26293c]">
+          <div class="relative h-20 bg-gradient-to-br from-[#36454e] to-[#11131f] p-3 flex items-end">
+            <img src="${char.avatarUrl || 'https://via.placeholder.com/150'}" class="absolute -bottom-5 left-3 w-12 h-12 rounded-full border-2 border-[#d4a544] object-cover bg-[#0a0c11]">
+            <div class="absolute top-3 right-3 bg-[#0a0a0f]/80 px-2 py-0.5 rounded text-[9px] font-bold text-[#d4a544] border border-[#26283b]">
               Lvl ${char.level}
             </div>
           </div>
@@ -219,10 +219,10 @@
           <div class="p-3 pt-7 flex-1 flex flex-col justify-between">
             <div>
               <p class="text-xs font-bold text-white truncate">${char.name}</p>
-              <p class="mt-1 text-[9px] text-[#a2a7bd] truncate">${char.race} · ${classStr}</p>
+              <p class="mt-1 text-[9px] text-[#a1a7bc] truncate">${char.race} · ${classStr}</p>
             </div>
-            <div class="mt-4 flex items-center justify-between gap-2 border-t border-[#26293c] pt-3">
-              <a href="${charUrl}" class="text-[10px] font-bold text-[#d4a544] hover:text-[#e5c284] transition-colors">
+            <div class="mt-4 flex items-center justify-between gap-2 border-t border-[#26283b] pt-3">
+              <a href="${charUrl}" class="text-[10px] font-bold text-[#d4a544] hover:text-[#e4c183] transition-colors">
                 View & Export
               </a>
               <button onclick="deleteCharacter('${char.id}')" class="text-red-500 hover:text-red-400 text-xs font-bold px-1 transition-colors" title="Delete Character">

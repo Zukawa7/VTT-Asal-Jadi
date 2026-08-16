@@ -10,7 +10,7 @@ class MobileNav {
     if (!header) return;
 
     const navBtn = document.createElement('button');
-    navBtn.className = 'mobile-nav-toggle hidden text-[#d4a544] hover:text-[#e5c284] text-xl p-2';
+    navBtn.className = 'mobile-nav-toggle hidden text-[#d4a544] hover:text-[#e4c183] text-xl p-2';
     navBtn.innerHTML = '☰';
     
     // Quick CSS injection for mobile nav toggle
@@ -26,7 +26,7 @@ class MobileNav {
     header.prepend(navBtn);
 
     const menu = document.createElement('div');
-    menu.className = 'fixed top-0 left-0 bottom-0 w-[250px] bg-[#121420] border-r border-[#26293c] z-[1001] transform -translate-x-full transition-transform duration-300 p-6 shadow-[0px_16px_40px_#000000a0]';
+    menu.className = 'fixed top-0 left-0 bottom-0 w-[250px] bg-[#11131f] border-r border-[#26283b] z-[1001] transform -translate-x-full transition-transform duration-300 p-6 shadow-[0px_16px_40px_#000000a0]';
     menu.id = 'mobileMenu';
     menu.innerHTML = `
       <div class="flex justify-between items-center mb-8">
@@ -34,9 +34,9 @@ class MobileNav {
         <button id="closeMobileNav" class="text-[#6b7085] hover:text-white text-lg font-bold">✕</button>
       </div>
       <div class="flex flex-col gap-4">
-        <a href="/dashboard" class="rounded-md border border-[#26293c] bg-[#121420] px-4 py-2 text-center text-xs font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition">Dashboard</a>
-        <a href="/vtt" class="rounded-md bg-[#d4a544] px-4 py-2 text-center text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition">VTT</a>
-        <a href="/session-dashboard" class="rounded-md border border-[#26293c] bg-[#121420] px-4 py-2 text-center text-xs font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition">Logs</a>
+        <a href="/dashboard" class="rounded-md border border-[#26283b] bg-[#11131f] px-4 py-2 text-center text-xs font-bold text-[#a1a7bc] hover:bg-[#181c2c] transition">Dashboard</a>
+        <a href="/vtt" class="rounded-md bg-[#d4a544] px-4 py-2 text-center text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition">VTT</a>
+        <a href="/session-dashboard" class="rounded-md border border-[#26283b] bg-[#11131f] px-4 py-2 text-center text-xs font-bold text-[#a1a7bc] hover:bg-[#181c2c] transition">Logs</a>
       </div>
     `;
     document.body.appendChild(menu);
