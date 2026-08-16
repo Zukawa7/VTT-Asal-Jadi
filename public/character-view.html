@@ -291,35 +291,35 @@
       </div>
     </div>
 
-    <!-- 6. Section-Section Konten Utama -->
+    <!-- 6. Section-Section Konten Utama (Tab Content) -->
     
-    <!-- Ability Scores -->
-    <div id="section-abilities" class="polyport-card">
+    <!-- Group: Abilities, Saves, Senses -->
+    <div id="section-abilities" class="polyport-card tab-section" data-tab="abilities">
       <h2 class="section-title">Ability Scores</h2>
       <!-- P8: Text wrapping for Ability Scores -->
       <div id="abilities" class="grid grid-cols-3 md:grid-cols-6 gap-2 mt-4 mb-2"></div>
     </div>
 
     <!-- Saving Throws -->
-    <div id="section-saves" class="polyport-card">
+    <div id="section-saves" class="polyport-card tab-section" data-tab="abilities">
       <h2 class="section-title">Saving Throws</h2>
       <div id="saves" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 w-full"></div>
     </div>
 
     <!-- Senses -->
-    <div id="section-senses" class="polyport-card">
+    <div id="section-senses" class="polyport-card tab-section" data-tab="abilities">
        <h2 class="section-title">Passive Senses</h2>
        <div id="senses" class="flex justify-around gap-2 text-center mt-4 w-full"></div>
     </div>
 
     <!-- Skills -->
-    <div id="section-skills" class="polyport-card">
+    <div id="section-skills" class="polyport-card tab-section" data-tab="skills" style="display:none;">
       <h2 class="section-title">Skills</h2>
       <div id="skills" class="w-full"></div>
     </div>
 
     <!-- Actions -->
-    <div id="section-actions" class="polyport-card">
+    <div id="section-actions" class="polyport-card tab-section" data-tab="actions" style="display:none;">
       <h2 class="section-title flex justify-between items-center">
         <span>Actions</span>
         <span id="spell-attack-header" class="text-[10px] text-text-primary bg-bg-primary px-2 py-1 rounded border border-border-primary whitespace-nowrap">ATK +0 | DC 10</span>
@@ -337,7 +337,7 @@
     </div>
 
     <!-- Inventory -->
-    <div id="section-inventory" class="polyport-card">
+    <div id="section-inventory" class="polyport-card tab-section" data-tab="inventory" style="display:none;">
       <h2 class="section-title">Inventory</h2>
       <div class="chips-container">
         <div class="filter-chip active">All</div>
@@ -348,7 +348,7 @@
     </div>
 
     <!-- Features & Traits -->
-    <div id="section-features" class="polyport-card">
+    <div id="section-features" class="polyport-card tab-section" data-tab="features" style="display:none;">
       <h2 class="section-title">Features & Traits</h2>
       <div class="chips-container">
         <div class="filter-chip active">All</div>
@@ -362,7 +362,7 @@
     </div>
 
     <!-- Proficiencies & Training -->
-    <div id="section-proficiencies" class="polyport-card">
+    <div id="section-proficiencies" class="polyport-card tab-section" data-tab="proficiencies" style="display:none;">
       <h2 class="section-title">Proficiencies & Training</h2>
       <div class="text-sm space-y-2">
          <div><span class="font-bold text-text-secondary">Armor:</span> <span class="text-text-tertiary">Light Armor, Medium Armor, Shields</span></div>
@@ -372,13 +372,13 @@
     </div>
 
     <!-- Background -->
-    <div id="section-background" class="polyport-card">
+    <div id="section-background" class="polyport-card tab-section" data-tab="background" style="display:none;">
       <h2 class="section-title">Background</h2>
       <div class="text-sm text-text-tertiary">Acolyte (Background details imported from DDB)</div>
     </div>
 
     <!-- Notes (P9 Fixed) -->
-    <div id="section-notes" class="polyport-card">
+    <div id="section-notes" class="polyport-card tab-section" data-tab="notes" style="display:none;">
       <h2 class="section-title">Notes</h2>
       <textarea id="charNotes" class="notes-textarea" placeholder="Add character biography or notes here..."></textarea>
       <button class="btn w-full mt-3 font-bold uppercase tracking-wider" style="background: var(--bg-tertiary); border: 1px solid var(--primary); color: var(--primary);" id="saveNotesBtn">Save Notes</button>
@@ -394,49 +394,44 @@
 
   <!-- 7. Floating Action Buttons (P11 Fixed Hierarchy) -->
   <div class="fab-container">
-    <div class="fab-item fab-secondary" onclick="VTT.Notification.info('Dice roller overlay not yet implemented.')" title="Dice Roller">🎲</div>
+    <div class="fab-item fab-secondary" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll Top">▲</div>
     <div class="fab-item fab-primary" id="fabMenuBtn" title="Quick Nav">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
     </div>
-    <div class="fab-item fab-secondary" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll Top">▲</div>
   </div>
 
   <!-- 5. Quick-Navigation Menu (Overlay) -->
   <div class="nav-overlay" id="navOverlay">
     <div class="nav-grid">
-      <div class="nav-btn" onclick="scrollToSection('section-abilities')">
+      <div class="nav-btn active-tab-btn" data-target="abilities" onclick="switchTab('abilities')">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-8M6 20V4M18 20v-4"/></svg>
         <span>Abilities</span>
       </div>
-      <div class="nav-btn" onclick="scrollToSection('section-saves')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span>Saves</span>
-      </div>
-      <div class="nav-btn" onclick="scrollToSection('section-skills')">
+      <div class="nav-btn" data-target="skills" onclick="switchTab('skills')">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
         <span>Skills</span>
       </div>
-      <div class="nav-btn" onclick="scrollToSection('section-actions')">
+      <div class="nav-btn" data-target="actions" onclick="switchTab('actions')">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2L2 14.5 9.5 22 22 9.5 14.5 2zM2 22l5.5-5.5"/></svg>
         <span>Actions</span>
       </div>
-      <div class="nav-btn" onclick="scrollToSection('section-inventory')">
+      <div class="nav-btn" data-target="inventory" onclick="switchTab('inventory')">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M8 6V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2"/></svg>
         <span>Inventory</span>
       </div>
-      <div class="nav-btn" onclick="scrollToSection('section-features')">
+      <div class="nav-btn" data-target="features" onclick="switchTab('features')">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         <span>Features</span>
       </div>
-      <div class="nav-btn" onclick="scrollToSection('section-proficiencies')">
+      <div class="nav-btn" data-target="proficiencies" onclick="switchTab('proficiencies')">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5 4 2 7-7-4-7 4 2-7-5-4h7z"/></svg>
         <span>Proficiencies</span>
       </div>
-      <div class="nav-btn" onclick="scrollToSection('section-background')">
+      <div class="nav-btn" data-target="background" onclick="switchTab('background')">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         <span>Background</span>
       </div>
-      <div class="nav-btn" onclick="scrollToSection('section-notes')">
+      <div class="nav-btn" data-target="notes" onclick="switchTab('notes')">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
         <span>Notes</span>
       </div>
@@ -455,8 +450,34 @@
       if (e.target === navOverlay) navOverlay.classList.remove('active');
     });
 
-    window.scrollToSection = function(id) {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    window.switchTab = function(tabName) {
+      // 1. Hide all tab sections
+      document.querySelectorAll('.tab-section').forEach(el => {
+        el.style.display = 'none';
+      });
+      // 2. Show the matching tab sections
+      document.querySelectorAll('.tab-section[data-tab="'+tabName+'"]').forEach(el => {
+        el.style.display = 'block';
+      });
+      // 3. Update active state on nav buttons
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if(btn.getAttribute('data-target') === tabName) {
+          btn.classList.add('active-tab-btn');
+          btn.style.borderColor = 'var(--primary)';
+          btn.style.color = 'var(--primary)';
+        } else {
+          btn.classList.remove('active-tab-btn');
+          btn.style.borderColor = 'var(--border-primary)';
+          btn.style.color = 'var(--text-primary)';
+        }
+      });
+      // 4. Scroll to top of the tab container smoothly
+      const anchor = document.getElementById('section-'+tabName) || document.getElementById('section-abilities');
+      if (anchor) {
+        const topOffset = anchor.getBoundingClientRect().top + window.scrollY - 20;
+        window.scrollTo({ top: topOffset, behavior: 'smooth' });
+      }
+      
       navOverlay.classList.remove('active');
     };
 
