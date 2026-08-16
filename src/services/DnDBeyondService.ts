@@ -108,7 +108,7 @@ export class DnDBeyondService {
       damageImmunities: modifiers.filter((item) => item.type === 'immunity').map((item) => title(item.subType)), damageResistances: modifiers.filter((item) => item.type === 'resistance').map((item) => title(item.subType)), damageVulnerabilities: modifiers.filter((item) => item.type === 'vulnerability').map((item) => title(item.subType)), conditions: [],
       proficiencies: { saves: [...new Set(saves)], skills: [...new Set(skills)] }, proficiencyDetails, resources,
       hitDice: { current: Math.max(0, hitDiceMax - usedHitDice), max: hitDiceMax, dieType }, equipment, spells: this.normalizeSpells(data, abilityModifiers, proficiencyBonus, getSpellcastingAbility(classesData)),
-      features: this.normalizeFeatures(data, classesData), traits: this.normalizeFeatures(data, classesData), background: { name: text(backgroundDefinition.name, text(background.name)), description: text(backgroundDefinition.shortDescription ?? backgroundDefinition.description, text(background.description)) },
+      features: this.normalizeFeatures(data, classesData, resources), traits: this.normalizeFeatures(data, classesData, resources), background: { name: text(backgroundDefinition.name, text(background.name)), description: text(backgroundDefinition.shortDescription ?? backgroundDefinition.description, text(background.description)) },
       personalityTraits: splitText(dict(data.traits).personalityTraits), ideals: splitText(dict(data.traits).ideals), bonds: splitText(dict(data.traits).bonds), flaws: splitText(dict(data.traits).flaws),
     };
   }
@@ -143,10 +143,10 @@ export class DnDBeyondService {
     });
   }
 
-  private normalizeFeatures(data: Dict, classes: Dict[]): Feature[] {
+  private normalizeFeatures(data: Dict, classes: Dict[], resources: Resource[]): Feature[] {
     const classEntries = classes.flatMap((item) => array(item.classFeatures ?? dict(item.definition).classFeatures).map((raw) => ({ raw, source: text(dict(item.definition).name), category: 'Class Features' })));
     const race = dict(data.race);
     const entries = classEntries.concat(array(race.racialTraits).map((raw) => ({ raw, source: text(race.fullName), category: 'Species Traits' }))).concat(array(data.feats).map((raw) => ({ raw, source: 'Feat', category: 'Feats' })));
-    return entries.map(({ raw, source, category }) => { const item = dict(raw); const definition = dict(item.definition ?? item); return { name: text(definition.name, 'Unknown Feature'), description: stripHtml(text(definition.description)), category, source, usesResourceName: toResource(item)?.name }; });
+    return entries.map(({ raw, source, category }) => { const item = dict(raw); const definition = dict(item.definition ?? item); const name = text(definition.name, 'Unknown Feature'); const matchedResource = resources.find((r) => r.name === name); return { name, description: stripHtml(text(definition.description)), category, source, usesResourceName: matchedResource?.name }; });
   }
 }

@@ -73,6 +73,33 @@ describe('typed character routes', () => {
     expect(forbidden.status).toBe(404);
   });
 
+  it('preserves enrichment fields when updating equipment and handles new character fields', async () => {
+    const db = createDatabase();
+    const app = createApp(db);
+    await request(app).post('/character/import').set('Authorization', `Bearer ${token()}`).send({ characterId: '123' });
+
+    const charWithEquipment = { ...character, equipment: [{ id: '99', name: 'Sword', quantity: 1, weight: 3, equipped: false, category: 'Equipment', isWeapon: true, attackBonus: 5, damage: '1d8+3', range: '5 ft.' }] };
+    db.rows.set('123', { id: '123', user_id: 7, character_data: JSON.stringify(charWithEquipment) });
+
+    const updated = await request(app)
+      .put('/character/123')
+      .set('Authorization', `Bearer ${token()}`)
+      .send({
+        equipment: [{ id: '99', name: 'Sword', quantity: 1, weight: 3, equipped: true, category: 'Equipment', isWeapon: true, attackBonus: 5, damage: '1d8+3', range: '5 ft.' }],
+        currencies: { gp: 50 },
+        inspiration: true,
+        resources: [{ name: 'Rage', current: 1, max: 2, resetOn: 'long rest' }],
+        notes: 'Test notes'
+      });
+
+    expect(updated.status).toBe(200);
+    expect(updated.body.equipment[0]).toMatchObject({ id: '99', equipped: true, category: 'Equipment', isWeapon: true, attackBonus: 5, damage: '1d8+3' });
+    expect(updated.body.currencies).toMatchObject({ gp: 50, cp: 0 });
+    expect(updated.body.inspiration).toBe(true);
+    expect(updated.body.resources[0]).toMatchObject({ name: 'Rage', current: 1, max: 2 });
+    expect(updated.body.notes).toBe('Test notes');
+  });
+
   it('requires authentication for import and supports deletion', async () => {
     const db = createDatabase();
     const app = createApp(db);

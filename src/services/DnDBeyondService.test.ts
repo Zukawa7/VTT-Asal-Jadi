@@ -88,6 +88,7 @@ describe('DnDBeyondService', () => {
     expect(character.equipment?.[0]).toMatchObject({ category: 'Equipment', isWeapon: true, damage: '1d4+3', range: '20/60 ft.' });
     expect(character.spells?.[0]).toMatchObject({ name: 'Fire Bolt', level: 0, prepared: true, saveDC: 12 });
     expect(character.features?.map((feature) => feature.name)).toEqual(['Arcane Recovery', 'Darkvision']);
+    expect(character.features?.find((f) => f.name === 'Arcane Recovery')?.usesResourceName).toBe('Arcane Recovery');
     expect(character.background).toEqual({ name: 'Sage', description: 'Researcher' });
     expect(character.personalityTraits).toEqual(['Curious', 'Quiet']);
   });

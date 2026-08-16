@@ -1,3 +1,4 @@
+
 export type AbilityKey = 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha';
 
 export interface AbilityScores {
@@ -72,6 +73,7 @@ export interface Character {
   bonds?: string[];
   flaws?: string[];
   spellSlots?: SpellSlots;
+  notes?: string;
 }
 
 export interface DndBeyondCharacterResponse { success: boolean; data?: Record<string, unknown>; message?: string; }

@@ -1,4 +1,6 @@
+
 import { Router } from 'express';
+
 import type { Character } from '../types/character.js';
 import type { DatabaseService } from '../services/DatabaseService.js';
 import { DnDBeyondService } from '../services/DnDBeyondService.js';
@@ -58,9 +60,20 @@ export function createCharacterRouter(db: DatabaseService, jwtSecret: string, dd
       if (Array.isArray(req.body?.equipment)) {
         if (req.body.equipment.length > 200) { res.status(400).json({ error: 'Equipment limit exceeded' }); return; }
         character.equipment = req.body.equipment.map((item: Record<string, unknown>) => ({
-          id: String(item.id ?? ''), name: String(item.name ?? 'Unknown Item'),
-          quantity: Math.max(1, Number(item.quantity ?? 1)), weight: Math.max(0, Number(item.weight ?? 0)),
-          equipped: Boolean(item.equipped), attuned: Boolean(item.attuned), imageUrl: typeof item.imageUrl === 'string' ? item.imageUrl : undefined,
+          id: String(item.id ?? ''),
+          name: String(item.name ?? 'Unknown Item'),
+          quantity: Math.max(1, Number(item.quantity ?? 1)),
+          weight: Math.max(0, Number(item.weight ?? 0)),
+          equipped: Boolean(item.equipped),
+          attuned: Boolean(item.attuned),
+          imageUrl: typeof item.imageUrl === 'string' ? item.imageUrl : undefined,
+          category: item.category === 'Equipment' || item.category === 'Backpack' ? item.category : undefined,
+          isWeapon: Boolean(item.isWeapon),
+          type: typeof item.type === 'string' ? item.type.slice(0, 100) : undefined,
+          attackBonus: typeof item.attackBonus === 'number' ? item.attackBonus : undefined,
+          damage: typeof item.damage === 'string' ? item.damage.slice(0, 50) : undefined,
+          range: typeof item.range === 'string' ? item.range.slice(0, 50) : undefined,
+          description: typeof item.description === 'string' ? item.description.slice(0, 2000) : undefined,
         })).filter((item: { id: string }) => item.id.length > 0);
       }
       if (req.body?.spellSlots && typeof req.body.spellSlots === 'object') {
@@ -73,6 +86,37 @@ export function createCharacterRouter(db: DatabaseService, jwtSecret: string, dd
       if (Array.isArray(req.body?.conditions)) {
         if (req.body.conditions.length > 20) { res.status(400).json({ error: 'Condition limit exceeded' }); return; }
         character.conditions = req.body.conditions.filter((condition: unknown): condition is string => typeof condition === 'string' && condition.length <= 50).slice(0, 20);
+      }
+
+      if (req.body?.currencies && typeof req.body.currencies === 'object') {
+        const c = req.body.currencies as Record<string, unknown>;
+        character.currencies = {
+          cp: Math.max(0, Number(c.cp ?? character.currencies?.cp ?? 0)),
+          sp: Math.max(0, Number(c.sp ?? character.currencies?.sp ?? 0)),
+          ep: Math.max(0, Number(c.ep ?? character.currencies?.ep ?? 0)),
+          gp: Math.max(0, Number(c.gp ?? character.currencies?.gp ?? 0)),
+          pp: Math.max(0, Number(c.pp ?? character.currencies?.pp ?? 0)),
+        };
+      }
+
+      if (typeof req.body?.inspiration === 'boolean') {
+        character.inspiration = req.body.inspiration;
+      }
+
+      if (Array.isArray(req.body?.resources)) {
+        if (req.body.resources.length > 50) { res.status(400).json({ error: 'Resource limit exceeded' }); return; }
+        character.resources = req.body.resources
+          .map((item: Record<string, unknown>) => ({
+            name: String(item.name ?? '').slice(0, 100),
+            current: Math.max(0, Number(item.current ?? 0)),
+            max: Math.max(0, Number(item.max ?? 0)),
+            resetOn: typeof item.resetOn === 'string' ? item.resetOn.slice(0, 50) : undefined,
+          }))
+          .filter((item: { name: string }) => item.name.length > 0);
+      }
+
+      if (typeof req.body?.notes === 'string') {
+        character.notes = req.body.notes.slice(0, 10000);
       }
 
       await db.run('UPDATE character_sheets SET character_data = ?, last_synced = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?', [JSON.stringify(character), req.params.id, userId]);
