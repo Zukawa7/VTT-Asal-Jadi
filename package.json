@@ -12,7 +12,8 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "npm rebuild sqlite3 --build-from-source"
   },
   "repository": {
     "type": "git",
