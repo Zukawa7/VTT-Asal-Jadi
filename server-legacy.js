@@ -517,8 +517,13 @@ io.on('connection', (socket) => {
 });
 
 export { app, io, httpServer, setRollPersistence, setRealtimeManager };
+export default app;
 
 const PORT = process.env.PORT || 3000;
-httpServer.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+if (!process.env.VERCEL) {
+  httpServer.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+} else {
+  console.log('Vercel runtime detected; skipping local listen() to avoid serverless startup conflicts.');
+}

@@ -4,12 +4,33 @@ import path from 'node:path';
 
 export interface DatabaseRunResult { lastID: number; changes: number; }
 
+function resolveWritableDatabasePath(databasePath: string): string {
+  try {
+    fs.mkdirSync(path.dirname(databasePath), { recursive: true });
+    return databasePath;
+  } catch (error) {
+    const fallback = path.join('/tmp', 'vtt.db');
+    if (databasePath !== fallback) {
+      try {
+        fs.mkdirSync(path.dirname(fallback), { recursive: true });
+        return fallback;
+      } catch {
+        return fallback;
+      }
+    }
+    if (error instanceof Error && (error as NodeJS.ErrnoException).code === 'EROFS') {
+      return fallback;
+    }
+    throw error;
+  }
+}
+
 export class DatabaseService {
   private readonly db: sqlite3.Database;
 
   constructor(databasePath: string) {
-    fs.mkdirSync(path.dirname(databasePath), { recursive: true });
-    this.db = new sqlite3.Database(databasePath);
+    const safePath = resolveWritableDatabasePath(databasePath);
+    this.db = new sqlite3.Database(safePath);
   }
 
   async migrate(): Promise<void> {
