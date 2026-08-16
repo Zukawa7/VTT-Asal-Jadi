@@ -291,6 +291,9 @@
       </div>
     </div>
 
+    <!-- 5. Class Resources -->
+    <div id="section-resources" class="polyport-card" style="display:none;"></div>
+
     <!-- 6. Section-Section Konten Utama (Tab Content) -->
     
     <!-- Group: Abilities, Saves, Senses -->
@@ -339,6 +342,13 @@
     <!-- Inventory -->
     <div id="section-inventory" class="polyport-card tab-section" data-tab="inventory" style="display:none;">
       <h2 class="section-title">Inventory</h2>
+      <div class="w-full bg-bg-primary rounded h-2 mb-2 border border-border-primary overflow-hidden">
+         <div id="weight-bar" class="h-full bg-primary" style="width:0%; transition: width 0.3s, background 0.3s;"></div>
+      </div>
+      <div id="weight-text" class="text-xs text-text-tertiary font-bold mb-3"></div>
+      
+      <input type="text" id="inventorySearch" class="w-full bg-bg-primary border border-border-primary text-text-primary p-2 rounded mb-3 text-sm" placeholder="Search items...">
+      
       <div class="chips-container" id="inventory-chips">
         <div class="filter-chip active">All</div>
         <div class="filter-chip">Equipment</div>
@@ -603,7 +613,15 @@
       // Top Stats
       document.getElementById('prof').textContent = signed(profBonus);
       document.getElementById('initiative').textContent = signed(c.modifiers.dex);
-      document.getElementById('armor').textContent = 10 + c.modifiers.dex; // simplified
+      
+      // Armor Class logic (c.ac fallback)
+      let ac = c.ac;
+      if (ac === undefined) {
+         const armorItem = (c.equipment || []).find(i => i.type === 'armor' && i.equipped);
+         const shieldItem = (c.equipment || []).find(i => i.type === 'shield' && i.equipped);
+         ac = (armorItem ? (armorItem.ac || 10) : 10) + c.modifiers.dex + (shieldItem ? 2 : 0);
+      }
+      document.getElementById('armor').textContent = ac;
       document.getElementById('speed').textContent = (c.speed || 30);
       
       const spellDC = 8 + profBonus + Math.max(c.modifiers.int, c.modifiers.wis, c.modifiers.cha);
@@ -634,6 +652,22 @@
             new VTT.Modal({ title: `Edit ${type.toUpperCase()}`, content, buttons: [] }).open();
           };
         });
+      }
+
+      // Class Resources
+      const sectionRes = document.getElementById('section-resources');
+      if (c.resources && c.resources.length > 0) {
+        sectionRes.style.display = 'block';
+        sectionRes.innerHTML = '<h2 class="section-title">Resources</h2><div class="space-y-3">' + c.resources.map((r, i) => `
+          <div class="flex justify-between items-center bg-bg-tertiary p-2 rounded border border-border-primary">
+             <div class="text-sm font-bold text-text-secondary">${r.name} <span class="text-[10px] text-text-disabled font-normal ml-1">(${r.resetOn || 'Rest'})</span></div>
+             <div class="flex gap-1 flex-wrap justify-end" style="max-width: 50%;">
+               ${Array.from({length: Math.min(20, r.max || 0)}).map((_, j) => `<div class="prof-dot cursor-pointer ${j < (r.current||0) ? 'active' : ''}" onclick="consumeResource(${i}, ${j})" style="margin-right:2px; width:10px; height:10px;"></div>`).join('')}
+             </div>
+          </div>
+        `).join('') + '</div>';
+      } else {
+        sectionRes.style.display = 'none';
       }
 
       // Abilities
@@ -763,30 +797,71 @@
       }
     }
 
+    // Resources Renderer & Actions
+    window.consumeResource = function(resIndex, dotIndex) {
+      if (!character || !localStorage.getItem('token')) return;
+      const r = character.resources[resIndex];
+      const newCurrent = (r.current === dotIndex + 1) ? dotIndex : dotIndex + 1;
+      const newRes = [...character.resources];
+      newRes[resIndex] = { ...r, current: newCurrent };
+      updateSheet({ resources: newRes });
+    };
+
     // Attacks Renderer
     function renderAttacks(list) {
       if (!list || list.length === 0) {
         document.getElementById('attacksContainer').innerHTML = '<div class="text-text-disabled italic">No weapons or spells found.</div>';
         return;
       }
-      document.getElementById('attacksContainer').innerHTML = list.map(atk => {
+      
+      const spells = list.filter(a => a.level !== undefined);
+      const weapons = list.filter(a => a.level === undefined);
+      
+      let html = '';
+      if(weapons.length) html += weapons.map(renderAtkRow).join('');
+      
+      if(spells.length) {
+         const levels = [...new Set(spells.map(s => s.level))].sort((a,b)=>a-b);
+         levels.forEach(lv => {
+           html += `<div class="text-[10px] tracking-wider font-bold text-text-tertiary uppercase mt-4 mb-2 border-b border-border-primary pb-1">${lv===0?'Cantrips':'Level '+lv}</div>`;
+           html += spells.filter(s => s.level === lv).map(renderAtkRow).join('');
+         });
+      }
+      document.getElementById('attacksContainer').innerHTML = html;
+    }
+
+    function renderAtkRow(atk) {
         const atkBonus = signed(atk.attackBonus ?? 0);
         const dmg = atk.damage || '—';
         const range = atk.range || '5 ft.';
+        const prepIcon = atk.level !== undefined ? (atk.prepared ? '<span class="text-primary mr-2" title="Prepared">★</span>' : '<span class="text-text-disabled mr-2" title="Not Prepared">☆</span>') : '';
+        const op = (atk.level !== undefined && !atk.prepared && atk.level > 0) ? 'opacity-50' : '';
         return `
-          <div class="flex items-center justify-between py-2 border-b border-border-primary last:border-0 cursor-pointer hover:bg-bg-hover rounded px-1"
-               onclick="sendRoll('1d20${atkBonus}', '${atk.name} Attack')">
-            <div class="flex-1 min-w-0">
-              <div class="font-bold text-text-secondary text-sm truncate">${atk.name}</div>
-              <div class="text-[10px] text-text-disabled">${atk.type || 'Weapon'} · ${range}</div>
+          <div class="flex items-center justify-between py-2 border-b border-border-primary last:border-0 hover:bg-bg-hover rounded px-1 ${op}">
+            <div class="flex-1 min-w-0 flex items-center">
+              ${atk.level !== undefined ? `<div class="cursor-pointer" onclick="event.stopPropagation(); toggleSpellPrep('${atk.name}')">${prepIcon}</div>` : ''}
+              <div>
+                <div class="font-bold text-text-secondary text-sm truncate">${atk.name}</div>
+                <div class="text-[10px] text-text-disabled">${atk.type || (atk.level !== undefined ? 'Spell' : 'Weapon')} · ${range}</div>
+              </div>
             </div>
             <div class="flex gap-2 flex-shrink-0 ml-2">
-              <span class="border border-border-primary bg-bg-primary px-2 py-1 rounded text-xs font-bold text-text-secondary">${atkBonus}</span>
-              <span class="border border-border-primary bg-bg-primary px-2 py-1 rounded text-xs text-text-tertiary">${dmg}</span>
+              <span class="border border-border-primary bg-bg-primary px-2 py-1 rounded text-xs font-bold text-text-secondary cursor-pointer hover:border-primary" onclick="event.stopPropagation(); sendRoll('1d20${atkBonus}', '${atk.name} Attack')">${atkBonus}</span>
+              <span class="border border-border-primary bg-bg-primary px-2 py-1 rounded text-xs text-text-tertiary cursor-pointer hover:border-primary" onclick="event.stopPropagation(); rollDamage('${dmg}', '${atk.name}')">${dmg}</span>
             </div>
           </div>`;
-      }).join('');
     }
+
+    window.rollDamage = function(dmg, name) {
+      const cleanDmg = dmg.split(' ')[0]; // e.g. "1d8+3 slashing" -> "1d8+3"
+      sendRoll(cleanDmg, name + ' Damage');
+    };
+
+    window.toggleSpellPrep = function(name) {
+      if(!character || !localStorage.getItem('token')) return;
+      const newSpells = (character.spells || []).map(s => s.name === name ? {...s, prepared: !s.prepared} : s);
+      updateSheet({ spells: newSpells });
+    };
 
     document.querySelectorAll('#actions-chips .filter-chip').forEach(chip => {
       chip.addEventListener('click', () => {
@@ -800,34 +875,70 @@
 
     // Equipment Renderer
     function renderEquipment(items) {
-      const totalWeight = items.reduce((sum,item)=>sum+Number(item.weight||0)*Number(item.quantity||1),0);
-      const capacity = Number(character.stats.str||10)*15;
+      const allItemsWeight = window._allItems.reduce((sum,item)=>sum+Number(item.weight||0)*Number(item.quantity||1),0);
+      const capacity = Number(character?.stats?.str||10)*15;
       
+      document.getElementById('weight-text').textContent = `TOTAL WEIGHT: ${allItemsWeight.toFixed(1)} / ${capacity} lb`;
+      const wPct = Math.min(100, (allItemsWeight/capacity)*100);
+      const wBar = document.getElementById('weight-bar');
+      wBar.style.width = wPct + '%';
+      if(wPct >= 100) wBar.style.background = 'var(--danger, #a53b3b)';
+      else if(wPct > 75) wBar.style.background = 'var(--primary-dark, #b7791f)';
+      else wBar.style.background = 'var(--primary, #d4a544)';
+
       document.getElementById('equipment').innerHTML = (items.length ?
-        `<div class="mb-3 text-xs text-text-tertiary font-bold">TOTAL WEIGHT: ${totalWeight.toFixed(1)} / ${capacity} lb</div>
-         <div class="flex justify-between items-center pb-1 mb-1 border-b border-border-primary text-[10px] text-text-disabled uppercase font-bold">
+         `<div class="flex justify-between items-center pb-1 mb-1 border-b border-border-primary text-[10px] text-text-disabled uppercase font-bold mt-2">
            <div style="flex:1;">Name</div>
            <div style="width:40px; text-align:center;">Qty</div>
            <div style="width:60px; text-align:right;">Weight</div>
          </div>` +
         items.map((item,index) =>
-          `<div class="flex justify-between items-center py-2 border-b border-border-primary last:border-b-0 text-sm w-full">
-             <div style="flex:1; text-align:left; font-weight:bold; color:var(--text-secondary); word-break:break-word; padding-right:8px;">${item.name}</div>
+          `<div class="flex justify-between items-center py-2 border-b border-border-primary last:border-b-0 text-sm w-full cursor-pointer hover:bg-bg-hover rounded" onclick="openItemModal(${window._allItems.indexOf(item)})">
+             <div style="flex:1; text-align:left; font-weight:bold; color:var(--text-secondary); word-break:break-word; padding-right:8px;">${item.equipped ? '<span class="text-primary font-bold mr-1">E</span> ' : ''}${item.name}</div>
              <div style="width:40px; text-align:center; color:var(--text-primary); font-size:0.8rem;">${item.quantity}</div>
              <div style="width:60px; text-align:right; color:var(--text-tertiary); font-size:0.75rem;">${(Number(item.weight||0)*Number(item.quantity||1)).toFixed(1)} lb</div>
            </div>`
-        ).join('') : '<div class="text-text-disabled italic text-sm">No equipment found.</div>');
+        ).join('') : '<div class="text-text-disabled italic text-sm mt-2">No equipment found.</div>');
     }
+
+    document.getElementById('inventorySearch')?.addEventListener('input', () => {
+      const term = document.getElementById('inventorySearch').value.toLowerCase();
+      const activeChip = document.querySelector('#inventory-chips .filter-chip.active')?.textContent.trim().toLowerCase() || 'all';
+      const filtered = window._allItems.filter(item => {
+        const matchName = item.name.toLowerCase().includes(term);
+        const matchChip = activeChip === 'all' || (item.category || '').toLowerCase() === activeChip;
+        return matchName && matchChip;
+      });
+      renderEquipment(filtered);
+    });
 
     document.querySelectorAll('#inventory-chips .filter-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         document.querySelectorAll('#inventory-chips .filter-chip').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
-        const filter = chip.textContent.trim().toLowerCase();
-        const filtered = filter === 'all' ? window._allItems : window._allItems.filter(item => (item.category || '').toLowerCase() === filter);
-        renderEquipment(filtered);
+        const event = new Event('input');
+        document.getElementById('inventorySearch')?.dispatchEvent(event);
       });
     });
+
+    window.openItemModal = function(index) {
+      if(!character) return;
+      const item = window._allItems[index];
+      const canEdit = Boolean(localStorage.getItem('token'));
+      const content = `
+        <div class="text-sm text-text-tertiary mb-4 leading-relaxed">${item.description || 'No description available.'}</div>
+        ${canEdit ? `<button class="btn w-full font-bold border border-border-primary text-text-secondary py-2 rounded uppercase tracking-wider hover:bg-bg-hover" onclick="toggleEquip(${index})">${item.equipped ? 'Unequip Item' : 'Equip Item'}</button>` : ''}
+      `;
+      new VTT.Modal({ title: item.name, content, buttons: [] }).open();
+    };
+
+    window.toggleEquip = function(index) {
+      if(!character) return;
+      const newEq = [...character.equipment];
+      newEq[index] = { ...newEq[index], equipped: !newEq[index].equipped };
+      updateSheet({ equipment: newEq });
+      document.querySelector('.vtt-modal-close')?.click();
+    };
 
     // Features Renderer
     function renderFeatures(list) {
@@ -836,14 +947,44 @@
         el.innerHTML = '<div class="text-text-disabled italic">Features imported from D&D Beyond will appear here.</div>';
         return;
       }
-      el.innerHTML = list.map(f => `
+      el.innerHTML = list.map(f => {
+        const useBtn = f.uses ? `<button class="btn btn-ghost text-[10px] px-2 py-1 border border-border-primary text-text-secondary rounded ml-2 flex-shrink-0" onclick="useFeature('${f.name}')">Use (${f.uses.current}/${f.uses.max})</button>` : '';
+        return `
         <div class="border-b border-border-primary pb-3 last:border-0">
-          <div class="font-bold text-text-secondary text-sm">${f.name}</div>
-          ${f.source ? `<div class="text-[10px] text-text-disabled mb-1">${f.source}</div>` : ''}
+          <div class="flex justify-between items-start">
+             <div class="flex-1 min-w-0">
+               <div class="font-bold text-text-secondary text-sm">${f.name}</div>
+               ${f.source ? `<div class="text-[10px] text-text-disabled mb-1">${f.source}</div>` : ''}
+             </div>
+             ${useBtn}
+          </div>
           <div class="text-xs text-text-tertiary leading-relaxed mt-1">${f.description || ''}</div>
-        </div>`
-      ).join('');
+        </div>`;
+      }).join('');
     }
+
+    window.useFeature = function(name) {
+      if(!character || !localStorage.getItem('token')) return;
+      
+      let isFeature = false;
+      let targetArr = character.features || [];
+      let foundIdx = targetArr.findIndex(f => f.name === name);
+      if(foundIdx === -1) {
+        targetArr = character.traits || [];
+        foundIdx = targetArr.findIndex(f => f.name === name);
+      } else {
+        isFeature = true;
+      }
+
+      if(foundIdx !== -1) {
+        const feat = targetArr[foundIdx];
+        if(!feat.uses || feat.uses.current <= 0) { VTT.Notification?.error('No uses left!'); return; }
+        const updatedArr = [...targetArr];
+        updatedArr[foundIdx] = { ...feat, uses: { ...feat.uses, current: feat.uses.current - 1 } };
+        if(isFeature) updateSheet({ features: updatedArr });
+        else updateSheet({ traits: updatedArr });
+      }
+    };
 
     document.querySelectorAll('#features-chips .filter-chip').forEach(chip => {
       chip.addEventListener('click', () => {
@@ -901,8 +1042,8 @@
             <span class="text-text-primary">${cond}</span>
           </label>`).join('') +
         `</div>
-        <button class="btn w-full mt-4 font-bold" style="border:1px solid var(--primary); color:var(--primary);"
-          onclick="saveConditions()">Apply</button>`;
+        <button class="btn w-full mt-4 font-bold uppercase tracking-wider" style="border:1px solid var(--primary); color:var(--primary);"
+          onclick="saveConditions()">Apply Conditions</button>`;
       new VTT.Modal({ title: 'Conditions', content, buttons: [] }).open();
     }
 
@@ -917,35 +1058,75 @@
       const diceTypes = ['d4','d6','d8','d10','d12','d20','d100'];
       const content = `
         <div class="grid grid-cols-3 md:grid-cols-4 gap-2 mb-4">
-          ${diceTypes.map(d => `<button class="btn btn-ghost border border-border-primary rounded py-2 font-bold font-serif" onclick="sendRoll('1${d}', '${d} Roll'); document.querySelector('.vtt-modal-close')?.click();">${d}</button>`).join('')}
+          ${diceTypes.map(d => `<button class="btn btn-ghost border border-border-primary rounded py-2 font-bold font-serif text-lg text-text-secondary" onclick="sendRoll('1${d}', '${d} Roll'); document.querySelector('.vtt-modal-close')?.click();">${d}</button>`).join('')}
         </div>
         <div class="flex gap-2">
-          <input type="text" id="customRollFormula" class="w-full bg-bg-primary border border-border-primary text-text-primary p-2 rounded" placeholder="e.g. 2d6+4">
+          <input type="text" id="customRollFormula" class="w-full bg-bg-primary border border-border-primary text-text-primary p-2 rounded font-mono" placeholder="e.g. 2d6+4">
           <button class="btn btn-primary px-4 font-bold" onclick="const f=document.getElementById('customRollFormula').value; if(f) { sendRoll(f, 'Custom Roll'); document.querySelector('.vtt-modal-close')?.click(); }">Roll</button>
         </div>`;
       new VTT.Modal({ title: 'Dice Roller', content, buttons: [] }).open();
     };
 
-    // HP Modal Logic
+    // HP Modal Logic & Rest
     window.openHpModal = function() {
       if(!character) return;
+      const hd = character.hitDice || { current: 1, max: 1, type: 'd10' };
+      const canEdit = Boolean(localStorage.getItem('token'));
       const content = `
         <div class="flex flex-col gap-4">
+          <div class="flex justify-between items-center bg-bg-tertiary p-2 rounded border border-border-primary">
+            <div class="text-xs font-bold text-text-secondary">Hit Dice: <span class="text-primary ml-1">${hd.current}/${hd.max} ${hd.type}</span></div>
+            ${canEdit ? `<button class="btn btn-ghost text-[10px] font-bold border border-border-primary rounded px-3 py-1 text-text-secondary" onclick="spendHitDie()">SPEND</button>` : ''}
+          </div>
+          ${canEdit ? `
+          <div class="flex gap-2">
+            <button class="flex-1 bg-bg-tertiary border border-border-primary text-text-secondary py-2 rounded text-[10px] font-bold uppercase tracking-wider hover:border-primary" onclick="shortRest()">Short Rest</button>
+            <button class="flex-1 bg-bg-tertiary border border-border-primary text-text-secondary py-2 rounded text-[10px] font-bold uppercase tracking-wider hover:border-primary" onclick="longRest()">Long Rest</button>
+          </div>
+          <hr class="border-border-primary my-1">
           <div class="flex gap-4">
             <div class="flex-1">
-              <label class="text-xs font-bold text-text-tertiary block mb-1">Amount</label>
-              <input type="number" id="hpAmount" class="w-full bg-bg-primary border border-border-primary text-text-primary text-center text-lg p-2 rounded" value="1" min="1">
+              <label class="text-xs font-bold text-text-tertiary block mb-2 uppercase tracking-wider">Amount</label>
+              <input type="number" id="hpAmount" class="w-full bg-bg-primary border border-border-primary text-text-primary text-center text-xl font-serif font-bold p-3 rounded focus:border-primary" value="1" min="1">
             </div>
           </div>
           <div class="flex gap-2 mt-2">
-            <button class="flex-1 bg-danger text-white py-2 rounded font-bold" onclick="applyHp(-1)">Damage</button>
-            <button class="flex-1 bg-success text-white py-2 rounded font-bold" onclick="applyHp(1)">Heal</button>
-            <button class="flex-1 bg-info text-white py-2 rounded font-bold" onclick="applyTempHp()">Temp HP</button>
+            <button class="flex-1 bg-danger text-white py-3 rounded font-bold uppercase text-xs tracking-wider" onclick="applyHp(-1)">Damage</button>
+            <button class="flex-1 bg-success text-white py-3 rounded font-bold uppercase text-xs tracking-wider" onclick="applyHp(1)">Heal</button>
+            <button class="flex-1 bg-info text-white py-3 rounded font-bold uppercase text-xs tracking-wider" onclick="applyTempHp()">Temp HP</button>
           </div>
+          ` : '<div class="text-text-disabled text-sm italic">You must be logged in as the owner to manage HP.</div>'}
         </div>
       `;
-      window.hpModal = new VTT.Modal({ title: 'Manage HP', content: content, buttons: [] });
+      window.hpModal = new VTT.Modal({ title: 'Manage HP & Resting', content: content, buttons: [] });
       window.hpModal.open();
+    };
+
+    window.longRest = function() {
+      if(!character || !localStorage.getItem('token')) return;
+      const newRes = (character.resources || []).map(r => ({...r, current: r.max}));
+      const hd = character.hitDice || { current: 1, max: 1, type: 'd10' };
+      const newHd = { ...hd, current: Math.min(hd.max, hd.current + Math.max(1, Math.floor(hd.max / 2))) };
+      updateSheet({ hp: { current: character.hp.max, max: character.hp.max, temp: 0 }, resources: newRes, hitDice: newHd });
+      window.hpModal.close();
+      VTT.Notification?.success('Long rest completed.');
+    };
+
+    window.shortRest = function() {
+      VTT.Notification?.info('For Short Rests, click "SPEND" to roll Hit Dice individually. Abilities resetting on Short Rest are not yet automated.');
+    };
+
+    window.spendHitDie = function() {
+      if(!character || !localStorage.getItem('token')) return;
+      const hd = character.hitDice || { current: 1, max: 1, type: 'd10' };
+      if(hd.current <= 0) { VTT.Notification?.error('No Hit Dice left!'); return; }
+      const roll = Math.floor(Math.random() * parseInt(hd.type.replace('d', ''))) + 1;
+      const heal = roll + character.modifiers.con;
+      const newHp = Math.min(character.hp.max, character.hp.current + heal);
+      updateSheet({ hitDice: { ...hd, current: hd.current - 1 }, hp: { ...character.hp, current: newHp } });
+      VTT.Notification?.success(`Spent 1 HD (${roll} + ${character.modifiers.con}): Healed ${heal} HP`);
+      window.hpModal.close();
+      setTimeout(openHpModal, 300); // re-open to reflect changes
     };
 
     window.applyHp = function(multiplier) {
