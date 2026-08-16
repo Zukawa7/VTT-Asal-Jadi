@@ -33,13 +33,13 @@ document.addEventListener('keydown', (e) => {
       new VTT.Modal({
         title: 'Keyboard Shortcuts',
         content: `
-          <ul style="list-style: none; padding: 0;">
-            <li><kbd>D</kbd> - Roll D20</li>
-            <li><kbd>Shift+D</kbd> - Roll D20 (Advantage)</li>
-            <li><kbd>Ctrl+D</kbd> - Roll D20 (Disadvantage)</li>
-            <li><kbd>1-6</kbd> - Quick roll d4, d6, d8, d10, d12, d20</li>
-            <li><kbd>0</kbd> - Roll d100</li>
-            <li><kbd>C</kbd> - Open Dashboard</li>
+          <ul class="space-y-2 font-mono text-xs text-[#a2a7bd]">
+            <li class="flex justify-between items-center"><span>Roll D20</span><span><kbd class="bg-[#0b0c12] border border-[#26293c] px-1.5 py-0.5 rounded text-white font-bold">D</kbd></span></li>
+            <li class="flex justify-between items-center"><span>Roll D20 (Advantage)</span><span><kbd class="bg-[#0b0c12] border border-[#26293c] px-1.5 py-0.5 rounded text-white font-bold">Shift+D</kbd></span></li>
+            <li class="flex justify-between items-center"><span>Roll D20 (Disadvantage)</span><span><kbd class="bg-[#0b0c12] border border-[#26293c] px-1.5 py-0.5 rounded text-white font-bold">Ctrl+D</kbd></span></li>
+            <li class="flex justify-between items-center"><span>Quick roll d4, d6, d8, d10, d12, d20</span><span><kbd class="bg-[#0b0c12] border border-[#26293c] px-1.5 py-0.5 rounded text-white font-bold">1-6</kbd></span></li>
+            <li class="flex justify-between items-center"><span>Roll d100</span><span><kbd class="bg-[#0b0c12] border border-[#26293c] px-1.5 py-0.5 rounded text-white font-bold">0</kbd></span></li>
+            <li class="flex justify-between items-center"><span>Open Dashboard</span><span><kbd class="bg-[#0b0c12] border border-[#26293c] px-1.5 py-0.5 rounded text-white font-bold">C</kbd></span></li>
           </ul>
         `
       }).open();

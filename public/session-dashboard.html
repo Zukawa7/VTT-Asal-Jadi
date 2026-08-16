@@ -1,82 +1,134 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" class="h-full">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Session Dashboard - VTT Asal Jadi</title>
   
   <script src="/socket.io/socket.io.js"></script>
-
-  <!-- Design System CSS -->
-  <link rel="stylesheet" href="/styles/variables.css">
-  <link rel="stylesheet" href="/styles/animations.css">
-  <link rel="stylesheet" href="/styles/components.css">
-  <link rel="stylesheet" href="/styles/theme.css">
-  <link rel="stylesheet" href="/styles/responsive.css">
+  <link rel="stylesheet" href="/styles/tailwind.css">
 </head>
-<body class="min-h-screen flex flex-col font-sans">
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6 flex flex-col gap-6">
+<body class="bg-[#0a0b10] text-white min-h-screen flex flex-col font-sans">
+  
+  <!-- Header / Navigation -->
+  <nav class="sticky top-0 z-30 border-b border-[#1c1f2d] bg-[#0a0b10]/90 px-6 py-4 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
+      <div class="flex items-center gap-2 text-xs font-bold text-white">
+        <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
+        <span>VTT ASAL JADI</span>
+      </div>
+      <div class="flex items-center gap-5 text-[10px] text-[#a2a7bd]">
+        <span class="hidden sm:inline">Logged in as <span id="headerUsername" class="font-bold text-[#d4a544]">Username</span></span>
+        <a href="/dashboard" class="hover:text-[#d4a544] transition-colors">Dashboard</a>
+        <a href="/vtt" class="hover:text-[#d4a544] transition-colors">Open VTT</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-6 py-10 space-y-6 flex flex-col gap-6">
     
-    <!-- Header -->
-    <header class="card-header flex justify-between items-center flex-wrap gap-4" style="border-bottom: 1px solid var(--border-primary); padding-bottom: var(--space-md);">
-      <div>
-        <p class="text-xs text-primary font-bold uppercase tracking-widest" style="color: var(--gold-500); font-family: var(--font-heading);">VTT Asal Jadi</p>
-        <h1 class="text-3xl font-bold card-title" style="border: none; font-size: var(--font-size-3xl);">Session Telemetry Dashboard</h1>
-      </div>
-      <div class="flex items-center gap-3">
-        <a href="/dashboard" class="btn btn-secondary">Dashboard</a>
-        <a href="/vtt" class="btn btn-accent">Open VTT</a>
-      </div>
-    </header>
+    <!-- Section Title -->
+    <div class="max-w-2xl">
+      <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#d4a544]">02 / Telemetry</p>
+      <h2 class="mb-2 text-3xl font-extrabold text-white" style="font-family: 'EB Garamond', serif;">
+        Session Telemetry Dashboard
+      </h2>
+      <p class="text-sm leading-6 text-[#a2a7bd]">
+        View real-time roll data, export session history to CSV, and analyze dice roll distribution.
+      </p>
+    </div>
 
     <!-- Session Search Bar & Control Panel -->
-    <section class="card card-fantasy">
+    <div class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative">
+      <!-- Corner brackets -->
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
       <div class="flex flex-col sm:flex-row gap-3 items-center">
-        <div class="form-group flex-1 w-full" style="margin-bottom: 0;">
-          <input id="room" value="default-room" placeholder="Enter Session Room ID (e.g. default-room)" class="input form-input">
+        <label class="block flex-1 w-full">
+          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e5c284]">Session Room ID</span>
+          <input id="room" value="default-room" placeholder="Enter Session Room ID (e.g. default-room)" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]" />
+        </label>
+        <div class="flex gap-2 w-full sm:w-auto self-end mt-4 sm:mt-0">
+          <button id="load" class="rounded-md bg-[#d4a544] px-4 py-2.5 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition-colors whitespace-nowrap">Load Session</button>
+          <button id="csv" class="rounded-md border border-[#26293c] bg-[#121420] px-4 py-2.5 text-xs font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition-colors whitespace-nowrap">Export CSV</button>
         </div>
-        <button id="load" class="btn btn-primary">Load Session</button>
-        <button id="csv" class="btn btn-success">Export CSV</button>
       </div>
-      <p id="status" class="text-xs text-secondary mt-3" style="color: var(--text-secondary);"></p>
-    </section>
+      <p id="status" class="text-xs text-[#a2a7bd] mt-3"></p>
+    </div>
 
     <!-- 3 KPI Metric Cards -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="card metric-card kpi-card">
-        <p class="kpi-label">Total Session Rolls</p>
-        <p id="total" class="kpi-value text-primary">0</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="border border-[#26293c] bg-[#121420] rounded-xl p-4 relative">
+        <!-- Corner brackets -->
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+        <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">Total Session Rolls</p>
+        <p id="total" class="mt-2 text-2xl font-bold text-[#d4a544]">0</p>
       </div>
-      <div class="card metric-card kpi-card">
-        <p class="kpi-label">Average Dice Result</p>
-        <p id="average" class="kpi-value" style="color: var(--info, #3b82f6);">0</p>
+      <div class="border border-[#26293c] bg-[#121420] rounded-xl p-4 relative">
+        <!-- Corner brackets -->
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+        <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">Average Dice Result</p>
+        <p id="average" class="mt-2 text-2xl font-bold text-blue-400">0</p>
       </div>
-      <div class="card metric-card kpi-card">
-        <p class="kpi-label">Critical Rolls (Nat 20 / Nat 1)</p>
-        <p id="critical" class="kpi-value" style="color: var(--danger, #ef4444);">0</p>
+      <div class="border border-[#26293c] bg-[#121420] rounded-xl p-4 relative">
+        <!-- Corner brackets -->
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+        <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">Critical Rolls (Nat 20 / Nat 1)</p>
+        <p id="critical" class="mt-2 text-2xl font-bold text-red-500">0</p>
       </div>
-    </section>
+    </div>
 
     <!-- Most Used Formulas Distribution Bar Chart -->
-    <section class="card card-fantasy">
-      <div class="card-header">
-        <h2 class="card-title text-xl">📊 Formula Distribution</h2>
+    <div class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative">
+      <!-- Corner brackets -->
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+      <div class="mb-5 flex items-center justify-between border-b border-[#26293c] pb-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i data-lucide="bar-chart-3" class="h-4 w-4 text-[#d4a544]"></i>
+          <span>Formula Distribution</span>
+        </h3>
       </div>
       <div id="formulas" class="space-y-3 mt-4">
-        <p class="text-tertiary text-sm" style="color: var(--text-tertiary);">No data loaded.</p>
+        <p class="text-[#6b7085] text-xs">No data loaded.</p>
       </div>
-    </section>
+    </div>
 
     <!-- Recent Session Rolls Table -->
-    <section class="card card-fantasy">
-      <div class="card-header flex justify-between items-center">
-        <h2 class="card-title text-xl">📜 Recent Session Rolls</h2>
-        <span class="text-xs" style="color: var(--text-tertiary);">Real-time live telemetry stream</span>
+    <div class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative">
+      <!-- Corner brackets -->
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+      <div class="mb-5 flex items-center justify-between border-b border-[#26293c] pb-3">
+        <h2 class="text-sm font-bold text-white flex items-center gap-2">
+          <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
+          <span>Recent Session Rolls</span>
+        </h2>
+        <span class="text-[10px] text-[#6b7085]">Real-time live telemetry stream</span>
       </div>
       <div class="overflow-x-auto mt-4">
-        <table class="table-fantasy w-full text-left text-sm" style="width: 100%; border-collapse: collapse;">
+        <table class="w-full text-left text-xs border-collapse">
           <thead>
-            <tr style="border-bottom: 1px solid var(--border-primary); color: var(--gold-400); font-family: var(--font-heading); font-size: var(--font-size-xs); text-transform: uppercase;">
+            <tr class="border-b border-[#26293c] text-[#e5c284] font-bold uppercase tracking-wider text-[10px]">
               <th class="py-3 px-4">Character</th>
               <th class="py-3 px-4">Action</th>
               <th class="py-3 px-4">Formula</th>
@@ -84,18 +136,33 @@
               <th class="py-3 px-4">Time</th>
             </tr>
           </thead>
-          <tbody id="rolls">
+          <tbody id="rolls" class="divide-y divide-[#26293c]/50">
             <tr>
-              <td colspan="5" class="py-6 text-center text-tertiary" style="color: var(--text-tertiary);">No data loaded.</td>
+              <td colspan="5" class="py-6 text-center text-[#6b7085]">No data loaded.</td>
             </tr>
           </tbody>
         </table>
       </div>
-    </section>
+    </div>
 
   </main>
 
+  <!-- Footer -->
+  <footer class="border-t border-[#1c1f2d] bg-[#0a0b10] py-6 text-center text-xs text-[#6b7085]">
+    <p>VTT Asal Jadi - Dark Fantasy Tabletop & Character Management</p>
+  </footer>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script>
+    lucide.createIcons();
+
+    // Set Header Username
+    const savedUsername = localStorage.getItem('username') || 'Player';
+    const headerUsernameEl = document.getElementById('headerUsername');
+    if (headerUsernameEl) {
+      headerUsernameEl.textContent = savedUsername;
+    }
+
     const room = document.getElementById('room');
     const statusEl = document.getElementById('status');
     const socket = io();
@@ -141,34 +208,34 @@
           document.getElementById('formulas').innerHTML = formulas.map(([formula, uses]) => {
             const pct = Math.round((uses / maxUses) * 100);
             return `
-              <div style="background: var(--bg-tertiary); border: 1px solid var(--border-secondary); border-radius: var(--radius-sm); padding: var(--space-sm) var(--space-md);">
+              <div class="bg-[#0b0c12] border border-[#26293c] rounded-lg p-3">
                 <div class="flex justify-between items-center mb-1">
-                  <code style="color: var(--gold-400); font-weight: bold; font-family: var(--font-mono);">${formula}</code>
-                  <span style="color: var(--gold-400); font-weight: bold; font-size: var(--font-size-xs);">${uses} ${uses === 1 ? 'use' : 'uses'} (${Math.round((uses / total) * 100)}%)</span>
+                  <code class="text-[#d4a544] font-bold font-mono text-xs">${formula}</code>
+                  <span class="text-[#d4a544] font-bold text-[10px]">${uses} ${uses === 1 ? 'use' : 'uses'} (${Math.round((uses / total) * 100)}%)</span>
                 </div>
-                <div class="hp-bar-bg" style="height: 6px; background: var(--bg-canvas); border-radius: 999px; overflow: hidden;">
-                  <div class="hp-bar-fill" style="width: ${pct}%; height: 100%; background: linear-gradient(90deg, var(--gold-600), var(--gold-400)); transition: width var(--transition-normal);"></div>
+                <div class="h-1.5 bg-[#0a0b10] rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-[#d4a544]/60 to-[#d4a544] transition-all duration-300" style="width: ${pct}%;"></div>
                 </div>
               </div>
             `;
           }).join('');
         } else {
-          document.getElementById('formulas').innerHTML = '<p class="text-tertiary text-sm" style="color: var(--text-tertiary);">No rolls recorded in this session yet.</p>';
+          document.getElementById('formulas').innerHTML = '<p class="text-[#6b7085] text-xs">No rolls recorded in this session yet.</p>';
         }
 
         // Render Table
         if (rolls.length) {
           document.getElementById('rolls').innerHTML = rolls.map(x => `
-            <tr style="border-bottom: 1px solid var(--border-secondary);">
-              <td class="py-3 px-4 font-semibold" style="color: var(--text-primary);">${x.characterName || 'Adventurer'}</td>
-              <td class="py-3 px-4" style="color: var(--text-secondary);">${x.rollName || 'Roll'}</td>
-              <td class="py-3 px-4"><code style="color: var(--gold-400); font-family: var(--font-mono);">${x.formula}</code></td>
-              <td class="py-3 px-4 font-bold ${x.isCritical ? 'text-danger' : 'text-primary'}" style="color: ${x.isCritical ? 'var(--danger)' : 'var(--gold-400)'}; font-size: var(--font-size-base);">${x.result}${x.isCritical ? ' ★' : ''}</td>
-              <td class="py-3 px-4" style="color: var(--text-tertiary); font-size: var(--font-size-xs);">${x.createdAt ? new Date(x.createdAt).toLocaleString() : ''}</td>
+            <tr class="hover:bg-[#181c2c]/30 transition-colors">
+              <td class="py-3 px-4 font-semibold text-white">${x.characterName || 'Adventurer'}</td>
+              <td class="py-3 px-4 text-[#a2a7bd]">${x.rollName || 'Roll'}</td>
+              <td class="py-3 px-4"><code class="text-[#d4a544] font-mono">${x.formula}</code></td>
+              <td class="py-3 px-4 font-bold text-sm ${x.isCritical ? 'text-red-500' : 'text-[#d4a544]'}">${x.result}${x.isCritical ? ' ★' : ''}</td>
+              <td class="py-3 px-4 text-[#6b7085] text-[10px]">${x.createdAt ? new Date(x.createdAt).toLocaleString() : ''}</td>
             </tr>
           `).join('');
         } else {
-          document.getElementById('rolls').innerHTML = '<tr><td colspan="5" class="py-6 text-center text-tertiary" style="color: var(--text-tertiary);">No rolls yet in this session.</td></tr>';
+          document.getElementById('rolls').innerHTML = '<tr><td colspan="5" class="py-6 text-center text-[#6b7085]">No rolls yet in this session.</td></tr>';
         }
 
         statusEl.textContent = `Session loaded · ${total} rolls recorded`;
@@ -207,6 +274,5 @@
 
   <script src="/js/components.js"></script>
   <script src="/js/theme-toggle.js"></script>
-  <div style="position:fixed;bottom:10px;right:10px;z-index:var(--z-tooltip);"><button data-theme-toggle class="btn btn-ghost">🌙</button></div>
 </body>
 </html>

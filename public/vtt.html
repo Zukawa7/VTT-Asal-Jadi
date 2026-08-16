@@ -1,54 +1,45 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0c0e14">
   <title>VTT Asal Jadi - D&D Beyond VTT Workstation</title>
   
-  <!-- Design System CSS -->
-  <link rel="stylesheet" href="/styles/variables.css">
-  <link rel="stylesheet" href="/styles/animations.css">
-  <link rel="stylesheet" href="/styles/components.css">
-  <link rel="stylesheet" href="/styles/theme.css">
-  <link rel="stylesheet" href="/styles/responsive.css">
-  
+  <link rel="stylesheet" href="/styles/tailwind.css">
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   
   <style>
     .vtt-grid {
       background-size: calc(100% / 12) calc(100% / 12);
       background-image: 
-        linear-gradient(to right, rgba(245, 158, 11, 0.15) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(245, 158, 11, 0.15) 1px, transparent 1px);
+        linear-gradient(to right, rgba(212, 165, 68, 0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(212, 165, 68, 0.1) 1px, transparent 1px);
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans">
+<body class="bg-[#0a0b10] text-white min-h-screen flex flex-col font-sans">
   
-  <!-- HEADER -->
-  <header class="card-header" style="margin-bottom:0; border-bottom: 1px solid var(--border-primary); padding: var(--space-md) var(--space-lg); background: var(--bg-surface);">
-    <div class="max-w-7xl mx-auto flex justify-between items-center w-full flex-wrap gap-4">
-      <div class="flex items-center gap-3">
-        <div style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(145deg, var(--bg-tertiary), var(--bg-surface)); border: 1.5px solid var(--gold-500); box-shadow: var(--glow-gold-sm);">
-          <span style="font-size: var(--font-size-xl);">🎲</span>
-        </div>
-        <div>
-          <h1 class="text-xl font-bold" style="color: var(--gold-400); font-family: var(--font-heading);">VTT ASAL JADI</h1>
-          <p class="text-xs" style="color: var(--text-secondary);">Tactical Battle Map & Dice Engine</p>
-        </div>
+  <!-- Header / Navigation -->
+  <nav class="sticky top-0 z-30 border-b border-[#1c1f2d] bg-[#0a0b10]/90 px-6 py-4 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 flex-wrap">
+      <div class="flex items-center gap-2 text-xs font-bold text-white">
+        <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
+        <span>VTT ASAL JADI</span>
+        <span class="text-[10px] text-[#6b7085] hidden md:inline">· Session Room</span>
       </div>
-      
-      <div class="flex items-center gap-3">
-        <button data-theme-toggle class="btn btn-ghost" title="Toggle Theme">🌙</button>
-        <a href="/dashboard" class="btn btn-secondary text-xs">Dashboard</a>
+      <div class="flex items-center gap-3 flex-wrap text-[10px]">
+        <button data-theme-toggle class="rounded-full border border-[#26293c] bg-[#121420] p-2 text-white hover:bg-[#181c2c] transition" title="Toggle Theme">
+          <i data-lucide="moon" class="h-3.5 w-3.5"></i>
+        </button>
+        <a href="/dashboard" class="rounded-md border border-[#26293c] bg-[#121420] px-3 py-1.5 text-white hover:bg-[#181c2c] transition font-bold">Dashboard</a>
         <div class="flex items-center gap-2">
-          <input type="text" id="roomIdInput" value="default-room" class="input w-36 text-xs" placeholder="Room ID" />
-          <button id="joinRoomBtn" class="btn btn-accent text-xs">Connect Room</button>
+          <input type="text" id="roomIdInput" value="default-room" class="rounded-md border border-[#26293c] bg-[#0b0c12] px-2 py-1.5 text-white outline-none w-28 text-center placeholder:text-[#555b70]" placeholder="Room ID" />
+          <button id="joinRoomBtn" class="rounded-md bg-[#d4a544] px-3 py-1.5 font-bold text-[#0a0b10] hover:bg-[#e5c284] transition">CONNECT GAME</button>
         </div>
       </div>
     </div>
-  </header>
+  </nav>
 
   <!-- MAIN 3-COLUMN WORKSTATION -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -57,110 +48,136 @@
     <div class="lg:col-span-3 flex flex-col gap-6">
       
       <!-- Import Widget -->
-      <div class="card card-fantasy">
-        <h2 class="card-title text-base mb-1">📥 Character Sheet</h2>
-        <p class="text-xs mb-3" style="color: var(--text-secondary);">Import from D&D Beyond</p>
+      <div class="border border-[#26293c] bg-[#121420] rounded-xl p-4 relative">
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+        <div class="mb-3 flex items-center justify-between pb-1 border-b border-[#26293c]">
+          <span class="text-[10px] font-bold text-white">Import Character</span>
+          <i data-lucide="upload" class="h-3 w-3 text-[#d4a544]"></i>
+        </div>
+        
         <div class="flex gap-2">
-          <input type="text" id="charIdInput" placeholder="Character ID or URL" class="input flex-1 text-xs" />
-          <button id="importBtn" class="btn btn-primary text-xs flex items-center justify-center">
-            <span id="importBtnText">Import</span>
-            <span id="importSpinner" class="hidden animate-spin rounded-full h-3 w-3 border-2 border-t-transparent ml-1" style="border-color: #0c0e14;"></span>
+          <input type="text" id="charIdInput" placeholder="ID or URL" class="flex-1 rounded-md border border-[#26293c] bg-[#0b0c12] px-2.5 py-1.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]" />
+          <button id="importBtn" class="rounded bg-[#d4a544] px-3 py-1.5 text-[10px] font-bold text-[#0a0b10] hover:bg-[#e5c284] transition flex items-center justify-center">
+            <span id="importBtnText">IMPORT</span>
+            <div id="importSpinner" class="hidden animate-spin rounded-full h-3 w-3 border-2 border-t-transparent border-[#0a0b10] ml-1"></div>
           </button>
         </div>
-        <div id="importError" class="hidden text-xs mt-2 text-center" style="color: var(--danger); background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: var(--radius-sm); padding: var(--space-xs);"></div>
+        <div id="importError" class="hidden text-[10px] mt-2 text-center text-red-500 bg-red-950/20 border border-red-900/50 rounded p-1.5"></div>
       </div>
 
       <!-- Placeholder before import -->
-      <div id="charPlaceholder" class="card card-fantasy text-center p-6" style="background: var(--bg-surface);">
-        <span style="font-size: var(--font-size-3xl);">🧙‍♂️</span>
-        <h3 class="text-sm font-bold mt-2" style="color: var(--gold-400); font-family: var(--font-heading);">No Adventurer Loaded</h3>
-        <p class="text-xs mt-1" style="color: var(--text-tertiary);">Enter your D&D Beyond Character ID above to load your stats and roll with bonuses.</p>
+      <div id="charPlaceholder" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative text-center">
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+        <i data-lucide="users" class="mx-auto mb-2 h-8 w-8 text-[#d4a544]"></i>
+        <h3 class="text-sm font-bold text-white" style="font-family: 'EB Garamond', serif;">NO ADVENTURER LOADED</h3>
+        <p class="text-[10px] text-[#6b7085] mt-1">Enter your D&amp;D Beyond Character ID above to load stats.</p>
       </div>
 
       <!-- Active Character Card -->
-      <div id="charSheet" class="hidden card card-fantasy flex-1 flex flex-col gap-4">
-        <div class="flex items-center gap-3 pb-3 border-b" style="border-color: var(--border-primary);">
-          <img id="charAvatar" src="" alt="Avatar" class="w-14 h-14 rounded-full border-2 object-cover" style="border-color: var(--gold-500); background: var(--bg-tertiary);" />
+      <div id="charSheet" class="hidden border border-[#26293c] bg-[#121420] rounded-xl p-4 relative flex-1 flex flex-col gap-4">
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+        <div class="flex items-center gap-3 pb-3 border-b border-[#26293c]">
+          <img id="charAvatar" src="" alt="Avatar" class="w-12 h-12 rounded-full border border-[#d4a544] object-cover bg-[#0b0c12]" />
           <div class="min-w-0 flex-1">
-            <h2 id="charName" class="text-base font-bold truncate" style="color: var(--gold-400); font-family: var(--font-heading);">Character</h2>
-            <p id="charSub" class="text-xs truncate" style="color: var(--text-secondary);">Level 1</p>
+            <h2 id="charName" class="text-xs font-bold text-white truncate">Character</h2>
+            <p id="charSub" class="text-[9px] text-[#a2a7bd] truncate">Level 1</p>
           </div>
         </div>
 
         <!-- HP & Vitals Box -->
-        <div class="p-3 rounded-lg" style="background: var(--bg-tertiary); border: 1px solid var(--border-secondary);">
-          <div class="flex justify-between items-center mb-2">
+        <div class="p-3 rounded-lg bg-[#0b0c12] border border-[#26293c]">
+          <div class="flex justify-between items-center mb-1">
             <div>
-              <span class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-secondary); font-family: var(--font-heading);">Hit Points</span>
+              <span class="text-[9px] font-bold uppercase tracking-wider text-[#6b7085]">Hit Points</span>
               <div class="flex items-baseline gap-1 mt-0.5">
-                <span id="charCurrentHp" class="text-2xl font-black" style="color: var(--success);">0</span>
-                <span style="color: var(--text-tertiary);">/</span>
-                <span id="charMaxHp" class="text-sm font-bold" style="color: var(--text-secondary);">0</span>
+                <span id="charCurrentHp" class="text-xl font-bold text-green-500">0</span>
+                <span class="text-[10px] text-[#6b7085]">/</span>
+                <span id="charMaxHp" class="text-[10px] font-bold text-[#a2a7bd]">0</span>
               </div>
             </div>
             <div id="charTempHpContainer" class="hidden text-right">
-              <span class="text-xs uppercase" style="color: var(--info);">Temp HP</span>
-              <div class="text-lg font-bold" style="color: var(--info);">+<span id="charTempHp">0</span></div>
+              <span class="text-[9px] uppercase text-blue-400">Temp HP</span>
+              <div class="text-sm font-bold text-blue-400">+<span id="charTempHp">0</span></div>
             </div>
           </div>
-          <div class="hp-bar-bg" style="height: 8px; background: var(--bg-canvas); border-radius: 999px; overflow: hidden;">
-            <div id="hpBar" class="hp-bar-fill" style="width: 0%; height: 100%; background: var(--success); transition: all var(--transition-normal);"></div>
+          <div class="h-1.5 bg-[#0a0b10] rounded-full overflow-hidden">
+            <div id="hpBar" class="h-full bg-green-500 transition-all duration-300" style="width: 0%;"></div>
           </div>
         </div>
 
         <!-- Ability Scores Grid -->
         <div>
-          <h3 class="text-xs font-bold uppercase mb-2 tracking-wider" style="color: var(--gold-400); font-family: var(--font-heading);">Ability Checks</h3>
-          <div class="grid grid-cols-3 gap-2">
-            <button class="dice-btn" onclick="rollStat('Strength', 'str')">
-              <span class="text-xs" style="color: var(--text-tertiary);">STR</span>
-              <span id="statScore-str" class="text-sm font-bold" style="color: var(--text-primary);">10</span>
-              <span id="statMod-str" class="text-xs font-bold" style="color: var(--gold-400);">+0</span>
+          <h3 class="text-[10px] font-bold uppercase mb-2 tracking-wider text-[#e5c284]">Ability Checks</h3>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button class="flex flex-col items-center rounded bg-[#0b0c12] p-2 hover:bg-[#181c2c]/40 transition border border-[#26293c]" onclick="rollStat('Strength', 'str')">
+              <span class="text-[8px] text-[#6b7085]">STR</span>
+              <span id="statScore-str" class="text-[10px] font-bold text-white mt-0.5">10</span>
+              <span id="statMod-str" class="text-[10px] font-bold text-[#d4a544] mt-0.5">+0</span>
             </button>
-            <button class="dice-btn" onclick="rollStat('Dexterity', 'dex')">
-              <span class="text-xs" style="color: var(--text-tertiary);">DEX</span>
-              <span id="statScore-dex" class="text-sm font-bold" style="color: var(--text-primary);">10</span>
-              <span id="statMod-dex" class="text-xs font-bold" style="color: var(--gold-400);">+0</span>
+            <button class="flex flex-col items-center rounded bg-[#0b0c12] p-2 hover:bg-[#181c2c]/40 transition border border-[#26293c]" onclick="rollStat('Dexterity', 'dex')">
+              <span class="text-[8px] text-[#6b7085]">DEX</span>
+              <span id="statScore-dex" class="text-[10px] font-bold text-white mt-0.5">10</span>
+              <span id="statMod-dex" class="text-[10px] font-bold text-[#d4a544] mt-0.5">+0</span>
             </button>
-            <button class="dice-btn" onclick="rollStat('Constitution', 'con')">
-              <span class="text-xs" style="color: var(--text-tertiary);">CON</span>
-              <span id="statScore-con" class="text-sm font-bold" style="color: var(--text-primary);">10</span>
-              <span id="statMod-con" class="text-xs font-bold" style="color: var(--gold-400);">+0</span>
+            <button class="flex flex-col items-center rounded bg-[#0b0c12] p-2 hover:bg-[#181c2c]/40 transition border border-[#26293c]" onclick="rollStat('Constitution', 'con')">
+              <span class="text-[8px] text-[#6b7085]">CON</span>
+              <span id="statScore-con" class="text-[10px] font-bold text-white mt-0.5">10</span>
+              <span id="statMod-con" class="text-[10px] font-bold text-[#d4a544] mt-0.5">+0</span>
             </button>
-            <button class="dice-btn" onclick="rollStat('Intelligence', 'int')">
-              <span class="text-xs" style="color: var(--text-tertiary);">INT</span>
-              <span id="statScore-int" class="text-sm font-bold" style="color: var(--text-primary);">10</span>
-              <span id="statMod-int" class="text-xs font-bold" style="color: var(--gold-400);">+0</span>
+            <button class="flex flex-col items-center rounded bg-[#0b0c12] p-2 hover:bg-[#181c2c]/40 transition border border-[#26293c]" onclick="rollStat('Intelligence', 'int')">
+              <span class="text-[8px] text-[#6b7085]">INT</span>
+              <span id="statScore-int" class="text-[10px] font-bold text-white mt-0.5">10</span>
+              <span id="statMod-int" class="text-[10px] font-bold text-[#d4a544] mt-0.5">+0</span>
             </button>
-            <button class="dice-btn" onclick="rollStat('Wisdom', 'wis')">
-              <span class="text-xs" style="color: var(--text-tertiary);">WIS</span>
-              <span id="statScore-wis" class="text-sm font-bold" style="color: var(--text-primary);">10</span>
-              <span id="statMod-wis" class="text-xs font-bold" style="color: var(--gold-400);">+0</span>
+            <button class="flex flex-col items-center rounded bg-[#0b0c12] p-2 hover:bg-[#181c2c]/40 transition border border-[#26293c]" onclick="rollStat('Wisdom', 'wis')">
+              <span class="text-[8px] text-[#6b7085]">WIS</span>
+              <span id="statScore-wis" class="text-[10px] font-bold text-white mt-0.5">10</span>
+              <span id="statMod-wis" class="text-[10px] font-bold text-[#d4a544] mt-0.5">+0</span>
             </button>
-            <button class="dice-btn" onclick="rollStat('Charisma', 'cha')">
-              <span class="text-xs" style="color: var(--text-tertiary);">CHA</span>
-              <span id="statScore-cha" class="text-sm font-bold" style="color: var(--text-primary);">10</span>
-              <span id="statMod-cha" class="text-xs font-bold" style="color: var(--gold-400);">+0</span>
+            <button class="flex flex-col items-center rounded bg-[#0b0c12] p-2 hover:bg-[#181c2c]/40 transition border border-[#26293c]" onclick="rollStat('Charisma', 'cha')">
+              <span class="text-[8px] text-[#6b7085]">CHA</span>
+              <span id="statScore-cha" class="text-[10px] font-bold text-white mt-0.5">10</span>
+              <span id="statMod-cha" class="text-[10px] font-bold text-[#d4a544] mt-0.5">+0</span>
             </button>
           </div>
         </div>
       </div>
     </div>
-
+    
     <!-- CENTER COLUMN: Tactical Battle Map (6 cols) -->
     <div class="lg:col-span-6 flex flex-col gap-6">
-      <div class="card card-fantasy flex-1 flex flex-col">
-        <div class="flex justify-between items-center mb-3">
-          <h2 class="card-title text-base">🗺️ Tactical Battle Map</h2>
-          <button id="addTokenBtn" class="btn btn-success text-xs">+ Place Token</button>
+      <div class="border border-[#26293c] bg-[#121420] rounded-xl p-4 relative flex-1 flex flex-col">
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+        <div class="flex justify-between items-center mb-3 pb-1 border-b border-[#26293c]">
+          <h2 class="text-xs font-bold text-white flex items-center gap-1.5">
+            <i data-lucide="globe-2" class="h-4 w-4 text-[#d4a544]"></i>
+            <span>Tactical Battle Map</span>
+          </h2>
+          <button id="addTokenBtn" class="rounded bg-green-600 hover:bg-green-500 text-white px-2 py-1 text-[10px] font-bold transition">+ Place Token</button>
         </div>
         
         <div class="flex gap-2 mb-3">
-          <input type="text" id="mapUrlInput" placeholder="Enter Map Image URL..." class="input flex-1 text-xs" />
-          <button id="setMapBtn" class="btn btn-primary text-xs">Set Map</button>
+          <input type="text" id="mapUrlInput" placeholder="Enter Map Image URL..." class="flex-1 rounded-md border border-[#26293c] bg-[#0b0c12] px-2.5 py-1.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]" />
+          <button id="setMapBtn" class="rounded bg-[#d4a544] px-3 py-1.5 text-[10px] font-bold text-[#0a0b10] hover:bg-[#e5c284] transition">Set Map</button>
         </div>
 
-        <div id="mapContainer" class="relative w-full aspect-square rounded-lg overflow-hidden vtt-grid flex-1" style="background-color: var(--bg-canvas); border: 1px solid var(--border-primary); min-height: 400px;"></div>
+        <div id="mapContainer" class="relative w-full aspect-square rounded-lg overflow-hidden vtt-grid flex-1" style="background-color: #0b0c12; border: 1px solid #26293c; min-height: 400px;"></div>
       </div>
     </div>
 
@@ -168,72 +185,102 @@
     <div class="lg:col-span-3 flex flex-col gap-6">
       
       <!-- Dice Tray -->
-      <div class="card card-fantasy">
-        <h2 class="card-title text-base flex justify-between items-center">
-          <span>🎲 Dice Tray</span>
-          <span class="text-[10px] font-normal" style="color: var(--text-tertiary);">Shortcuts: 1-7, D</span>
-        </h2>
-        
-        <div class="mt-3 mb-2 flex items-center justify-between">
-          <span class="text-xs font-bold" style="color: var(--gold-400); font-family: var(--font-heading);">BUILD POOL</span>
-          <button id="clearPoolBtn" class="text-xs" style="color: var(--danger); background: none; border: none; cursor: pointer;">Clear</button>
+      <div class="border border-[#26293c] bg-[#121420] rounded-xl p-4 relative">
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+        <div class="mb-3 flex items-center justify-between pb-1 border-b border-[#26293c]">
+          <h2 class="text-xs font-bold text-white flex items-center gap-1.5">
+            <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
+            <span>Dice Tray</span>
+          </h2>
+          <span class="text-[8px] text-[#6b7085]">Shortcuts: 1-7, D</span>
         </div>
         
-        <div class="grid grid-cols-4 gap-1.5 mb-3">
-          <button onclick="addToPool(4)" class="dice-btn text-xs">d4</button>
-          <button onclick="addToPool(6)" class="dice-btn text-xs">d6</button>
-          <button onclick="addToPool(8)" class="dice-btn text-xs">d8</button>
-          <button onclick="addToPool(10)" class="dice-btn text-xs">d10</button>
-          <button onclick="addToPool(12)" class="dice-btn text-xs">d12</button>
-          <button onclick="addToPool(20)" class="dice-btn dice-d20 text-xs">d20</button>
-          <button onclick="addToPool(100)" class="dice-btn text-xs">d100</button>
-          <button onclick="openCustomRoll()" class="dice-btn text-xs">Custom</button>
+        <div class="mb-2 flex items-center justify-between">
+          <span class="text-[9px] font-bold uppercase tracking-wider text-[#e5c284]">BUILD POOL</span>
+          <button id="clearPoolBtn" class="text-[9px] font-bold text-red-500 hover:text-red-400 transition bg-transparent border-0 cursor-pointer">Clear</button>
+        </div>
+        
+        <div class="grid grid-cols-4 gap-1 mb-3">
+          <button onclick="addToPool(4)" class="rounded bg-[#0b0c12] hover:bg-[#181c2c]/40 text-white text-[10px] font-bold py-1.5 border border-[#26293c] transition">d4</button>
+          <button onclick="addToPool(6)" class="rounded bg-[#0b0c12] hover:bg-[#181c2c]/40 text-white text-[10px] font-bold py-1.5 border border-[#26293c] transition">d6</button>
+          <button onclick="addToPool(8)" class="rounded bg-[#0b0c12] hover:bg-[#181c2c]/40 text-white text-[10px] font-bold py-1.5 border border-[#26293c] transition">d8</button>
+          <button onclick="addToPool(10)" class="rounded bg-[#0b0c12] hover:bg-[#181c2c]/40 text-white text-[10px] font-bold py-1.5 border border-[#26293c] transition">d10</button>
+          <button onclick="addToPool(12)" class="rounded bg-[#0b0c12] hover:bg-[#181c2c]/40 text-white text-[10px] font-bold py-1.5 border border-[#26293c] transition">d12</button>
+          <button onclick="addToPool(20)" class="rounded bg-[#d4a544]/10 hover:bg-[#d4a544]/20 text-[#d4a544] text-[10px] font-bold py-1.5 border border-[#d4a544]/30 transition">d20</button>
+          <button onclick="addToPool(100)" class="rounded bg-[#0b0c12] hover:bg-[#181c2c]/40 text-white text-[10px] font-bold py-1.5 border border-[#26293c] transition">d100</button>
+          <button onclick="openCustomRoll()" class="rounded bg-[#0b0c12] hover:bg-[#181c2c]/40 text-white text-[10px] font-bold py-1.5 border border-[#26293c] transition">Custom</button>
         </div>
 
-        <div class="rounded p-2 mb-3 min-h-[40px] flex flex-wrap gap-1 items-center" id="dicePoolContainer" style="background: var(--bg-canvas); border: 1px solid var(--border-secondary);">
-          <span class="text-xs italic" style="color: var(--text-tertiary);">Click dice to add to pool...</span>
+        <div class="rounded p-2 mb-3 min-h-[40px] flex flex-wrap gap-1 items-center bg-[#0b0c12] border border-[#26293c]" id="dicePoolContainer">
+          <span class="text-[9px] italic text-[#6b7085]">Click dice to add to pool...</span>
         </div>
 
         <div class="flex gap-2 items-center mb-3">
-          <span class="text-xs font-bold" style="color: var(--text-secondary); font-family: var(--font-heading);">MODIFIER</span>
-          <input type="number" id="diceModifier" value="0" class="input w-16 text-center text-xs p-1" />
+          <span class="text-[9px] font-bold text-[#a2a7bd]">MODIFIER</span>
+          <input type="number" id="diceModifier" value="0" class="rounded border border-[#26293c] bg-[#0b0c12] px-2 py-1 text-center text-xs text-white outline-none w-16" />
         </div>
 
-        <button onclick="rollPool()" class="btn btn-accent w-full text-xs">ROLL POOL</button>
+        <button onclick="rollPool()" class="w-full rounded bg-[#d4a544] py-2 text-[10px] font-bold text-[#0a0b10] hover:bg-[#e5c284] transition">ROLL POOL</button>
 
-        <div id="customRollForm" class="hidden pt-3 mt-3 border-t" style="border-color: var(--border-secondary);">
+        <div id="customRollForm" class="hidden pt-3 mt-3 border-t border-[#26293c]">
           <div class="flex gap-2">
-            <input type="text" id="customRollInput" placeholder="e.g. 2d6+4, 4d6kh3" class="input flex-1 text-xs" />
-            <button onclick="executeCustomRoll()" class="btn btn-primary text-xs">Roll</button>
+            <input type="text" id="customRollInput" placeholder="e.g. 2d6+4" class="flex-1 rounded-md border border-[#26293c] bg-[#0b0c12] px-2 py-1.5 text-xs text-white outline-none placeholder:text-[#555b70]" />
+            <button onclick="executeCustomRoll()" class="rounded bg-[#d4a544] px-3 py-1.5 text-[10px] font-bold text-[#0a0b10] hover:bg-[#e5c284] transition">Roll</button>
           </div>
         </div>
       </div>
 
       <!-- OBS Overlay Widget -->
-      <div class="card card-fantasy">
-        <h2 class="card-title text-base">🎥 OBS Overlay</h2>
-        <p class="text-xs mb-2" style="color: var(--text-secondary);">Add as Browser Source in OBS Studio</p>
+      <div class="border border-[#26293c] bg-[#121420] rounded-xl p-4 relative">
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+        <div class="mb-3 flex items-center justify-between pb-1 border-b border-[#26293c]">
+          <h2 class="text-xs font-bold text-white flex items-center gap-1.5">
+            <i data-lucide="settings" class="h-4 w-4 text-[#d4a544]"></i>
+            <span>OBS Overlay</span>
+          </h2>
+        </div>
+        <p class="text-[9px] mb-2 text-[#a2a7bd]">Add as Browser Source in OBS Studio</p>
         <div class="flex gap-2">
-          <input type="text" id="obsUrlInput" readonly class="input flex-1 text-[11px]" />
-          <button onclick="copyObsUrl(event)" class="btn btn-secondary text-xs">Copy</button>
+          <input type="text" id="obsUrlInput" readonly class="flex-1 rounded-md border border-[#26293c] bg-[#0b0c12] px-2 py-1 text-[10px] text-white outline-none" />
+          <button onclick="copyObsUrl(event)" class="rounded border border-[#26293c] bg-[#121420] px-3 py-1 text-[10px] font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition">Copy</button>
         </div>
       </div>
 
       <!-- Live Game Log -->
-      <div class="card card-fantasy flex-1 flex flex-col min-h-[280px]">
-        <div class="flex justify-between items-center mb-2 pb-2 border-b" style="border-color: var(--border-primary);">
-          <h2 class="card-title text-base">📜 Game Log</h2>
-          <button onclick="clearLog()" class="text-xs" style="color: var(--text-tertiary); background: none; border: none; cursor: pointer;">Clear</button>
+      <div class="border border-[#26293c] bg-[#121420] rounded-xl p-4 relative flex-1 flex flex-col min-h-[280px]">
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+        <div class="flex justify-between items-center mb-2 pb-2 border-b border-[#26293c]">
+          <h2 class="text-xs font-bold text-white flex items-center gap-1.5">
+            <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
+            <span>Game Log</span>
+          </h2>
+          <button onclick="clearLog()" class="text-[9px] font-bold text-[#6b7085] hover:text-[#a2a7bd] transition bg-transparent border-0 cursor-pointer">Clear</button>
         </div>
         
-        <div id="logContainer" class="flex-1 rounded p-2 overflow-y-auto max-h-[320px] space-y-2 text-xs" style="background: var(--bg-canvas); border: 1px solid var(--border-secondary);">
-          <div class="italic" style="color: var(--text-tertiary);">No rolls yet. Join a room!</div>
+        <div id="logContainer" class="flex-1 rounded p-2 overflow-y-auto max-h-[320px] space-y-2 text-[10px] bg-[#0b0c12] border border-[#26293c]">
+          <div class="italic text-[#6b7085]">No rolls yet. Join a room!</div>
         </div>
       </div>
 
     </div>
   </main>
 
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+  </script>
   <script src="/js/components.js"></script>
   <script src="/js/theme-toggle.js"></script>
   <script src="/js/shortcuts.js"></script>

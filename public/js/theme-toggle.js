@@ -23,8 +23,27 @@ class ThemeToggle {
   setupButton() {
     const btn = document.querySelector('[data-theme-toggle]');
     if (btn) {
-      btn.innerHTML = this.current === 'dark' ? '☀️' : '🌙';
-      btn.addEventListener('click', () => this.toggle());
+      const icon = btn.querySelector('i');
+      const text = btn.querySelector('span');
+      if (icon && text) {
+        if (this.current === 'dark') {
+          icon.setAttribute('data-lucide', 'sun');
+          text.textContent = 'LIGHT MODE';
+        } else {
+          icon.setAttribute('data-lucide', 'moon');
+          text.textContent = 'DARK MODE';
+        }
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      } else {
+        btn.innerHTML = this.current === 'dark' ? '☀️' : '🌙';
+      }
+      
+      // Replace button to remove old event listeners safely
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+      newBtn.addEventListener('click', () => this.toggle());
     }
   }
 

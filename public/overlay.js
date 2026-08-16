@@ -51,19 +51,49 @@ socket.on('new-roll', (data) => {
 
 function createRollCard(data) {
   const card = document.createElement('div');
-  card.className = 'roll-card border border-slate-700/60 rounded-lg p-4 shadow-2xl flex items-center justify-between gap-4 transition-all duration-500';
-  let resultClass = 'text-white border-slate-600 bg-slate-800';
+  card.className = 'roll-card border border-[#26293c] bg-[#121420]/95 backdrop-blur-md rounded-xl p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.8)] flex items-center justify-between gap-4 transition-all duration-500 relative';
+  
+  const corners = `
+    <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l pointer-events-none"></span>
+    <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r pointer-events-none"></span>
+    <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l pointer-events-none"></span>
+    <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b pointer-events-none"></span>
+  `;
+
+  let resultClass = 'text-white border-[#26293c] bg-[#0b0c12]';
   let badgeText = '';
   if (String(data.formula || '').startsWith('1d20')) {
     const rawRoll = data.rolls?.[0];
-    if (rawRoll === 20) { resultClass = 'text-amber-400 border-amber-500 bg-amber-950/60'; badgeText = '<span class="badge text-amber-500">Nat 20!</span>'; }
-    if (rawRoll === 1) { resultClass = 'text-red-400 border-red-500 bg-red-950/60'; badgeText = '<span class="badge text-red-500">Crit Fail</span>'; }
+    if (rawRoll === 20) {
+      resultClass = 'text-[#d4a544] border-[#d4a544] bg-[#d4a544]/10';
+      badgeText = '<span class="badge text-[#d4a544] text-[9px] font-bold uppercase tracking-wider mb-1">Nat 20!</span>';
+    }
+    if (rawRoll === 1) {
+      resultClass = 'text-[#8b302d] border-[#8b302d] bg-[#8b302d]/10';
+      badgeText = '<span class="badge text-[#8b302d] text-[9px] font-bold uppercase tracking-wider mb-1">Crit Fail</span>';
+    }
   }
-  const avatarImg = `<img src="${data.characterAvatar || ''}" class="w-10 h-10 rounded-full border border-slate-600 object-cover bg-slate-800">`;
+  const avatarImg = `<img src="${data.characterAvatar || ''}" class="w-10 h-10 rounded-full border border-[#26293c] object-cover bg-[#0b0c12]">`;
   const formula = `${data.formula || ''} (${(data.rolls || []).join(', ')})`;
   const modifier = data.modifier ? (data.modifier >= 0 ? ` + ${data.modifier}` : ` - ${Math.abs(data.modifier)}`) : '';
-  const formulaMarkup = overlayConfig.showFormula ? `<p class="formula text-amber-500/80 font-mono truncate">${formula}${modifier}</p>` : '';
-  card.innerHTML = `<div class="flex items-center gap-3 min-w-0"><div>${avatarImg}</div><div class="min-w-0"><h3 class="font-bold text-slate-100 truncate">${data.characterName || 'Adventurer'}</h3><p class="roll-name text-slate-400 truncate">${data.rollName || 'Roll'}</p>${formulaMarkup}</div></div><div class="text-center flex flex-col items-center justify-center">${badgeText}<div class="result font-black px-3 py-1 rounded border ${resultClass}">${data.result}</div></div>`;
+  const formulaMarkup = overlayConfig.showFormula ? `<p class="formula text-[#e5c284] font-mono text-[10px] truncate">${formula}${modifier}</p>` : '';
+  
+  card.innerHTML = `
+    ${corners}
+    <div class="flex items-center gap-3 min-w-0">
+      <div>${avatarImg}</div>
+      <div class="min-w-0">
+        <h3 class="font-bold text-white text-xs truncate">${data.characterName || 'Adventurer'}</h3>
+        <p class="roll-name text-[#a2a7bd] text-[10px] truncate">${data.rollName || 'Roll'}</p>
+        ${formulaMarkup}
+      </div>
+    </div>
+    <div class="text-center flex flex-col items-center justify-center">
+      ${badgeText}
+      <div class="result font-bold px-3 py-1 rounded border ${resultClass}">${data.result}</div>
+    </div>
+  `;
+  
   feed.appendChild(card);
   while (feed.children.length > 5) feed.removeChild(feed.firstElementChild);
   window.setTimeout(() => removeCard(card), overlayConfig.autoHideTimeout * 1000);

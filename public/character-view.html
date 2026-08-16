@@ -1,249 +1,70 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" class="h-full">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Character Sheet - VTT Asal Jadi</title>
 
-  <link rel="stylesheet" href="/styles/variables.css?v=8">
-  <link rel="stylesheet" href="/styles/animations.css?v=8">
-  <link rel="stylesheet" href="/styles/components.css?v=8">
-  <link rel="stylesheet" href="/styles/theme.css?v=8">
-  <link rel="stylesheet" href="/styles/responsive.css?v=8">
-  
+  <link rel="stylesheet" href="/styles/tailwind.css">
   <script src="/socket.io/socket.io.js"></script>
+  
   <style>
-    /* P1: Overflow horizontal & layout resets */
-    html, body {
-      overflow-x: hidden;
-      max-width: 100vw;
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-    *, *::before, *::after { box-sizing: border-box; }
-
-    /* Polyport Theme Background */
-    body { 
-      background-image: radial-gradient(circle at top center, var(--bg-main-light) 0%, var(--bg-main-dark) 100%), url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h40v40H0z" fill="none"/><path d="M0 0h10v10H0zm20 20h10v10H20z" fill="%23000000" fill-opacity="0.05"/></svg>');
-      background-color: var(--bg-main-dark);
-      background-attachment: fixed;
-    }
-    
-    .polyport-card { 
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-primary); 
-      border-radius: var(--radius-xl); 
-      padding: var(--space-md); 
-      position: relative;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.5), var(--shadow-sm);
-      margin-bottom: var(--space-md);
-      width: 100%;
-      overflow: hidden; /* prevent child overflow */
-    }
-    
-    /* Corner bracket ornament (gold, L-shape) */
-    .polyport-card::before, .polyport-card::after,
-    .nav-btn::before, .nav-btn::after {
-      content: ''; position: absolute; width: 12px; height: 12px; 
-      border: 2px solid var(--border-accent); opacity: 0.6; pointer-events: none;
-    }
-    .polyport-card::before, .nav-btn::before { top: 6px; left: 6px; border-right: none; border-bottom: none; }
-    .polyport-card::after, .nav-btn::after { bottom: 6px; right: 6px; border-left: none; border-top: none; }
-
-    /* P3 & P4: Profile Card Layout */
-    .profile-layout {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      width: 100%;
-    }
-    .profile-avatar {
-      width: 96px; height: 96px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--border-accent);
-      flex-shrink: 0;
-      background-color: var(--bg-tertiary);
-    }
-    .profile-info {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .badge-level {
-      background: linear-gradient(to bottom, #7a2b2b, #5c2020);
-      color: #fbd38d; 
-      border: 1px solid #b7791f;
-      padding: 2px 8px; border-radius: 999px;
-      font-weight: bold; font-size: 0.75rem; text-transform: uppercase;
-      font-family: var(--font-heading);
-      white-space: nowrap;
-    }
-    
-    .hp-box {
-      border: 1px solid var(--border-primary);
-      border-radius: var(--radius-md);
-      position: relative; padding: 12px; text-align: center;
-      background: var(--bg-tertiary);
-      flex: 1;
-      min-width: 0;
-    }
-    .hp-box::before, .hp-box::after {
-      content: ''; position: absolute; width: 6px; height: 6px; border: 1px solid var(--border-accent); opacity: 0.5; pointer-events: none;
-    }
-    .hp-box::before { top: 4px; left: 4px; border-right: none; border-bottom: none; }
-    .hp-box::after { bottom: 4px; right: 4px; border-left: none; border-top: none; }
-    
-    .hp-label { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--bg-tertiary); padding: 0 8px; font-size: 0.7rem; color: var(--text-secondary); font-family: var(--font-heading); font-weight: bold; white-space: nowrap; border-radius: 4px; }
-    .hp-bar-bg { width: 100%; background: #1a140f; border-radius: 4px; height: 6px; margin-top: 8px; overflow: hidden; border: 1px solid var(--border-primary); }
-    .hp-bar-fill { height: 100%; background: linear-gradient(90deg, #2ea559, #3ecb6e); transition: width 0.3s; }
-
-    .stat-box { 
-      text-align: center; background: var(--bg-tertiary); border: 1px solid var(--border-primary); 
-      border-radius: var(--radius-sm); padding: 8px 4px; position: relative; width: 100%;
-    }
-    
-    .currency-badge { 
-      display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; 
-      border-radius: 50%; font-weight: bold; font-size: 0.75rem; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.8); 
-      box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.3); 
-    }
-    .cp { background: radial-gradient(circle at 30% 30%, #cd7f32, #8b4513); }
-    .sp { background: radial-gradient(circle at 30% 30%, #e0e0e0, #808080); color: #1a140f; text-shadow: none; }
-    .gp { background: radial-gradient(circle at 30% 30%, #ffd700, #b8860b); color: #4a3600; text-shadow: none; }
-    .pp { background: radial-gradient(circle at 30% 30%, #f5f5f5, #a9a9a9); color: #1a140f; text-shadow: none; }
-
-    .ability-card { 
-      text-align: center; padding: 12px 2px; background: var(--bg-tertiary);
-      border: 1px solid var(--border-primary); border-radius: var(--radius-md) var(--radius-md) var(--radius-xl) var(--radius-xl); 
-      position: relative; cursor: pointer; transition: all 0.2s; 
-      display: flex; flex-direction: column; align-items: center;
-    }
-    .ability-card:hover, .ability-card:active { border-color: var(--secondary-dark); box-shadow: 0 0 8px rgba(212,165,68,0.3); }
-    .ability-score { 
-      position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); 
-      background: var(--bg-primary); border: 1px solid var(--border-accent); 
-      border-radius: 999px; padding: 0 10px; font-weight: bold; font-size: 0.75rem; 
-      color: var(--text-secondary); 
-    }
-
-    .prof-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--text-secondary); display: inline-block; margin-right: 8px; flex-shrink: 0; }
-    .prof-dot.active { background: var(--text-secondary); }
-    .skill-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-primary); width: 100%; cursor: pointer; transition: background 0.2s; }
-    .skill-row:active { background: rgba(212,165,68,0.1); }
-    .skill-row:last-child { border-bottom: none; }
-    
-    /* P6: Filter Chips Consistent Gold/Amber Theme */
-    .filter-chip {
-      background: var(--bg-tertiary); border: 1px solid var(--border-primary); color: var(--text-tertiary);
-      padding: 6px 12px; border-radius: 999px; font-size: 0.75rem; cursor: pointer; white-space: nowrap;
-      transition: all 0.2s;
-    }
-    .filter-chip:active { background: rgba(212,165,68,0.2); }
-    .filter-chip.active { 
-      background: var(--primary-dark) !important; 
-      color: #fff !important; 
-      border-color: var(--primary) !important; 
-    }
-
-    /* Action Buttons (Heal/Damage, VTT) */
-    .btn-heal { background: linear-gradient(to bottom, #4a7fb8, #3b6ea5); border: 1px solid #2b4b70; color: white; border-radius: 4px; }
-    .btn-heal:active { background: #3b6ea5; }
-    .btn-vtt { background: linear-gradient(to bottom, #b84a4a, #a53b3b); border: 1px solid #6b2626; color: white; border-radius: 4px; }
-    .btn-vtt:active { background: #a53b3b; }
-
-    /* P11: Multiple FABs Hierarchy */
-    .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 12px; z-index: 50; }
-    .fab-item {
-      width: 50px; height: 50px; border-radius: 50%; 
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px; cursor: pointer; transition: all 0.2s; 
-      box-shadow: var(--shadow-lg), inset 0 1px 2px rgba(255,255,255,0.3);
-    }
-    .fab-secondary { background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border-accent); }
-    .fab-secondary:hover, .fab-secondary:active { background: var(--bg-quaternary); color: var(--text-primary); }
-    
-    .fab-primary { background: var(--primary-dark); color: white; border: 1px solid var(--border-accent); }
-    .fab-primary:hover, .fab-primary:active { background: var(--primary); transform: scale(1.05); }
-
-    /* Quick Nav Menu Overlay */
-    .nav-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px);
-      z-index: 150; display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s;
-    }
-    .nav-overlay.active { opacity: 1; pointer-events: auto; }
-    .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 90%; max-width: 400px; transform: translateY(20px); transition: transform 0.2s; }
-    .nav-overlay.active .nav-grid { transform: translateY(0); }
-    
-    .nav-btn {
-      background: var(--bg-tertiary); border: 1px solid var(--border-primary); padding: 16px 8px; 
-      border-radius: var(--radius-md); color: var(--text-primary); font-family: var(--font-heading); 
-      font-size: 0.8rem; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;
-      position: relative;
-    }
-    .nav-btn:hover, .nav-btn:active { border-color: var(--secondary-dark); color: var(--secondary-dark); background: var(--bg-quaternary); }
-    
-    /* Utility */
-    .section-title { font-family: var(--font-heading); font-size: 1.1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-primary); padding-bottom: 6px; margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase; }
-    .flex-row-center { display: flex; align-items: center; justify-content: space-between; }
-    
-    /* P9: Notes Textarea */
-    .notes-textarea {
-      width: 100%; background: var(--bg-primary); border: 1px solid var(--border-accent); 
-      color: var(--text-primary); padding: 12px; border-radius: var(--radius-md); 
-      min-height: 120px; font-family: var(--font-serif); resize: vertical;
-    }
-    .notes-textarea::placeholder { color: var(--text-tertiary); opacity: 0.7; }
-    
     /* Custom Scrollbar for chips container */
     .chips-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; }
     .chips-container::-webkit-scrollbar { height: 4px; }
     .chips-container::-webkit-scrollbar-track { background: transparent; }
-    .chips-container::-webkit-scrollbar-thumb { background: var(--border-primary); border-radius: 4px; }
+    .chips-container::-webkit-scrollbar-thumb { background: #26293c; border-radius: 4px; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans">
+<body class="bg-[#0a0b10] text-white min-h-screen flex flex-col font-sans">
 
-  <main class="flex-1 w-full max-w-3xl mx-auto p-3 flex flex-col pb-32" id="content" style="display:none">
+  <main class="flex-1 w-full max-w-3xl mx-auto px-6 py-10 flex flex-col pb-32" id="content" style="display:none">
     
     <!-- 2. Profile Summary Card -->
-    <div class="polyport-card">
-      <div class="profile-layout">
-        <img id="avatar" src="" class="profile-avatar" alt="Avatar">
-        <div class="profile-info">
-          <h1 id="name" class="text-2xl font-heading font-bold text-primary tracking-wider uppercase m-0 leading-tight" style="word-break: break-word; white-space: normal;">Name</h1>
-          <p id="meta" class="text-xs text-text-primary mt-1 mb-2" style="word-break: break-word; white-space: normal;">Race · Class</p>
+    <div class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4">
+      <!-- Corner brackets -->
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+      <div class="flex items-center gap-4 w-full">
+        <img id="avatar" src="" class="w-16 h-16 rounded-full border border-[#d4a544] object-cover bg-[#0b0c12] flex-shrink-0" alt="Avatar">
+        <div class="flex-1 min-w-0 flex flex-col">
+          <h1 id="name" class="text-xl font-bold text-white uppercase tracking-wider leading-tight" style="word-break: break-word; white-space: normal;">Name</h1>
+          <p id="meta" class="text-[10px] text-[#a2a7bd] mt-1 mb-2" style="word-break: break-word; white-space: normal;">Race · Class</p>
           <div class="flex gap-2 items-center flex-wrap">
-            <span id="level" class="badge-level">LEVEL 1</span>
-            <span id="alignment" class="text-[10px] text-text-tertiary whitespace-nowrap">True Neutral</span>
-            <span id="xp" class="text-[10px] text-text-disabled whitespace-nowrap">0 XP</span>
+            <span id="level" class="rounded bg-[#8b302d] px-2 py-0.5 text-[9px] font-bold text-white uppercase">LEVEL 1</span>
+            <span id="alignment" class="text-[9px] text-[#6b7085] whitespace-nowrap">True Neutral</span>
+            <span id="xp" class="text-[9px] text-[#6b7085] whitespace-nowrap">0 XP</span>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- HP & Manage (P10) -->
-    <div class="polyport-card flex-row-center gap-4">
-      <div class="hp-box cursor-pointer" onclick="openHpModal()">
-        <div class="hp-label">HIT POINTS</div>
+    <!-- HP & Manage -->
+    <div class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 flex items-center justify-between gap-4">
+      <!-- Corner brackets -->
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+      <div class="p-3 rounded-lg bg-[#0b0c12] border border-[#26293c] flex-1 relative cursor-pointer" onclick="openHpModal()">
+        <div class="absolute -top-2 left-1/2 -translate-x-1/2 bg-[#0b0c12] px-2 text-[8px] font-bold text-[#e5c284] tracking-wider uppercase rounded">HIT POINTS</div>
         <div class="flex justify-center items-baseline gap-1 mt-2">
-          <span id="hp-current" class="text-3xl font-serif font-bold text-text-primary">0</span>
-          <span class="text-text-tertiary text-sm">/</span>
-          <span id="hp-max" class="text-text-secondary font-bold">0</span>
+          <span id="hp-current" class="text-2xl font-bold text-white">0</span>
+          <span class="text-[#6b7085] text-xs">/</span>
+          <span id="hp-max" class="text-[#a2a7bd] text-xs font-bold">0</span>
         </div>
-        <div class="hp-bar-bg"><div id="hp-bar" class="hp-bar-fill" style="width:0%"></div></div>
-        <div id="hp-temp" class="absolute top-2 right-2 text-[10px] text-text-secondary"></div>
+        <div class="h-1.5 bg-[#0a0b10] rounded-full overflow-hidden mt-2">
+          <div id="hp-bar" class="h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
+        </div>
+        <div id="hp-temp" class="absolute top-1 right-2 text-[9px] text-[#a2a7bd]"></div>
       </div>
       <div class="flex flex-col gap-2 flex-shrink-0">
-         <button id="manageBtn" class="btn btn-ghost text-[10px] font-bold border border-border-primary rounded px-3 py-1" onclick="location.href='/dashboard/character/edit/'+(character?.id||'')">MANAGE</button>
-         <button id="inspirationBtn" class="btn btn-ghost text-[10px] font-bold border border-border-primary text-text-secondary rounded px-3 py-1">INSPIRATION</button>
+         <button id="manageBtn" class="rounded-md border border-[#26293c] bg-[#121420] px-3 py-1.5 text-[10px] font-bold text-white hover:bg-[#181c2c] transition" onclick="location.href='/dashboard/character/edit/'+(character?.id||'')">MANAGE</button>
+         <button id="inspirationBtn" class="rounded-md border border-[#26293c] bg-[#121420] px-3 py-1.5 text-[10px] font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition">INSPIRATION</button>
       </div>
     </div>
 
@@ -251,81 +72,128 @@
     <div class="flex flex-col md:flex-row gap-4 mb-4 w-full">
       <div class="grid grid-cols-4 gap-2 flex-1 w-full">
         <div class="flex flex-col items-center w-full">
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mb-1 text-center">Proficiency</div>
-          <div class="stat-box"><div id="prof" class="text-lg font-serif font-bold text-text-primary">+2</div></div>
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mt-1 text-center">Bonus</div>
+          <div class="text-[8px] text-[#6b7085] uppercase font-bold mb-1 text-center">Proficiency</div>
+          <div class="border border-[#26293c] bg-[#121420] rounded-lg p-3 text-center w-full">
+            <div id="prof" class="text-sm font-bold text-white">+2</div>
+          </div>
         </div>
         <div class="flex flex-col items-center w-full">
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mb-1 text-center">Walking</div>
-          <div class="stat-box"><div id="speed" class="text-lg font-serif font-bold text-text-primary">30</div></div>
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mt-1 text-center">Speed</div>
+          <div class="text-[8px] text-[#6b7085] uppercase font-bold mb-1 text-center">Walking</div>
+          <div class="border border-[#26293c] bg-[#121420] rounded-lg p-3 text-center w-full">
+            <div id="speed" class="text-sm font-bold text-white">30</div>
+          </div>
         </div>
         <div class="flex flex-col items-center w-full">
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mb-1 text-center">Initiative</div>
-          <div class="stat-box cursor-pointer hover:bg-bg-hover" onclick="rollStat('Initiative', 'dex')"><div id="initiative" class="text-lg font-serif font-bold text-text-primary">+0</div></div>
+          <div class="text-[8px] text-[#6b7085] uppercase font-bold mb-1 text-center">Initiative</div>
+          <div class="border border-[#26293c] bg-[#121420] rounded-lg p-3 text-center w-full cursor-pointer hover:bg-[#181c2c]/40 transition" onclick="rollStat('Initiative', 'dex')">
+            <div id="initiative" class="text-sm font-bold text-white">+0</div>
+          </div>
         </div>
         <div class="flex flex-col items-center w-full">
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mb-1 text-center">Armor</div>
-          <div class="stat-box"><div id="armor" class="text-lg font-serif font-bold text-text-primary">10</div></div>
-          <div class="text-[9px] text-text-tertiary uppercase font-bold mt-1 text-center">Class</div>
+          <div class="text-[8px] text-[#6b7085] uppercase font-bold mb-1 text-center">Armor</div>
+          <div class="border border-[#26293c] bg-[#121420] rounded-lg p-3 text-center w-full">
+            <div id="armor" class="text-sm font-bold text-white">10</div>
+          </div>
         </div>
       </div>
       <!-- Desktop & Mobile Defenses/Conditions -->
       <div class="flex md:flex-col gap-2 justify-center mt-2 md:mt-0 w-full md:w-auto">
-        <button id="defensesBtn" class="flex-1 md:w-24 btn btn-ghost text-xs font-bold tracking-widest border border-border-primary rounded uppercase">Defenses</button>
-        <button id="conditionsBtn" class="flex-1 md:w-24 btn btn-ghost text-xs font-bold tracking-widest border border-border-primary rounded uppercase">Conditions</button>
+        <button id="defensesBtn" class="flex-1 md:w-24 rounded-md border border-[#26293c] bg-[#121420] px-3 py-2 text-[10px] font-bold text-white hover:bg-[#181c2c] transition uppercase">Defenses</button>
+        <button id="conditionsBtn" class="flex-1 md:w-24 rounded-md border border-[#26293c] bg-[#121420] px-3 py-2 text-[10px] font-bold text-white hover:bg-[#181c2c] transition uppercase">Conditions</button>
       </div>
     </div>
 
     <!-- 4. Currency & Quick Action Card -->
-    <div class="polyport-card">
+    <div class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4">
+      <!-- Corner brackets -->
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
       <div class="flex justify-between items-center mb-4 px-4 w-full">
-        <div class="flex flex-col items-center"><span class="currency-badge cp cursor-pointer">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">CP</span></div>
-        <div class="flex flex-col items-center"><span class="currency-badge sp cursor-pointer">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">SP</span></div>
-        <div class="flex flex-col items-center"><span class="currency-badge gp cursor-pointer">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">GP</span></div>
-        <div class="flex flex-col items-center"><span class="currency-badge pp cursor-pointer">0</span><span class="text-[9px] text-text-tertiary mt-1 font-bold">PP</span></div>
+        <div class="flex flex-col items-center">
+          <span class="w-8 h-8 rounded-full font-bold text-xs text-white border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#cd7f32] to-[#8b4513] cp">0</span>
+          <span class="text-[9px] text-[#6b7085] mt-1 font-bold">CP</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <span class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0b10] border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#e0e0e0] to-[#808080] sp">0</span>
+          <span class="text-[9px] text-[#6b7085] mt-1 font-bold">SP</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <span class="w-8 h-8 rounded-full font-bold text-xs text-[#4a3600] border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#ffd700] to-[#b8860b] gp">0</span>
+          <span class="text-[9px] text-[#6b7085] mt-1 font-bold">GP</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <span class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0b10] border border-[#26293c] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#f5f5f5] to-[#a9a9a9] pp">0</span>
+          <span class="text-[9px] text-[#6b7085] mt-1 font-bold">PP</span>
+        </div>
       </div>
       <div class="grid grid-cols-2 gap-3 w-full">
-        <button class="btn btn-heal py-3 text-xs font-bold tracking-wider" onclick="openHpModal()">HEAL / DMG</button>
-        <button class="btn btn-vtt py-3 text-xs font-bold tracking-wider" onclick="location.href='/vtt?room=character-'+(character?.id||'')">OPEN VTT</button>
+        <button class="rounded-md bg-[#d4a544] py-2.5 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition" onclick="openHpModal()">HEAL / DMG</button>
+        <button class="rounded-md border border-[#26293c] bg-[#121420] py-2.5 text-xs font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition" onclick="location.href='/vtt?room=character-'+(character?.id||'')">OPEN VTT</button>
       </div>
     </div>
 
     <!-- 5. Class Resources -->
-    <div id="section-resources" class="polyport-card" style="display:none;"></div>
+    <div id="section-resources" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4" style="display:none;"></div>
 
-    <!-- 6. Section-Section Konten Utama (Tab Content) -->
+    <!-- Tab Sections -->
     
     <!-- Group: Abilities, Saves, Senses -->
-    <div id="section-abilities" class="polyport-card tab-section" data-tab="abilities">
-      <h2 class="section-title">Ability Scores</h2>
-      <!-- P8: Text wrapping for Ability Scores -->
+    <div id="section-abilities" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="abilities">
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Ability Scores</h2>
       <div id="abilities" class="grid grid-cols-3 md:grid-cols-6 gap-2 mt-4 mb-2"></div>
     </div>
 
     <!-- Saving Throws -->
-    <div id="section-saves" class="polyport-card tab-section" data-tab="abilities">
-      <h2 class="section-title">Saving Throws</h2>
+    <div id="section-saves" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="abilities">
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Saving Throws</h2>
       <div id="saves" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 w-full"></div>
     </div>
 
     <!-- Senses -->
-    <div id="section-senses" class="polyport-card tab-section" data-tab="abilities">
-       <h2 class="section-title">Passive Senses</h2>
+    <div id="section-senses" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="abilities">
+       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+       <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+       <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Passive Senses</h2>
        <div id="senses" class="flex justify-around gap-2 text-center mt-4 w-full"></div>
     </div>
 
     <!-- Skills -->
-    <div id="section-skills" class="polyport-card tab-section" data-tab="skills" style="display:none;">
-      <h2 class="section-title">Skills</h2>
+    <div id="section-skills" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="skills" style="display:none;">
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Skills</h2>
       <div id="skills" class="w-full"></div>
     </div>
 
     <!-- Actions -->
-    <div id="section-actions" class="polyport-card tab-section" data-tab="actions" style="display:none;">
-      <h2 class="section-title flex justify-between items-center">
+    <div id="section-actions" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="actions" style="display:none;">
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4 flex justify-between items-center">
         <span>Actions</span>
-        <span id="spell-attack-header" class="text-[10px] text-text-primary bg-bg-primary px-2 py-1 rounded border border-border-primary whitespace-nowrap">ATK +0 | DC 10</span>
+        <span id="spell-attack-header" class="text-[9px] text-white bg-[#0b0c12] px-2 py-1 rounded border border-[#26293c] whitespace-nowrap">ATK +0 | DC 10</span>
       </h2>
       <div class="chips-container" id="actions-chips">
         <div class="filter-chip active">All</div>
@@ -335,19 +203,24 @@
         <div class="filter-chip">Reaction</div>
       </div>
       <div id="attacksContainer" class="space-y-2 text-sm mt-2">
-        <div class="text-text-disabled italic">No weapons or spells found.</div>
+        <div class="text-[#6b7085] italic text-xs">No weapons or spells found.</div>
       </div>
     </div>
 
     <!-- Inventory -->
-    <div id="section-inventory" class="polyport-card tab-section" data-tab="inventory" style="display:none;">
-      <h2 class="section-title">Inventory</h2>
-      <div class="w-full bg-bg-primary rounded h-2 mb-2 border border-border-primary overflow-hidden">
-         <div id="weight-bar" class="h-full bg-primary" style="width:0%; transition: width 0.3s, background 0.3s;"></div>
+    <div id="section-inventory" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="inventory" style="display:none;">
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Inventory</h2>
+      <div class="w-full bg-[#0b0c12] rounded h-2 mb-2 border border-[#26293c] overflow-hidden">
+         <div id="weight-bar" class="h-full bg-[#d4a544]" style="width:0%; transition: width 0.3s, background 0.3s;"></div>
       </div>
-      <div id="weight-text" class="text-xs text-text-tertiary font-bold mb-3"></div>
+      <div id="weight-text" class="text-[10px] text-[#a2a7bd] font-bold mb-3"></div>
       
-      <input type="text" id="inventorySearch" class="w-full bg-bg-primary border border-border-primary text-text-primary p-2 rounded mb-3 text-sm" placeholder="Search items...">
+      <input type="text" id="inventorySearch" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2 text-xs text-white outline-none placeholder:text-[#555b70] mb-3" placeholder="Search items...">
       
       <div class="chips-container" id="inventory-chips">
         <div class="filter-chip active">All</div>
@@ -358,8 +231,13 @@
     </div>
 
     <!-- Features & Traits -->
-    <div id="section-features" class="polyport-card tab-section" data-tab="features" style="display:none;">
-      <h2 class="section-title">Features & Traits</h2>
+    <div id="section-features" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="features" style="display:none;">
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Features & Traits</h2>
       <div class="chips-container" id="features-chips">
         <div class="filter-chip active">All</div>
         <div class="filter-chip">Class Features</div>
@@ -367,31 +245,41 @@
         <div class="filter-chip">Feats</div>
       </div>
       <div id="featuresList" class="space-y-4 text-sm mt-2">
-         <div class="text-text-disabled italic">Features imported from D&D Beyond will appear here.</div>
+         <div class="text-[#6b7085] italic text-xs">Features imported from D&D Beyond will appear here.</div>
       </div>
     </div>
 
     <!-- Proficiencies & Training -->
-    <div id="section-proficiencies" class="polyport-card tab-section" data-tab="proficiencies" style="display:none;">
-      <h2 class="section-title">Proficiencies & Training</h2>
-      <div class="text-sm space-y-2" id="proficienciesContainer">
-         <div class="text-text-disabled italic">No proficiency data available.</div>
+    <div id="section-proficiencies" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="proficiencies" style="display:none;">
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Proficiencies & Training</h2>
+      <div class="text-xs space-y-2 text-[#a2a7bd]" id="proficienciesContainer">
+         <div class="text-[#6b7085] italic text-xs">No proficiency data available.</div>
       </div>
     </div>
 
     <!-- Background -->
-    <div id="section-background" class="polyport-card tab-section" data-tab="background" style="display:none;">
+    <div id="section-background" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="background" style="display:none;">
       <div id="backgroundContainer">
-        <h2 class="section-title">Background</h2>
-        <div class="text-sm text-text-disabled italic">Background details imported from D&DB will appear here.</div>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Background</h2>
+        <div class="text-xs text-[#6b7085] italic">Background details imported from D&DB will appear here.</div>
       </div>
     </div>
 
-    <!-- Notes (P9 Fixed) -->
-    <div id="section-notes" class="polyport-card tab-section" data-tab="notes" style="display:none;">
-      <h2 class="section-title">Notes</h2>
-      <textarea id="charNotes" class="notes-textarea" placeholder="Add character biography or notes here..."></textarea>
-      <button class="btn w-full mt-3 font-bold uppercase tracking-wider" style="background: var(--bg-tertiary); border: 1px solid var(--primary); color: var(--primary);" id="saveNotesBtn">Save Notes</button>
+    <!-- Notes -->
+    <div id="section-notes" class="border border-[#26293c] bg-[#121420] rounded-xl p-6 relative mb-4 tab-section" data-tab="notes" style="display:none;">
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+      <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Notes</h2>
+      <textarea id="charNotes" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544] min-h-[120px] resize-vertical" placeholder="Add character biography or notes here..."></textarea>
+      <button class="w-full mt-3 rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition" id="saveNotesBtn">Save Notes</button>
     </div>
 
     <!-- Padding for bottom FABs -->
@@ -399,50 +287,66 @@
 
   </main>
 
-  <div id="loading" class="text-center p-20 text-xl font-heading text-secondary animate-pulse w-full">Loading character sheet...</div>
-  <div id="error" class="hidden text-center p-20 text-xl text-danger w-full"></div>
+  <div id="loading" class="text-center p-20 text-xl font-bold text-[#d4a544] animate-pulse w-full">Loading character sheet...</div>
+  <div id="error" class="hidden text-center p-20 text-xl text-red-500 w-full"></div>
 
-  <!-- 7. Floating Action Buttons (P11 Fixed Hierarchy) -->
-  <div class="fab-container">
-    <div class="fab-item fab-secondary" id="fabDiceBtn" title="Dice Roller" onclick="openDiceModal()">🎲</div>
-    <div class="fab-item fab-secondary" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll Top">▲</div>
-    <div class="fab-item fab-primary" id="fabMenuBtn" title="Quick Nav">
+  <!-- 7. Floating Action Buttons -->
+  <div class="fixed bottom-6 right-6 flex gap-3 z-50">
+    <div class="w-12 h-12 rounded-full border border-[#26293c] bg-[#121420] flex items-center justify-center text-lg text-white hover:bg-[#181c2c] transition shadow-lg cursor-pointer" id="fabDiceBtn" title="Dice Roller" onclick="openDiceModal()">🎲</div>
+    <div class="w-12 h-12 rounded-full border border-[#26293c] bg-[#121420] flex items-center justify-center text-lg text-white hover:bg-[#181c2c] transition shadow-lg cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll Top">▲</div>
+    <div class="w-12 h-12 rounded-full bg-[#d4a544] flex items-center justify-center text-lg text-[#0a0b10] hover:bg-[#e5c284] transition shadow-lg cursor-pointer" id="fabMenuBtn" title="Quick Nav">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
     </div>
   </div>
 
   <!-- 5. Quick-Navigation Menu (Overlay) -->
-  <div class="nav-overlay" id="navOverlay">
-    <div class="nav-grid">
-      <div class="nav-btn active-tab-btn" data-target="abilities" onclick="switchTab('abilities')">
+  <div class="fixed inset-0 bg-[#0a0b10]/80 backdrop-blur-sm z-[150] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300" id="navOverlay">
+    <div class="grid grid-cols-2 gap-3 w-[90%] max-w-[400px]">
+      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="abilities" onclick="switchTab('abilities')">
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l pointer-events-none"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 border-b border-r pointer-events-none"></span>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-8M6 20V4M18 20v-4"/></svg>
         <span>Abilities</span>
       </div>
-      <div class="nav-btn" data-target="skills" onclick="switchTab('skills')">
+      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="skills" onclick="switchTab('skills')">
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>
         <span>Skills</span>
       </div>
-      <div class="nav-btn" data-target="actions" onclick="switchTab('actions')">
+      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="actions" onclick="switchTab('actions')">
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2L2 14.5 9.5 22 22 9.5 14.5 2zM2 22l5.5-5.5"/></svg>
         <span>Actions</span>
       </div>
-      <div class="nav-btn" data-target="inventory" onclick="switchTab('inventory')">
+      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="inventory" onclick="switchTab('inventory')">
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M8 6V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2"/></svg>
         <span>Inventory</span>
       </div>
-      <div class="nav-btn" data-target="features" onclick="switchTab('features')">
+      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="features" onclick="switchTab('features')">
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         <span>Features</span>
       </div>
-      <div class="nav-btn" data-target="proficiencies" onclick="switchTab('proficiencies')">
+      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="proficiencies" onclick="switchTab('proficiencies')">
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5 4 2 7-7-4-7 4 2-7-5-4h7z"/></svg>
         <span>Proficiencies</span>
       </div>
-      <div class="nav-btn" data-target="background" onclick="switchTab('background')">
+      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="background" onclick="switchTab('background')">
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         <span>Background</span>
       </div>
-      <div class="nav-btn" data-target="notes" onclick="switchTab('notes')">
+      <div class="border border-[#26293c] bg-[#121420] p-4 rounded-xl text-white text-xs font-bold flex flex-col items-center gap-2 relative hover:bg-[#181c2c] transition cursor-pointer" data-target="notes" onclick="switchTab('notes')">
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 pointer-events-none border-t border-l"></span>
+        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 right-1 pointer-events-none border-b border-r"></span>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
         <span>Notes</span>
       </div>
@@ -456,9 +360,15 @@
     const fabMenuBtn = document.getElementById('fabMenuBtn');
     const navOverlay = document.getElementById('navOverlay');
     
-    fabMenuBtn.addEventListener('click', () => navOverlay.classList.add('active'));
+    fabMenuBtn.addEventListener('click', () => {
+      navOverlay.classList.remove('opacity-0', 'pointer-events-none');
+      navOverlay.classList.add('opacity-100', 'pointer-events-auto');
+    });
     navOverlay.addEventListener('click', (e) => {
-      if (e.target === navOverlay) navOverlay.classList.remove('active');
+      if (e.target === navOverlay) {
+        navOverlay.classList.add('opacity-0', 'pointer-events-none');
+        navOverlay.classList.remove('opacity-100', 'pointer-events-auto');
+      }
     });
 
     window.switchTab = function(tabName) {
@@ -471,15 +381,13 @@
         el.style.display = 'block';
       });
       // 3. Update active state on nav buttons
-      document.querySelectorAll('.nav-btn').forEach(btn => {
+      document.querySelectorAll('.nav-grid .nav-btn').forEach(btn => {
         if(btn.getAttribute('data-target') === tabName) {
-          btn.classList.add('active-tab-btn');
-          btn.style.borderColor = 'var(--primary)';
-          btn.style.color = 'var(--primary)';
+          btn.classList.add('border-[#d4a544]', 'text-[#d4a544]');
+          btn.classList.remove('border-[#26293c]', 'text-white');
         } else {
-          btn.classList.remove('active-tab-btn');
-          btn.style.borderColor = 'var(--border-primary)';
-          btn.style.color = 'var(--text-primary)';
+          btn.classList.remove('border-[#d4a544]', 'text-[#d4a544]');
+          btn.classList.add('border-[#26293c]', 'text-white');
         }
       });
       // 4. Scroll to top of the tab container smoothly
@@ -489,7 +397,8 @@
         window.scrollTo({ top: topOffset, behavior: 'smooth' });
       }
       
-      navOverlay.classList.remove('active');
+      navOverlay.classList.add('opacity-0', 'pointer-events-none');
+      navOverlay.classList.remove('opacity-100', 'pointer-events-auto');
     };
 
     // VTT App Logic
@@ -586,11 +495,11 @@
       const inspBtn = document.getElementById('inspirationBtn');
       if(inspBtn) {
         if(c.inspiration) {
-          inspBtn.style.borderColor = 'var(--primary)';
-          inspBtn.style.color = 'var(--primary)';
+          inspBtn.classList.add('border-[#d4a544]', 'text-[#d4a544]');
+          inspBtn.classList.remove('border-[#26293c]', 'text-[#a2a7bd]');
         } else {
-          inspBtn.style.borderColor = 'var(--border-primary)';
-          inspBtn.style.color = 'var(--text-secondary)';
+          inspBtn.classList.remove('border-[#d4a544]', 'text-[#d4a544]');
+          inspBtn.classList.add('border-[#26293c]', 'text-[#a2a7bd]');
         }
         inspBtn.onclick = () => {
           if(!canEdit) return;
@@ -607,9 +516,6 @@
       let hpPct = Math.min(100, Math.max(0, (c.hp.current / c.hp.max) * 100));
       const bar = document.getElementById('hp-bar');
       bar.style.width = hpPct + '%';
-      if(hpPct > 50) bar.style.background = 'linear-gradient(90deg, #2ea559, #3ecb6e)';
-      else if(hpPct > 25) bar.style.background = 'linear-gradient(90deg, #b7791f, #d4a544)';
-      else bar.style.background = 'linear-gradient(90deg, #7a2b2b, #a53b3b)';
       
       // Top Stats
       document.getElementById('prof').textContent = signed(profBonus);
@@ -646,9 +552,9 @@
           document.querySelector('.currency-badge.'+type).onclick = () => {
             const content = `
               <div class="flex flex-col gap-3">
-                <label class="text-xs font-bold text-text-tertiary">Amount (${type.toUpperCase()})</label>
-                <input type="number" id="currencyInput" class="w-full bg-bg-primary border border-border-primary text-text-primary text-center text-lg p-2 rounded" value="${character.currencies?.[type]||0}" min="0">
-                <button class="btn btn-heal py-2 font-bold" onclick="saveCurrency('${type}')">Save</button>
+                <label class="text-xs font-bold text-[#a2a7bd]">Amount (${type.toUpperCase()})</label>
+                <input type="number" id="currencyInput" class="w-full bg-[#0b0c12] border border-[#26293c] text-white text-center text-lg p-2 rounded outline-none focus:border-[#d4a544]" value="${character.currencies?.[type]||0}" min="0">
+                <button class="w-full rounded bg-[#d4a544] py-2 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284]" onclick="saveCurrency('${type}')">Save</button>
               </div>`;
             new VTT.Modal({ title: `Edit ${type.toUpperCase()}`, content, buttons: [] }).open();
           };
@@ -659,24 +565,34 @@
       const sectionRes = document.getElementById('section-resources');
       if (c.resources && c.resources.length > 0) {
         sectionRes.style.display = 'block';
-        sectionRes.innerHTML = '<h2 class="section-title">Resources</h2><div class="space-y-3">' + c.resources.map((r, i) => `
-          <div class="flex justify-between items-center bg-bg-tertiary p-2 rounded border border-border-primary">
-             <div class="text-sm font-bold text-text-secondary">${r.name} <span class="text-[10px] text-text-disabled font-normal ml-1">(${r.resetOn || 'Rest'})</span></div>
-             <div class="flex gap-1 flex-wrap justify-end" style="max-width: 50%;">
-               ${Array.from({length: Math.min(20, r.max || 0)}).map((_, j) => `<div class="prof-dot cursor-pointer ${j < (r.current||0) ? 'active' : ''}" onclick="consumeResource(${i}, ${j})" style="margin-right:2px; width:10px; height:10px;"></div>`).join('')}
-             </div>
-          </div>
-        `).join('') + '</div>';
+        sectionRes.innerHTML = `
+          <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+          <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+          <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+          <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Resources</h2>
+          <div class="space-y-3">
+            ${c.resources.map((r, i) => `
+              <div class="flex justify-between items-center bg-[#0b0c12] p-2.5 rounded border border-[#26293c] hover:bg-[#181c2c]/20 transition">
+                 <div class="text-xs font-bold text-white">${r.name} <span class="text-[9px] text-[#6b7085] font-normal ml-1">(${r.resetOn || 'Rest'})</span></div>
+                 <div class="flex gap-1 flex-wrap justify-end" style="max-width: 50%;">
+                   ${Array.from({length: Math.min(20, r.max || 0)}).map((_, j) => `
+                     <div class="w-2.5 h-2.5 rounded-full border cursor-pointer transition ${j < (r.current||0) ? 'border-[#d4a544] bg-[#d4a544]' : 'border-[#6b7085] bg-transparent'}" onclick="consumeResource(${i}, ${j})" style="margin-right:2px;"></div>
+                   `).join('')}
+                 </div>
+              </div>
+            `).join('')}
+          </div>`;
       } else {
         sectionRes.style.display = 'none';
       }
 
       // Abilities
       document.getElementById('abilities').innerHTML = keys.map(k =>
-        `<div class="ability-card" onclick="rollStat('${labels[k]}','${k}')">
-          <div style="font-size: 0.55rem; color: var(--text-tertiary); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.1; margin-bottom: 2px; text-align: center; width: 100%; white-space: normal; word-break: break-word;">${labels[k]}</div>
-          <div class="text-2xl font-serif font-bold text-text-primary my-1">${signed(c.modifiers[k])}</div>
-          <div class="ability-score">${c.stats[k]}</div>
+        `<div class="rounded-md bg-[#0b0c12] p-3 text-center border border-[#26293c] hover:border-[#d4a544] transition cursor-pointer" onclick="rollStat('${labels[k]}','${k}')">
+          <div class="text-[9px] text-[#6b7085] uppercase tracking-wider leading-none mb-1 text-center truncate">${labels[k]}</div>
+          <div class="text-lg font-bold text-white my-0.5">${signed(c.modifiers[k])}</div>
+          <div class="text-[9px] text-[#d4a544] font-bold mt-0.5">${c.stats[k]}</div>
         </div>`
       ).join('');
       
@@ -684,9 +600,13 @@
       document.getElementById('saves').innerHTML = keys.map(k => {
         let isProf = c.proficiencies?.saves?.includes(k);
         let mod = c.modifiers[k] + (isProf ? profBonus : 0);
-        return `<div class="skill-row" onclick="sendRoll('1d20${signed(mod)}', '${labels[k]} Save')">
-          <span class="text-sm text-text-primary flex items-center w-full"><span class="prof-dot ${isProf?'active':''}"></span>${labels[k]}</span>
-          <span class="border border-border-primary bg-bg-primary px-3 py-1 rounded text-sm font-bold text-text-secondary">${signed(mod)}</span>
+        return `
+        <div class="flex items-center justify-between rounded bg-[#0b0c12] px-3 py-2 text-[10px] text-[#a2a7bd] border border-[#26293c]/50 hover:bg-[#181c2c]/30 transition cursor-pointer mb-2" onclick="sendRoll('1d20${signed(mod)}', '${labels[k]} Save')">
+          <span class="text-xs text-white flex items-center w-full">
+            <span class="w-2 h-2 rounded-full border mr-2 flex-shrink-0 ${isProf ? 'border-[#d4a544] bg-[#d4a544]' : 'border-[#6b7085] bg-transparent'}"></span>
+            <span>${labels[k]}</span>
+          </span>
+          <span class="border border-[#26293c] bg-[#0b0c12] px-2 py-0.5 rounded text-xs font-bold text-[#d4a544]">${signed(mod)}</span>
         </div>`;
       }).join('');
       
@@ -694,13 +614,14 @@
       document.getElementById('skills').innerHTML = Object.entries(skillMap).map(([s,k]) => {
         let isProf = c.proficiencies?.skills?.includes(s);
         let mod = c.modifiers[k] + (isProf ? profBonus : 0);
-        return `<div class="skill-row" onclick="sendRoll('1d20${signed(mod)}', '${s} Check')">
-          <span class="text-sm text-text-primary flex items-center w-full min-w-0">
-            <span class="prof-dot ${isProf?'active':''}"></span>
-            <span style="font-size: 0.6rem; color: var(--text-disabled); text-transform: uppercase; margin-right: 8px; width: 28px; display: inline-block; text-align: right; font-weight: bold;">${k}</span>
+        return `
+        <div class="flex items-center justify-between rounded bg-[#0b0c12] px-3 py-2 text-[10px] text-[#a2a7bd] border border-[#26293c]/50 hover:bg-[#181c2c]/30 transition cursor-pointer mb-2" onclick="sendRoll('1d20${signed(mod)}', '${s} Check')">
+          <span class="text-xs text-white flex items-center w-full min-w-0">
+            <span class="w-2 h-2 rounded-full border mr-2 flex-shrink-0 ${isProf ? 'border-[#d4a544] bg-[#d4a544]' : 'border-[#6b7085] bg-transparent'}"></span>
+            <span class="text-[9px] text-[#6b7085] uppercase mr-2 w-7 inline-block text-right font-bold">${k}</span>
             <span class="truncate pr-2">${s}</span>
           </span>
-          <span class="border border-border-primary bg-bg-primary px-3 py-1 rounded text-sm font-bold text-text-secondary flex-shrink-0">${signed(mod)}</span>
+          <span class="border border-[#26293c] bg-[#0b0c12] px-2 py-0.5 rounded text-xs font-bold text-[#d4a544] flex-shrink-0">${signed(mod)}</span>
         </div>`;
       }).join('');
       
@@ -711,8 +632,8 @@
         ['INSIGHT', 10 + c.modifiers.wis + (c.proficiencies?.skills?.includes('Insight')?profBonus:0)]
       ].map(x => `
         <div class="flex flex-col items-center flex-1">
-          <div class="w-12 h-12 md:w-14 md:h-14 rounded-full border border-border-primary flex items-center justify-center text-lg md:text-xl font-serif font-bold bg-bg-tertiary text-text-primary shadow-sm mb-1">${x[1]}</div>
-          <div class="text-[8px] md:text-[9px] font-bold text-text-tertiary uppercase text-center">${x[0]}</div>
+          <div class="w-12 h-12 md:w-14 md:h-14 rounded-full border border-[#d4a544] bg-[#0b0c12] flex items-center justify-center text-sm font-bold text-white mb-1 shadow-md">${x[1]}</div>
+          <div class="text-[9px] font-bold text-[#6b7085] uppercase text-center">${x[0]}</div>
         </div>
       `).join('');
       
@@ -740,40 +661,40 @@
         ['Languages', prof.languages],
       ].filter(([,v]) => v && v.length)
        .map(([label, arr]) => `
-        <div>
-          <span class="font-bold text-text-secondary">${label}:</span>
-          <span class="text-text-tertiary"> ${Array.isArray(arr) ? arr.join(', ') : arr}</span>
+        <div class="mb-2 last:mb-0">
+          <span class="font-bold text-white">${label}:</span>
+          <span class="text-[#a2a7bd]"> ${Array.isArray(arr) ? arr.join(', ') : arr}</span>
         </div>`
-      ).join('') || '<div class="text-text-disabled italic">No proficiency data available.</div>';
+      ).join('') || '<div class="text-[#6b7085] italic text-xs">No proficiency data available.</div>';
 
       // Background
       const bgSection = document.getElementById('backgroundContainer');
       bgSection.innerHTML = `
-        <h2 class="section-title">Background</h2>
-        <div class="space-y-3 text-sm">
-          ${c.background?.name ? `<div class="font-bold text-text-secondary text-base">${c.background.name}</div>` : ''}
-          ${c.background?.description ? `<div class="text-text-tertiary leading-relaxed">${c.background.description}</div>` : ''}
+        <h2 class="text-xs font-bold uppercase tracking-wider text-[#e5c284] border-b border-[#26293c] pb-2 mb-4">Background</h2>
+        <div class="space-y-4 text-xs">
+          ${c.background?.name ? `<div class="font-bold text-white text-sm">${c.background.name}</div>` : ''}
+          ${c.background?.description ? `<div class="text-[#a2a7bd] leading-relaxed">${c.background.description}</div>` : ''}
           ${c.personalityTraits?.length ? `
             <div>
-              <div class="font-bold text-text-secondary text-xs uppercase tracking-wider mb-1">Personality Traits</div>
-              ${c.personalityTraits.map(t => `<div class="text-text-tertiary">• ${t}</div>`).join('')}
+              <div class="font-bold text-[#e5c284] text-[9px] uppercase tracking-wider mb-1">Personality Traits</div>
+              ${c.personalityTraits.map(t => `<div class="text-[#a2a7bd]">• ${t}</div>`).join('')}
             </div>` : ''}
           ${c.ideals?.length ? `
             <div>
-              <div class="font-bold text-text-secondary text-xs uppercase tracking-wider mb-1">Ideals</div>
-              ${c.ideals.map(t => `<div class="text-text-tertiary">• ${t}</div>`).join('')}
+              <div class="font-bold text-[#e5c284] text-[9px] uppercase tracking-wider mb-1">Ideals</div>
+              ${c.ideals.map(t => `<div class="text-[#a2a7bd]">• ${t}</div>`).join('')}
             </div>` : ''}
           ${c.bonds?.length ? `
             <div>
-              <div class="font-bold text-text-secondary text-xs uppercase tracking-wider mb-1">Bonds</div>
-              ${c.bonds.map(t => `<div class="text-text-tertiary">• ${t}</div>`).join('')}
+              <div class="font-bold text-[#e5c284] text-[9px] uppercase tracking-wider mb-1">Bonds</div>
+              ${c.bonds.map(t => `<div class="text-[#a2a7bd]">• ${t}</div>`).join('')}
             </div>` : ''}
           ${c.flaws?.length ? `
             <div>
-              <div class="font-bold text-text-secondary text-xs uppercase tracking-wider mb-1">Flaws</div>
-              ${c.flaws.map(t => `<div class="text-text-tertiary">• ${t}</div>`).join('')}
+              <div class="font-bold text-[#e5c284] text-[9px] uppercase tracking-wider mb-1">Flaws</div>
+              ${c.flaws.map(t => `<div class="text-[#a2a7bd]">• ${t}</div>`).join('')}
             </div>` : ''}
-          ${(!c.background && !c.personalityTraits) ? '<div class="text-text-disabled italic">Background details imported from D&amp;D Beyond will appear here.</div>' : ''}
+          ${(!c.background && !c.personalityTraits) ? '<div class="text-[#6b7085] italic text-xs">Background details imported from D&amp;D Beyond will appear here.</div>' : ''}
         </div>`;
 
       // Notes
@@ -811,7 +732,7 @@
     // Attacks Renderer
     function renderAttacks(list) {
       if (!list || list.length === 0) {
-        document.getElementById('attacksContainer').innerHTML = '<div class="text-text-disabled italic">No weapons or spells found.</div>';
+        document.getElementById('attacksContainer').innerHTML = '<div class="text-[#6b7085] italic text-xs">No weapons or spells found.</div>';
         return;
       }
       
@@ -824,7 +745,7 @@
       if(spells.length) {
          const levels = [...new Set(spells.map(s => s.level))].sort((a,b)=>a-b);
          levels.forEach(lv => {
-           html += `<div class="text-[10px] tracking-wider font-bold text-text-tertiary uppercase mt-4 mb-2 border-b border-border-primary pb-1">${lv===0?'Cantrips':'Level '+lv}</div>`;
+           html += `<div class="text-[9px] tracking-wider font-bold text-[#e5c284] uppercase mt-4 mb-2 border-b border-[#26293c] pb-1">${lv===0?'Cantrips':'Level '+lv}</div>`;
            html += spells.filter(s => s.level === lv).map(renderAtkRow).join('');
          });
       }
@@ -835,20 +756,20 @@
         const atkBonus = signed(atk.attackBonus ?? 0);
         const dmg = atk.damage || '—';
         const range = atk.range || '5 ft.';
-        const prepIcon = atk.level !== undefined ? (atk.prepared ? '<span class="text-primary mr-2" title="Prepared">★</span>' : '<span class="text-text-disabled mr-2" title="Not Prepared">☆</span>') : '';
+        const prepIcon = atk.level !== undefined ? (atk.prepared ? '<span class="text-[#d4a544] mr-2" title="Prepared">★</span>' : '<span class="text-[#6b7085] mr-2" title="Not Prepared">☆</span>') : '';
         const op = (atk.level !== undefined && !atk.prepared && atk.level > 0) ? 'opacity-50' : '';
         return `
-          <div class="flex items-center justify-between py-2 border-b border-border-primary last:border-0 hover:bg-bg-hover rounded px-1 ${op}">
+          <div class="flex items-center justify-between py-2 border-b border-[#26293c] last:border-0 hover:bg-[#181c2c]/30 rounded px-1.5 transition ${op}">
             <div class="flex-1 min-w-0 flex items-center">
               ${atk.level !== undefined ? `<div class="cursor-pointer" onclick="event.stopPropagation(); toggleSpellPrep('${atk.name}')">${prepIcon}</div>` : ''}
               <div>
-                <div class="font-bold text-text-secondary text-sm truncate">${atk.name}</div>
-                <div class="text-[10px] text-text-disabled">${atk.type || (atk.level !== undefined ? 'Spell' : 'Weapon')} · ${range}</div>
+                <div class="font-bold text-white text-xs truncate">${atk.name}</div>
+                <div class="text-[10px] text-[#6b7085]">${atk.type || (atk.level !== undefined ? 'Spell' : 'Weapon')} · ${range}</div>
               </div>
             </div>
             <div class="flex gap-2 flex-shrink-0 ml-2">
-              <span class="border border-border-primary bg-bg-primary px-2 py-1 rounded text-xs font-bold text-text-secondary cursor-pointer hover:border-primary" onclick="event.stopPropagation(); sendRoll('1d20${atkBonus}', '${atk.name} Attack')">${atkBonus}</span>
-              <span class="border border-border-primary bg-bg-primary px-2 py-1 rounded text-xs text-text-tertiary cursor-pointer hover:border-primary" onclick="event.stopPropagation(); rollDamage('${dmg}', '${atk.name}')">${dmg}</span>
+              <span class="border border-[#26293c] bg-[#0b0c12] px-2.5 py-1 rounded text-xs font-bold text-[#d4a544] cursor-pointer hover:border-[#d4a544] transition" onclick="event.stopPropagation(); sendRoll('1d20${atkBonus}', '${atk.name} Attack')">${atkBonus}</span>
+              <span class="border border-[#26293c] bg-[#0b0c12] px-2.5 py-1 rounded text-xs text-[#a2a7bd] cursor-pointer hover:border-[#d4a544] transition" onclick="event.stopPropagation(); rollDamage('${dmg}', '${atk.name}')">${dmg}</span>
             </div>
           </div>`;
     }
@@ -866,8 +787,13 @@
 
     document.querySelectorAll('#actions-chips .filter-chip').forEach(chip => {
       chip.addEventListener('click', () => {
-        document.querySelectorAll('#actions-chips .filter-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
+        document.querySelectorAll('#actions-chips .filter-chip').forEach(c => {
+          c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0b10]', 'border-[#d4a544]');
+          c.classList.add('bg-[#0b0c12]', 'text-[#a2a7bd]', 'border-[#26293c]');
+        });
+        chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0b10]', 'border-[#d4a544]');
+        chip.classList.remove('bg-[#0b0c12]', 'text-[#a2a7bd]', 'border-[#26293c]');
+        
         const filter = chip.textContent.trim().toLowerCase();
         const filtered = filter === 'all' ? window._allAttacks : window._allAttacks.filter(item => (item.actionType || '').toLowerCase() === filter);
         renderAttacks(filtered);
@@ -883,23 +809,22 @@
       const wPct = Math.min(100, (allItemsWeight/capacity)*100);
       const wBar = document.getElementById('weight-bar');
       wBar.style.width = wPct + '%';
-      if(wPct >= 100) wBar.style.background = 'var(--danger, #a53b3b)';
-      else if(wPct > 75) wBar.style.background = 'var(--primary-dark, #b7791f)';
-      else wBar.style.background = 'var(--primary, #d4a544)';
+      if(wPct >= 100) wBar.style.background = '#8b302d';
+      else wBar.style.background = '#d4a544';
 
       document.getElementById('equipment').innerHTML = (items.length ?
-         `<div class="flex justify-between items-center pb-1 mb-1 border-b border-border-primary text-[10px] text-text-disabled uppercase font-bold mt-2">
+         `<div class="flex justify-between items-center pb-1 mb-1 border-b border-[#26293c] text-[9px] text-[#6b7085] uppercase font-bold mt-2">
            <div style="flex:1;">Name</div>
            <div style="width:40px; text-align:center;">Qty</div>
            <div style="width:60px; text-align:right;">Weight</div>
          </div>` +
         items.map((item,index) =>
-          `<div class="flex justify-between items-center py-2 border-b border-border-primary last:border-b-0 text-sm w-full cursor-pointer hover:bg-bg-hover rounded" onclick="openItemModal(${window._allItems.indexOf(item)})">
-             <div style="flex:1; text-align:left; font-weight:bold; color:var(--text-secondary); word-break:break-word; padding-right:8px;">${item.equipped ? '<span class="text-primary font-bold mr-1">E</span> ' : ''}${item.name}</div>
-             <div style="width:40px; text-align:center; color:var(--text-primary); font-size:0.8rem;">${item.quantity}</div>
-             <div style="width:60px; text-align:right; color:var(--text-tertiary); font-size:0.75rem;">${(Number(item.weight||0)*Number(item.quantity||1)).toFixed(1)} lb</div>
+          `<div class="flex justify-between items-center py-2 border-b border-[#26293c] last:border-b-0 text-xs w-full cursor-pointer hover:bg-[#181c2c]/30 rounded transition px-1.5" onclick="openItemModal(${window._allItems.indexOf(item)})">
+             <div style="flex:1; text-align:left; font-weight:bold; color:#white; word-break:break-word; padding-right:8px;">${item.equipped ? '<span class="text-[#d4a544] font-bold mr-1">E</span> ' : ''}${item.name}</div>
+             <div style="width:40px; text-align:center; color:#a2a7bd; font-size:0.75rem;">${item.quantity}</div>
+             <div style="width:60px; text-align:right; color:#6b7085; font-size:0.7rem;">${(Number(item.weight||0)*Number(item.quantity||1)).toFixed(1)} lb</div>
            </div>`
-        ).join('') : '<div class="text-text-disabled italic text-sm mt-2">No equipment found.</div>');
+        ).join('') : '<div class="text-[#6b7085] italic text-xs mt-2">No equipment found.</div>');
     }
 
     document.getElementById('inventorySearch')?.addEventListener('input', () => {
@@ -915,8 +840,13 @@
 
     document.querySelectorAll('#inventory-chips .filter-chip').forEach(chip => {
       chip.addEventListener('click', () => {
-        document.querySelectorAll('#inventory-chips .filter-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
+        document.querySelectorAll('#inventory-chips .filter-chip').forEach(c => {
+          c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0b10]', 'border-[#d4a544]');
+          c.classList.add('bg-[#0b0c12]', 'text-[#a2a7bd]', 'border-[#26293c]');
+        });
+        chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0b10]', 'border-[#d4a544]');
+        chip.classList.remove('bg-[#0b0c12]', 'text-[#a2a7bd]', 'border-[#26293c]');
+        
         const event = new Event('input');
         document.getElementById('inventorySearch')?.dispatchEvent(event);
       });
@@ -927,8 +857,8 @@
       const item = window._allItems[index];
       const canEdit = Boolean(localStorage.getItem('token'));
       const content = `
-        <div class="text-sm text-text-tertiary mb-4 leading-relaxed">${item.description || 'No description available.'}</div>
-        ${canEdit ? `<button class="btn w-full font-bold border border-border-primary text-text-secondary py-2 rounded uppercase tracking-wider hover:bg-bg-hover" onclick="toggleEquip(${index})">${item.equipped ? 'Unequip Item' : 'Equip Item'}</button>` : ''}
+        <div class="text-xs text-[#a2a7bd] mb-4 leading-relaxed">${item.description || 'No description available.'}</div>
+        ${canEdit ? `<button class="w-full rounded border border-[#26293c] bg-[#121420] text-white py-2 text-xs font-bold uppercase tracking-wider hover:bg-[#181c2c] transition" onclick="toggleEquip(${index})">${item.equipped ? 'Unequip Item' : 'Equip Item'}</button>` : ''}
       `;
       new VTT.Modal({ title: item.name, content, buttons: [] }).open();
     };
@@ -945,22 +875,22 @@
     function renderFeatures(list) {
       const el = document.getElementById('featuresList');
       if (!list || list.length === 0) {
-        el.innerHTML = '<div class="text-text-disabled italic">Features imported from D&D Beyond will appear here.</div>';
+        el.innerHTML = '<div class="text-[#6b7085] italic text-xs">Features imported from D&D Beyond will appear here.</div>';
         return;
       }
       el.innerHTML = list.map(f => {
         const resource = f.usesResourceName ? character?.resources?.find(r => r.name === f.usesResourceName) : null;
-        const useBtn = resource ? `<button class="btn btn-ghost text-[10px] px-2 py-1 border border-border-primary text-text-secondary rounded ml-2 flex-shrink-0" onclick="useResourceByName('${resource.name.replace(/'/g, "\\'")}')">Use (${resource.current}/${resource.max})</button>` : '';
+        const useBtn = resource ? `<button class="rounded border border-[#26293c] bg-[#121420] text-[#a2a7bd] text-[10px] px-2 py-1 hover:bg-[#181c2c] transition ml-2 flex-shrink-0" onclick="useResourceByName('${resource.name.replace(/'/g, "\\'")}')">Use (${resource.current}/${resource.max})</button>` : '';
         return `
-        <div class="border-b border-border-primary pb-3 last:border-0">
+        <div class="border-b border-[#26293c] pb-3 last:border-0">
           <div class="flex justify-between items-start">
              <div class="flex-1 min-w-0">
-               <div class="font-bold text-text-secondary text-sm">${f.name}</div>
-               ${f.source ? `<div class="text-[10px] text-text-disabled mb-1">${f.source}</div>` : ''}
+               <div class="font-bold text-white text-xs">${f.name}</div>
+               ${f.source ? `<div class="text-[9px] text-[#6b7085] mb-1">${f.source}</div>` : ''}
              </div>
              ${useBtn}
           </div>
-          <div class="text-xs text-text-tertiary leading-relaxed mt-1">${f.description || ''}</div>
+          <div class="text-xs text-[#a2a7bd] leading-relaxed mt-1">${f.description || ''}</div>
         </div>`;
       }).join('');
     }
@@ -980,8 +910,13 @@
 
     document.querySelectorAll('#features-chips .filter-chip').forEach(chip => {
       chip.addEventListener('click', () => {
-        document.querySelectorAll('#features-chips .filter-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
+        document.querySelectorAll('#features-chips .filter-chip').forEach(c => {
+          c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0b10]', 'border-[#d4a544]');
+          c.classList.add('bg-[#0b0c12]', 'text-[#a2a7bd]', 'border-[#26293c]');
+        });
+        chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0b10]', 'border-[#d4a544]');
+        chip.classList.remove('bg-[#0b0c12]', 'text-[#a2a7bd]', 'border-[#26293c]');
+        
         const filter = chip.textContent.trim().toLowerCase();
         const filtered = filter === 'all' ? window._allFeatures : window._allFeatures.filter(f => (f.category || f.type || '').toLowerCase().includes(filter));
         renderFeatures(filtered);
@@ -1015,10 +950,10 @@
       const resistances = character.damageResistances?.join(', ') || '—';
       const vulnerabilities = character.damageVulnerabilities?.join(', ') || '—';
       const content = `
-        <div class="space-y-3 text-sm">
-          <div><span class="font-bold text-text-secondary">Immunities:</span><span class="text-text-tertiary ml-2">${immunities}</span></div>
-          <div><span class="font-bold text-text-secondary">Resistances:</span><span class="text-text-tertiary ml-2">${resistances}</span></div>
-          <div><span class="font-bold text-text-secondary">Vulnerabilities:</span><span class="text-text-tertiary ml-2">${vulnerabilities}</span></div>
+        <div class="space-y-3 text-xs text-[#a2a7bd]">
+          <div><span class="font-bold text-white">Immunities:</span><span class="ml-2">${immunities}</span></div>
+          <div><span class="font-bold text-white">Resistances:</span><span class="ml-2">${resistances}</span></div>
+          <div><span class="font-bold text-white">Vulnerabilities:</span><span class="ml-2">${vulnerabilities}</span></div>
         </div>`;
       new VTT.Modal({ title: 'Defenses', content, buttons: [] }).open();
     }
@@ -1029,12 +964,12 @@
       const activeConditions = character.conditions || [];
       const content = `<div class="grid grid-cols-2 gap-2">` +
         dndConditions.map(cond => `
-          <label class="flex items-center gap-2 cursor-pointer p-2 rounded border border-border-primary hover:bg-bg-hover text-sm">
-            <input type="checkbox" class="cond-checkbox" value="${cond}" ${activeConditions.includes(cond)?'checked':''}>
-            <span class="text-text-primary">${cond}</span>
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded border border-[#26293c] bg-[#0b0c12] hover:bg-[#181c2c]/40 text-xs transition">
+            <input type="checkbox" class="cond-checkbox accent-[#d4a544]" value="${cond}" ${activeConditions.includes(cond)?'checked':''}>
+            <span class="text-white">${cond}</span>
           </label>`).join('') +
         `</div>
-        <button class="btn w-full mt-4 font-bold uppercase tracking-wider" style="border:1px solid var(--primary); color:var(--primary);"
+        <button class="w-full rounded bg-[#d4a544] py-2 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition mt-4"
           onclick="saveConditions()">Apply Conditions</button>`;
       new VTT.Modal({ title: 'Conditions', content, buttons: [] }).open();
     }
@@ -1050,11 +985,11 @@
       const diceTypes = ['d4','d6','d8','d10','d12','d20','d100'];
       const content = `
         <div class="grid grid-cols-3 md:grid-cols-4 gap-2 mb-4">
-          ${diceTypes.map(d => `<button class="btn btn-ghost border border-border-primary rounded py-2 font-bold font-serif text-lg text-text-secondary" onclick="sendRoll('1${d}', '${d} Roll'); document.querySelector('.vtt-modal-close')?.click();">${d}</button>`).join('')}
+          ${diceTypes.map(d => `<button class="rounded border border-[#26293c] bg-[#0b0c12] hover:bg-[#181c2c] text-white py-2 font-bold font-serif text-sm transition" onclick="sendRoll('1${d}', '${d} Roll'); document.querySelector('.vtt-modal-close')?.click();">${d}</button>`).join('')}
         </div>
         <div class="flex gap-2">
-          <input type="text" id="customRollFormula" class="w-full bg-bg-primary border border-border-primary text-text-primary p-2 rounded font-mono" placeholder="e.g. 2d6+4">
-          <button class="btn btn-primary px-4 font-bold" onclick="const f=document.getElementById('customRollFormula').value; if(f) { sendRoll(f, 'Custom Roll'); document.querySelector('.vtt-modal-close')?.click(); }">Roll</button>
+          <input type="text" id="customRollFormula" class="flex-1 rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2 text-xs text-white outline-none placeholder:text-[#555b70]" placeholder="e.g. 2d6+4">
+          <button class="rounded bg-[#d4a544] px-4 py-2 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition" onclick="const f=document.getElementById('customRollFormula').value; if(f) { sendRoll(f, 'Custom Roll'); document.querySelector('.vtt-modal-close')?.click(); }">Roll</button>
         </div>`;
       new VTT.Modal({ title: 'Dice Roller', content, buttons: [] }).open();
     };
@@ -1066,28 +1001,28 @@
       const canEdit = Boolean(localStorage.getItem('token'));
       const content = `
         <div class="flex flex-col gap-4">
-          <div class="flex justify-between items-center bg-bg-tertiary p-2 rounded border border-border-primary">
-            <div class="text-xs font-bold text-text-secondary">Hit Dice: <span class="text-primary ml-1">${hd.current}/${hd.max} ${hd.type}</span></div>
-            ${canEdit ? `<button class="btn btn-ghost text-[10px] font-bold border border-border-primary rounded px-3 py-1 text-text-secondary" onclick="spendHitDie()">SPEND</button>` : ''}
+          <div class="flex justify-between items-center bg-[#0b0c12] p-2.5 rounded border border-[#26293c]">
+            <div class="text-xs font-bold text-white">Hit Dice: <span class="text-[#d4a544] ml-1">${hd.current}/${hd.max} ${hd.type}</span></div>
+            ${canEdit ? `<button class="rounded border border-[#26293c] bg-[#121420] px-3 py-1 text-[10px] font-bold text-white hover:bg-[#181c2c] transition" onclick="spendHitDie()">SPEND</button>` : ''}
           </div>
           ${canEdit ? `
           <div class="flex gap-2">
-            <button class="flex-1 bg-bg-tertiary border border-border-primary text-text-secondary py-2 rounded text-[10px] font-bold uppercase tracking-wider hover:border-primary" onclick="shortRest()">Short Rest</button>
-            <button class="flex-1 bg-bg-tertiary border border-border-primary text-text-secondary py-2 rounded text-[10px] font-bold uppercase tracking-wider hover:border-primary" onclick="longRest()">Long Rest</button>
+            <button class="flex-1 rounded border border-[#26293c] bg-[#0b0c12] py-2 text-[10px] font-bold uppercase tracking-wider text-white hover:border-[#d4a544] transition" onclick="shortRest()">Short Rest</button>
+            <button class="flex-1 rounded border border-[#26293c] bg-[#0b0c12] py-2 text-[10px] font-bold uppercase tracking-wider text-white hover:border-[#d4a544] transition" onclick="longRest()">Long Rest</button>
           </div>
-          <hr class="border-border-primary my-1">
+          <hr class="border-[#26293c] my-1">
           <div class="flex gap-4">
             <div class="flex-1">
-              <label class="text-xs font-bold text-text-tertiary block mb-2 uppercase tracking-wider">Amount</label>
-              <input type="number" id="hpAmount" class="w-full bg-bg-primary border border-border-primary text-text-primary text-center text-xl font-serif font-bold p-3 rounded focus:border-primary" value="1" min="1">
+              <label class="text-[10px] font-bold text-[#e5c284] block mb-2 uppercase tracking-wider">Amount</label>
+              <input type="number" id="hpAmount" class="w-full bg-[#0b0c12] border border-[#26293c] text-white text-center text-xl font-bold p-3 rounded focus:border-[#d4a544] outline-none" value="1" min="1">
             </div>
           </div>
           <div class="flex gap-2 mt-2">
-            <button class="flex-1 bg-danger text-white py-3 rounded font-bold uppercase text-xs tracking-wider" onclick="applyHp(-1)">Damage</button>
-            <button class="flex-1 bg-success text-white py-3 rounded font-bold uppercase text-xs tracking-wider" onclick="applyHp(1)">Heal</button>
-            <button class="flex-1 bg-info text-white py-3 rounded font-bold uppercase text-xs tracking-wider" onclick="applyTempHp()">Temp HP</button>
+            <button class="flex-1 bg-[#8b302d] text-white py-3 rounded text-xs font-bold uppercase tracking-wider hover:bg-[#a63a37] transition" onclick="applyHp(-1)">Damage</button>
+            <button class="flex-1 bg-green-600 text-white py-3 rounded text-xs font-bold uppercase tracking-wider hover:bg-green-500 transition" onclick="applyHp(1)">Heal</button>
+            <button class="flex-1 bg-blue-600 text-white py-3 rounded text-xs font-bold uppercase tracking-wider hover:bg-blue-500 transition" onclick="applyTempHp()">Temp HP</button>
           </div>
-          ` : '<div class="text-text-disabled text-sm italic">You must be logged in as the owner to manage HP.</div>'}
+          ` : '<div class="text-[#6b7085] text-xs italic">You must be logged in as the owner to manage HP.</div>'}
         </div>
       `;
       window.hpModal = new VTT.Modal({ title: 'Manage HP & Resting', content: content, buttons: [] });

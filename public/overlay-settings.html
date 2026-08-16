@@ -1,94 +1,127 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" class="h-full">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>OBS Overlay Settings - VTT Asal Jadi</title>
-
-  <!-- Design System CSS -->
-  <link rel="stylesheet" href="/styles/variables.css">
-  <link rel="stylesheet" href="/styles/animations.css">
-  <link rel="stylesheet" href="/styles/components.css">
-  <link rel="stylesheet" href="/styles/theme.css">
-  <link rel="stylesheet" href="/styles/responsive.css">
+  <link rel="stylesheet" href="/styles/tailwind.css">
 </head>
-<body class="min-h-screen flex flex-col font-sans p-4 sm:p-6">
-  <main class="max-w-lg w-full mx-auto card card-fantasy space-y-6">
-    <div class="card-header flex items-center justify-between">
-      <div>
-        <h1 class="card-title text-2xl" style="color: var(--gold-400);">OBS Overlay HUD</h1>
-        <p class="text-xs" style="color: var(--text-secondary);">Stream Broadcast Settings & Animation Controls</p>
-      </div>
-      <a href="/vtt" class="btn btn-secondary text-xs">VTT Workstation</a>
-    </div>
+<body class="bg-[#0a0b10] text-white min-h-screen">
+  <main class="relative min-h-screen overflow-hidden bg-[#0a0b10] flex items-center justify-center p-6 sm:p-[60px]">
+    <!-- DarkModeToggle -->
+    <button
+      type="button"
+      data-theme-toggle
+      class="absolute right-6 top-6 z-20 flex items-center gap-2 rounded-full border border-[#26293c] bg-[#121420] px-3 py-3 text-white transition-colors hover:bg-[#181c2c] sm:right-10 sm:top-10"
+    >
+      <i data-lucide="moon" class="h-4 w-4"></i>
+      <span class="text-xs font-normal">DARK MODE</span>
+    </button>
 
-    <form id="settings" class="space-y-4">
-      <div class="form-group">
-        <label for="room" class="form-label">Session Room ID</label>
-        <input id="room" class="input form-input" placeholder="e.g. default-room">
-      </div>
+    <!-- BackgroundGlow -->
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] max-w-none -translate-x-1/2 -translate-y-[340px] rounded-full"
+      style="background: radial-gradient(circle, rgba(212,165,68,0.18) 0%, rgba(212,165,68,0.06) 35%, transparent 70%);"
+    ></div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="form-group">
-          <label for="position" class="form-label">Screen Position</label>
-          <select id="position" class="select form-select">
-            <option value="bottom">Bottom (Standard HUD)</option>
-            <option value="top">Top (Header HUD)</option>
-            <option value="center">Center (Dramatic)</option>
-          </select>
+    <div class="relative z-10 w-full max-w-[460px] rounded-2xl border border-[#26293c] bg-[#121420] p-8 shadow-2xl sm:p-12">
+      <!-- Corner brackets -->
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+      <div class="mb-8 text-center">
+        <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[#d4a544] bg-[#181c2c]">
+          <i data-lucide="settings" class="h-5 w-5 text-[#d4a544]"></i>
         </div>
-
-        <div class="form-group">
-          <label for="animationStyle" class="form-label">Card Animation</label>
-          <select id="animationStyle" class="select form-select">
-            <option value="slide">Slide In</option>
-            <option value="fade">Smooth Fade</option>
-            <option value="bounce">Bounce In</option>
-          </select>
-        </div>
+        <h3 class="text-2xl font-extrabold text-white" style="font-family: 'EB Garamond', serif;">OBS OVERLAY SETTINGS</h3>
+        <p class="mt-2 text-xs text-[#a2a7bd]">Configure your broadcast overlay</p>
       </div>
 
-      <div class="form-group">
-        <label for="fontSize" class="form-label">Result Font Size</label>
-        <select id="fontSize" class="select form-select">
-          <option value="small">Small (Compact Stream)</option>
-          <option value="medium">Medium (Standard Stream)</option>
-          <option value="large">Large (Dramatic Focus)</option>
-        </select>
-      </div>
-
-      <div class="flex items-center">
-        <label class="form-checkbox-container text-xs" style="color: var(--text-secondary);">
-          <input id="showFormula" type="checkbox" class="form-checkbox">
-          <span>Show Roll Formula & Breakdown (e.g. 1d20+5 (15))</span>
+      <form id="settings" class="space-y-5">
+        <!-- Room ID -->
+        <label class="block">
+          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e5c284]">Session Room ID</span>
+          <input id="room" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]" placeholder="e.g. default-room" />
         </label>
-      </div>
 
-      <div class="form-group">
-        <div class="flex justify-between items-center mb-1">
-          <label for="autoHideTimeout" class="form-label" style="margin-bottom: 0;">Auto-Dismiss Timeout</label>
-          <span class="text-xs font-bold" style="color: var(--gold-400);"><output id="timeoutValue">10</output> seconds</span>
+        <!-- Position & Animation Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label class="block">
+            <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e5c284]">Screen Position</span>
+            <select id="position" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544]">
+              <option value="bottom">Bottom (Standard HUD)</option>
+              <option value="top">Top (Header HUD)</option>
+              <option value="center">Center (Dramatic)</option>
+            </select>
+          </label>
+
+          <label class="block">
+            <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e5c284]">Card Animation</span>
+            <select id="animationStyle" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544]">
+              <option value="slide">Slide In</option>
+              <option value="fade">Smooth Fade</option>
+              <option value="bounce">Bounce In</option>
+            </select>
+          </label>
         </div>
-        <input id="autoHideTimeout" type="range" min="5" max="30" value="10" class="w-full" style="accent-color: var(--gold-500);">
-      </div>
 
-      <div class="flex items-center">
-        <label class="form-checkbox-container text-xs" style="color: var(--text-secondary);">
-          <input id="soundEffectsEnabled" type="checkbox" class="form-checkbox">
+        <!-- Font Size -->
+        <label class="block">
+          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e5c284]">Result Font Size</span>
+          <select id="fontSize" class="w-full rounded-md border border-[#26293c] bg-[#0b0c12] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544]">
+            <option value="small">Small (Compact Stream)</option>
+            <option value="medium">Medium (Standard Stream)</option>
+            <option value="large">Large (Dramatic Focus)</option>
+          </select>
+        </label>
+
+        <!-- Show Formula Checkbox -->
+        <label class="flex items-center gap-2 text-[11px] text-[#a2a7bd]">
+          <input id="showFormula" type="checkbox" class="accent-[#d4a544]" />
+          <span>Show Roll Formula & Breakdown</span>
+        </label>
+
+        <!-- Auto-Dismiss Timeout Range -->
+        <div class="block">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#e5c284]">Auto-Dismiss Timeout</span>
+            <span class="text-xs font-bold text-[#d4a544]"><output id="timeoutValue">10</output> seconds</span>
+          </div>
+          <input id="autoHideTimeout" type="range" min="5" max="30" value="10" class="w-full accent-[#d4a544]" />
+        </div>
+
+        <!-- Sound Effects Checkbox -->
+        <label class="flex items-center gap-2 text-[11px] text-[#a2a7bd]">
+          <input id="soundEffectsEnabled" type="checkbox" class="accent-[#d4a544]" />
           <span>Sound Effects Trigger (Reserved)</span>
         </label>
-      </div>
 
-      <div class="flex gap-3 pt-2">
-        <button type="submit" class="btn btn-primary flex-1">Save Settings</button>
-        <button type="button" id="openOverlay" class="btn btn-secondary flex-1">Launch Overlay</button>
-      </div>
+        <!-- Action Buttons -->
+        <div class="space-y-3 pt-2">
+          <button type="submit" class="w-full rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition flex items-center justify-center gap-2">
+            <i data-lucide="save" class="h-3.5 w-3.5"></i>
+            <span>SAVE SETTINGS</span>
+          </button>
+          <button type="button" id="openOverlay" class="w-full rounded-md border border-[#26293c] py-3 text-[10px] font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition">
+            OPEN LIVE OVERLAY
+          </button>
+          <a href="/vtt" class="block w-full text-center rounded-md border border-[#26293c] py-3 text-[10px] font-bold text-[#6b7085] hover:bg-[#181c2c] transition">
+            RETURN TO VTT WORKSTATION
+          </a>
+        </div>
 
-      <p id="status" class="text-xs text-center font-bold" style="color: var(--success);"></p>
-    </form>
+        <p id="status" class="text-xs text-center font-bold text-green-500"></p>
+      </form>
+    </div>
   </main>
 
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script>
+    lucide.createIcons();
+
     const key = 'vtt-overlay-config';
     const defaults = {
       position: 'bottom',
@@ -153,9 +186,7 @@
       window.open('/overlay.html?' + p, '_blank');
     };
   </script>
-
   <script src="/js/components.js"></script>
   <script src="/js/theme-toggle.js"></script>
-  <div style="position:fixed;bottom:10px;right:10px;z-index:var(--z-tooltip);"><button data-theme-toggle class="btn btn-ghost">🌙</button></div>
 </body>
 </html>

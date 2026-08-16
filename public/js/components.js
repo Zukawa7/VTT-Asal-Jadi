@@ -1,6 +1,6 @@
 /**
  * VTT Component Library
- * Reusable UI Components
+ * Reusable UI Components (Tailwind CSS Version)
  */
 
 window.VTT = window.VTT || {};
@@ -15,32 +15,40 @@ VTT.Modal = class {
 
   open() {
     const backdrop = document.createElement('div');
-    backdrop.className = 'modal-backdrop';
+    backdrop.className = 'fixed inset-0 bg-black/70 backdrop-blur-sm z-[1000] transition-opacity duration-300';
     backdrop.id = 'modalBackdrop';
     
     const dialog = document.createElement('div');
-    dialog.className = 'modal card animate-slideInUp';
-    dialog.style.maxWidth = '500px';
-    dialog.style.position = 'fixed';
-    dialog.style.top = '50%';
-    dialog.style.left = '50%';
+    dialog.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1001] w-[90%] max-w-[500px] rounded-2xl border border-[#26293c] bg-[#121420] p-0 shadow-[0px_16px_40px_#000000a0] flex flex-col overflow-hidden';
     dialog.style.transform = 'translate(-50%, -50%)';
-    dialog.style.zIndex = 'var(--z-modal)';
     
+    const corners = `
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2 pointer-events-none"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2 pointer-events-none"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2 pointer-events-none"></span>
+      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2 pointer-events-none"></span>
+    `;
+
     dialog.innerHTML = `
-      <div class="card-header">
-        <h2 class="card-title">${this.title}</h2>
-        <button class="btn btn-ghost" id="modalClose">×</button>
+      ${corners}
+      <div class="flex items-center justify-between px-6 py-4 border-b border-[#26293c]">
+        <h2 class="text-sm font-bold text-white uppercase tracking-wider" style="font-family: 'EB Garamond', serif;">${this.title}</h2>
+        <button class="text-[#6b7085] hover:text-white text-lg font-bold" id="modalClose">×</button>
       </div>
-      <div style="padding: var(--space-lg); max-height: 70vh; overflow-y: auto;">
+      <div class="p-6 max-h-[70vh] overflow-y-auto text-sm text-[#a2a7bd]">
         ${this.content}
       </div>
-      <div class="card-footer flex" style="justify-content: flex-end; gap: var(--space-md);">
-        ${this.buttons.map((btn, i) => `
-          <button class="btn ${btn.variant || 'btn-secondary'}" data-action="${i}">
-            ${btn.label}
-          </button>
-        `).join('')}
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-[#26293c]/50 bg-[#0d0e15]/50">
+        ${this.buttons.map((btn, i) => {
+          const btnClass = btn.variant === 'btn-accent' || btn.variant === 'btn-primary'
+            ? 'rounded-md bg-[#d4a544] px-4 py-2 text-xs font-bold text-[#0a0b10] hover:bg-[#e5c284] transition'
+            : 'rounded-md border border-[#26293c] bg-[#121420] px-4 py-2 text-xs font-bold text-[#a2a7bd] hover:bg-[#181c2c] transition';
+          return `
+            <button class="${btnClass}" data-action="${i}">
+              ${btn.label}
+            </button>
+          `;
+        }).join('')}
       </div>
     `;
     
@@ -60,6 +68,7 @@ VTT.Modal = class {
     });
     
     this.modal = dialog;
+    window.hpModal = this; // backward compatibility for hpModal.close()
   }
 
   close() {
@@ -74,47 +83,32 @@ VTT.Notification = class {
     let container = document.querySelector('.notification-container');
     if (!container) {
       container = document.createElement('div');
-      container.className = 'notification-container';
-      container.style.position = 'fixed';
-      container.style.top = '1.5rem';
-      container.style.right = '1.5rem';
-      container.style.zIndex = 'var(--z-notification)';
-      container.style.display = 'flex';
-      container.style.flexDirection = 'column';
-      container.style.gap = '1rem';
-      container.style.maxWidth = '400px';
+      container.className = 'notification-container fixed top-6 right-6 z-[1002] flex flex-col gap-4 max-w-[400px] w-[90%] pointer-events-none';
       document.body.appendChild(container);
     }
 
     const icon = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' }[type] || 'ℹ️';
+    const borderColors = { success: 'border-l-green-500', error: 'border-l-red-500', warning: 'border-l-yellow-500', info: 'border-l-blue-500' }[type] || 'border-l-blue-500';
     
     const notif = document.createElement('div');
-    notif.className = `notification notification-${type} animate-slideInDown`;
-    notif.style.display = 'flex';
-    notif.style.alignItems = 'center';
-    notif.style.gap = '1rem';
-    notif.style.padding = '1rem 1.5rem';
-    notif.style.backgroundColor = 'var(--bg-secondary)';
-    notif.style.borderLeft = `4px solid var(--${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'})`;
-    notif.style.borderRadius = 'var(--radius-md)';
-    notif.style.boxShadow = 'var(--shadow-lg)';
+    notif.className = `pointer-events-auto flex items-center gap-3 p-4 rounded-xl border border-[#26293c] border-l-4 ${borderColors} bg-[#121420]/95 backdrop-blur-md shadow-[0px_8px_32px_rgba(0,0,0,0.8)] relative overflow-hidden transition-all duration-300`;
     
     notif.innerHTML = `
       <span style="font-size: 1.25rem;">${icon}</span>
-      <span>${message}</span>
-      <button class="btn btn-ghost" style="margin-left: auto; width: 24px; height: 24px; padding: 0;">×</button>
+      <span class="text-xs text-[#a2a7bd]">${message}</span>
+      <button class="text-[#6b7085] hover:text-white font-bold ml-auto" style="width: 24px; height: 24px; padding: 0;">×</button>
     `;
     
     container.appendChild(notif);
     
     notif.querySelector('button').addEventListener('click', () => {
-      notif.classList.add('animate-fadeOut');
+      notif.classList.add('opacity-0');
       setTimeout(() => notif.remove(), 300);
     });
     
     if (duration > 0) {
       setTimeout(() => {
-        notif.classList.add('animate-fadeOut');
+        notif.classList.add('opacity-0');
         setTimeout(() => notif.remove(), 300);
       }, duration);
     }
@@ -145,8 +139,8 @@ VTT.Tabs = class {
     this.tabs.forEach(t => t.classList.remove('active'));
     this.contents.forEach(c => c.classList.add('hidden'));
     
-    this.container.querySelector(\`[data-tab="${name}"]\`)?.classList.add('active');
-    this.container.querySelector(\`[data-tab-content="${name}"]\`)?.classList.remove('hidden');
+    this.container.querySelector(`[data-tab="${name}"]`)?.classList.add('active');
+    this.container.querySelector(`[data-tab-content="${name}"]`)?.classList.remove('hidden');
   }
 };
 
@@ -166,29 +160,3 @@ VTT.Confirm = {
     });
   }
 };
-
-// CSS Styles for components
-const styles = `
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: var(--z-modal-backdrop);
-  animation: fadeIn var(--transition-base);
-}
-
-.notification-container {
-  pointer-events: none;
-}
-
-.notification {
-  pointer-events: all;
-}
-`;
-
-const styleSheet = document.createElement('style');
-styleSheet.textContent = styles;
-document.head.appendChild(styleSheet);

@@ -1,64 +1,205 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - VTT Asal Jadi</title>
-  
-  <!-- Design System CSS -->
-  <link rel="stylesheet" href="/styles/variables.css">
-  <link rel="stylesheet" href="/styles/animations.css">
-  <link rel="stylesheet" href="/styles/components.css">
-  <link rel="stylesheet" href="/styles/theme.css">
-  <link rel="stylesheet" href="/styles/responsive.css">
+  <link rel="stylesheet" href="/styles/tailwind.css">
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-  <div class="card card-fantasy w-full" style="max-width: 420px;">
-    <!-- Fantasy Crest Header -->
-    <div class="text-center" style="margin-bottom: var(--space-lg);">
-      <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(145deg, var(--bg-tertiary), var(--bg-surface)); border: 2px solid var(--gold-500); box-shadow: var(--glow-gold-sm); margin-bottom: var(--space-sm);">
-        <span style="font-size: var(--font-size-3xl); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">🎲</span>
+<body class="bg-[#0a0b10] text-white min-h-screen">
+  <main class="relative min-h-screen overflow-hidden bg-[#0a0b10]">
+    <!-- DarkModeToggle -->
+    <button
+      type="button"
+      data-theme-toggle
+      class="absolute right-6 top-6 z-20 flex items-center gap-2 rounded-full border border-[#26293c] bg-[#121420] px-3 py-3 text-white transition-colors hover:bg-[#181c2c] sm:right-10 sm:top-10"
+    >
+      <i data-lucide="moon" class="h-4 w-4"></i>
+      <span class="text-xs font-normal">DARK MODE</span>
+    </button>
+
+    <!-- BackgroundGlow -->
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] max-w-none -translate-x-1/2 -translate-y-[340px] rounded-full"
+      style="background: radial-gradient(circle, rgba(212,165,68,0.18) 0%, rgba(212,165,68,0.06) 35%, transparent 70%);"
+    ></div>
+
+    <section id="login" class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden border-t border-[#1c1f2d] bg-[#0a0b10] p-6 sm:p-[60px]">
+      <div class="relative z-10 w-full max-w-[460px] rounded-[20px] border border-[#26293c] bg-[#121420] p-0 shadow-[0px_16px_40px_#000000a0]">
+        <!-- Corner brackets -->
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
+        <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+
+        <div class="flex flex-col items-center gap-8 p-6 sm:p-12">
+          <!-- LoginHeader -->
+          <header class="flex w-full flex-col items-center gap-4">
+            <div class="flex h-16 w-16 items-center justify-center rounded-full border border-[#d4a544] bg-[#181c2c] p-4">
+              <span class="text-[28px] leading-none">🎲</span>
+            </div>
+            <div class="flex w-full flex-col items-center gap-2">
+              <h1
+                class="text-center text-[32px] font-extrabold leading-none text-white"
+                style="font-family: 'EB Garamond', Helvetica, serif"
+              >
+                VTT ASAL JADI
+              </h1>
+              <p class="text-center text-sm font-normal leading-none text-[#a2a7bd]">
+                Sign in to manage your D&amp;D Beyond characters
+              </p>
+            </div>
+          </header>
+
+          <!-- LoginForm -->
+          <form id="loginForm" class="flex w-full flex-col gap-5">
+            <!-- Username/Email Field -->
+            <div class="flex w-full flex-col gap-2">
+              <label
+                for="username"
+                class="text-[11px] font-bold leading-none text-[#e5c284]"
+              >
+                USERNAME OR EMAIL
+              </label>
+              <div class="flex items-center gap-2 rounded-lg border border-[#26293c] bg-[#0b0c12] px-4 py-3">
+                <input
+                  id="username"
+                  type="text"
+                  required
+                  autocomplete="username"
+                  placeholder="Enter your username"
+                  class="h-auto flex-1 border-0 bg-transparent p-0 text-sm font-normal leading-none text-white shadow-none outline-none"
+                />
+              </div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="flex w-full flex-col gap-2">
+              <label
+                for="password"
+                class="text-[11px] font-bold leading-none text-[#e5c284]"
+              >
+                PASSWORD
+              </label>
+              <div class="flex items-center gap-2 rounded-lg border border-[#26293c] bg-[#0b0c12] px-4 py-3">
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  autocomplete="current-password"
+                  placeholder="Enter your password"
+                  class="h-auto flex-1 border-0 bg-transparent p-0 text-sm font-normal leading-none text-white shadow-none outline-none"
+                />
+                <button
+                  type="button"
+                  id="togglePassword"
+                  class="text-[#a2a7bd] hover:text-white"
+                  aria-label="Show password"
+                >
+                  <i data-lucide="eye" class="h-4 w-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Remember Me & Forgot Password -->
+            <div class="flex w-full items-center justify-between gap-3">
+              <label
+                for="rememberMe"
+                class="flex cursor-pointer items-center gap-2"
+              >
+                <input type="checkbox" id="rememberMe" class="hidden" />
+                <button
+                  type="button"
+                  id="rememberMeBtn"
+                  class="flex h-4 w-4 items-center justify-center rounded border border-[#d4a544] bg-[#0b0c12]"
+                  aria-pressed="false"
+                >
+                  <!-- Checkmark SVG will be toggled here -->
+                </button>
+                <span class="text-[13px] font-normal leading-none text-[#a2a7bd]">
+                  Keep me logged in
+                </span>
+              </label>
+              <button
+                type="button"
+                class="text-[13px] font-medium leading-none text-[#d4a544] hover:text-[#e5c284]"
+              >
+                Forgot Password?
+              </button>
+            </div>
+
+            <!-- Error Message -->
+            <div id="loginError" class="hidden text-sm text-red-500 text-center bg-red-950/20 border border-red-900/50 rounded-lg p-3"></div>
+
+            <!-- LoginFooter -->
+            <footer class="flex w-full flex-col items-center gap-6">
+              <button
+                type="submit"
+                class="h-auto w-full rounded-lg bg-[#d4a544] px-6 py-3.5 text-[15px] font-bold leading-none text-[#0a0b10] shadow-[0px_4px_12px_#d4a54440] transition-colors hover:bg-[#e5c284]"
+              >
+                SIGN IN TO TABLETOP
+              </button>
+              <p class="flex items-start gap-1.5 text-sm font-normal leading-none">
+                <span class="text-[#6b7085]">Don't have an account?</span>
+                <a
+                  href="/register"
+                  class="text-sm font-normal leading-none text-[#d4a544] hover:text-[#e5c284]"
+                >
+                  Register here
+                </a>
+              </p>
+            </footer>
+          </form>
+        </div>
       </div>
-      <h1 class="card-title" style="border: none; margin-top: var(--space-xs); font-size: var(--font-size-2xl);">VTT ASAL JADI</h1>
-      <p style="color: var(--text-secondary); font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: var(--tracking-wider); margin-top: 4px;">Sign in to your adventurer account</p>
-    </div>
+    </section>
+  </main>
 
-    <form id="loginForm" class="flex flex-col gap-4">
-      <div class="form-group">
-        <label for="username" class="form-label">Username</label>
-        <input type="text" id="username" required autocomplete="username" placeholder="Enter your username" class="input form-input">
-      </div>
-
-      <div class="form-group">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" id="password" required autocomplete="current-password" placeholder="Enter your password" class="input form-input">
-      </div>
-
-      <div class="flex items-center justify-between" style="margin-top: -4px;">
-        <label class="form-checkbox-container text-xs" style="color: var(--text-secondary);">
-          <input type="checkbox" id="rememberMe" class="form-checkbox">
-          <span>Remember me</span>
-        </label>
-      </div>
-
-      <div id="loginError" class="hidden" style="color: var(--danger); font-size: var(--font-size-sm); text-align: center; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: var(--radius-sm); padding: var(--space-xs);"></div>
-
-      <button type="submit" class="btn btn-primary w-full" style="margin-top: var(--space-sm);">
-        Sign In
-      </button>
-    </form>
-
-    <div style="margin-top: var(--space-lg); text-align: center; font-size: var(--font-size-sm); color: var(--text-secondary); border-top: 1px solid var(--border-primary); padding-top: var(--space-md);">
-      Don't have an account? 
-      <a href="/register" style="color: var(--gold-400); text-decoration: none; font-weight: bold;">Register here</a>
-    </div>
-  </div>
-
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script>
+    lucide.createIcons();
+
+    // Check token
     if (localStorage.getItem('token')) {
       window.location.href = '/dashboard';
     }
 
+    // Toggle Password Visibility
+    const togglePasswordBtn = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    togglePasswordBtn.addEventListener('click', () => {
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      togglePasswordBtn.innerHTML = isPassword 
+        ? '<i data-lucide="eye-off" class="h-4 w-4"></i>'
+        : '<i data-lucide="eye" class="h-4 w-4"></i>';
+      lucide.createIcons();
+    });
+
+    // Custom Checkbox
+    const rememberMeCheckbox = document.getElementById('rememberMe');
+    const rememberMeBtn = document.getElementById('rememberMeBtn');
+    rememberMeBtn.addEventListener('click', () => {
+      const checked = !rememberMeCheckbox.checked;
+      rememberMeCheckbox.checked = checked;
+      rememberMeBtn.setAttribute('aria-pressed', checked ? 'true' : 'false');
+      if (checked) {
+        rememberMeBtn.classList.remove('bg-[#0b0c12]');
+        rememberMeBtn.classList.add('bg-[#d4a544]');
+        rememberMeBtn.innerHTML = `
+          <svg viewBox="0 0 12 12" class="h-3 w-3 text-[#0a0b10]" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 6l3 3 5-6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        `;
+      } else {
+        rememberMeBtn.classList.remove('bg-[#d4a544]');
+        rememberMeBtn.classList.add('bg-[#0b0c12]');
+        rememberMeBtn.innerHTML = '';
+      }
+    });
+
+    // Form Submission
     const loginForm = document.getElementById('loginForm');
     const loginError = document.getElementById('loginError');
 
@@ -91,9 +232,7 @@
       }
     });
   </script>
-
   <script src="/js/components.js"></script>
   <script src="/js/theme-toggle.js"></script>
-  <div style="position:fixed;bottom:10px;right:10px;z-index:var(--z-tooltip);"><button data-theme-toggle class="btn btn-ghost">🌙</button></div>
 </body>
 </html>
