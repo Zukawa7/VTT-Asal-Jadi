@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - VTT Asal Jadi</title>
-  <link rel="stylesheet" href="/styles/tailwind.css">
+  <link rel="stylesheet" href="/styles/tailwind.css?v=9">
 </head>
 <body class="bg-[#0a0a0f] text-white min-h-screen flex flex-col font-sans">
   
@@ -28,8 +28,7 @@
   <main class="flex-1 max-w-6xl w-full mx-auto px-6 py-10 space-y-8 flex flex-col gap-6">
     
     <!-- Section Title -->
-    <div class="max-w-2xl">
-      <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#d4a544]">02 / Player home</p>
+    <div class="max-w-2xl mt-6">
       <h2 class="mb-2 text-3xl font-extrabold text-white" style="font-family: 'EB Garamond', serif;">
         Welcome back, <span id="welcomeUsername">Player</span>!
       </h2>
@@ -201,25 +200,23 @@
 
       characters.forEach(char => {
         const card = document.createElement('div');
-        card.className = 'overflow-hidden rounded-lg border border-[#26283b] bg-[#0a0c11] flex flex-col justify-between';
+        card.className = 'overflow-hidden rounded-lg border border-[#26283b] bg-[#11131f] p-4 flex flex-col justify-between hover:border-[#d4a544] transition-all duration-200';
         card.dataset.characterId = String(char.id);
         
         const classStr = char.classes.map(c => `${c.name} ${c.level}`).join('/') + ` (Lvl ${char.level})`;
         const charUrl = `/${username}/dashboard/characters/${char.id}`;
 
         card.innerHTML = `
-          <!-- Top header with gradient and avatar -->
-          <div class="relative h-20 bg-gradient-to-br from-[#36454e] to-[#11131f] p-3 flex items-end">
-            <img src="${char.avatarUrl || 'https://via.placeholder.com/150'}" class="absolute -bottom-5 left-3 w-12 h-12 rounded-full border-2 border-[#d4a544] object-cover bg-[#0a0c11]">
-            <div class="absolute top-3 right-3 bg-[#0a0a0f]/80 px-2 py-0.5 rounded text-[9px] font-bold text-[#d4a544] border border-[#26283b]">
+          <div class="flex items-start justify-between mb-3">
+            <img src="${char.avatarUrl || 'https://via.placeholder.com/150'}" class="w-12 h-12 rounded-full border-2 border-[#d4a544] object-cover bg-[#0a0c11]">
+            <div class="bg-[#0a0a0f]/80 px-2 py-0.5 rounded text-[9px] font-bold text-[#d4a544] border border-[#26283b]">
               Lvl ${char.level}
             </div>
           </div>
-          <!-- Info body -->
-          <div class="p-3 pt-7 flex-1 flex flex-col justify-between">
+          <div class="flex-1 flex flex-col justify-between">
             <div>
               <p class="text-xs font-bold text-white truncate">${char.name}</p>
-              <p class="mt-1 text-[9px] text-[#a1a7bc] truncate">${char.race} · ${classStr}</p>
+              <p class="mt-1 text-[10px] text-[#a1a7bc] truncate">${char.race} · ${classStr}</p>
             </div>
             <div class="mt-4 flex items-center justify-between gap-2 border-t border-[#26283b] pt-3">
               <a href="${charUrl}" class="text-[10px] font-bold text-[#d4a544] hover:text-[#e4c183] transition-colors">
