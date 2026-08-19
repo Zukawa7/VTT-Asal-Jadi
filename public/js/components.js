@@ -183,13 +183,15 @@ VTT.Confirm = {
 
 // ===== UTILITIES =====
 // Small helpers that other views can reuse
-window.signed = window.signed || function (n) {
-  // Return "+N" for non-negative numbers, otherwise return the number string
-  if (typeof n === 'number') return n >= 0 ? '+' + n : String(n);
-  const parsed = Number(n);
-  if (!Number.isFinite(parsed)) return String(n);
-  return parsed >= 0 ? '+' + parsed : String(parsed);
-};
+window.signed =
+  window.signed ||
+  function (n) {
+    // Return "+N" for non-negative numbers, otherwise return the number string
+    if (typeof n === 'number') return n >= 0 ? '+' + n : String(n);
+    const parsed = Number(n);
+    if (!Number.isFinite(parsed)) return String(n);
+    return parsed >= 0 ? '+' + parsed : String(parsed);
+  };
 
 // ===== UI HELPERS =====
 window.VTT = window.VTT || {};
@@ -210,5 +212,5 @@ VTT.UI.pipHtml = function (available, opts = {}) {
   if (isButton) {
     return `<button class="${sizeClass} ${available ? filledClass : emptyClass} mx-1" onclick="${onclick}" title="${title}"></button>`;
   }
-  return `<span class="inline-block mx-1 ${available ? (opts.filledTextClass || 'text-[#d4a544]') : (opts.emptyTextClass || 'text-[#6b7085]')}">${available ? '●' : '○'}</span>`;
+  return `<span class="inline-block mx-1 ${available ? opts.filledTextClass || 'text-[#d4a544]' : opts.emptyTextClass || 'text-[#6b7085]'}">${available ? '●' : '○'}</span>`;
 };

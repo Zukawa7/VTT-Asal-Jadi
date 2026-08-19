@@ -223,4 +223,99 @@ describe('DnDBeyondService', () => {
     expect(character.modifiers.str).toBe(0);
     expect(character.level).toBe(0);
   });
+
+  // Additional targeted tests for normalization of spellSlots, pactMagic, and senses
+  it('computes spellSlots for a single-class cleric level 6', async () => {
+    const payload = {
+      success: true,
+      data: {
+        id: 'cleric6',
+        name: 'Cleric6',
+        classes: [{ level: 6, definition: { name: 'Cleric', hitDice: 8 } }],
+        stats: [
+          { id: 1, value: 16 },
+          { id: 2, value: 10 },
+          { id: 3, value: 12 },
+          { id: 4, value: 10 },
+          { id: 5, value: 10 },
+          { id: 6, value: 8 },
+        ],
+        spellSlots: [
+          { level: 1, used: 0 },
+          { level: 2, used: 1 },
+          { level: 3, used: 0 },
+        ],
+        modifiers: {},
+        inventory: [],
+        actions: { class: [] },
+        classSpells: [],
+      },
+    };
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => payload,
+    } as Response);
+    const character = await service.fetchCharacter('cleric6');
+    // Level 6 full caster multiclass table -> slots: 1:4, 2:3, 3:3
+    expect(character.spellSlots!['1']).toEqual({ current: 4, max: 4 });
+    expect(character.spellSlots!['2']).toEqual({ current: 2, max: 3 });
+    expect(character.spellSlots!['3']).toEqual({ current: 3, max: 3 });
+  });
+
+  it('extracts senses from modifiers and customSenses', async () => {
+    const payload = {
+      success: true,
+      data: {
+        id: 'senses1',
+        name: 'SensesGuy',
+        classes: [],
+        stats: [],
+        modifiers: { race: [{ type: 'set-base', subType: 'darkvision', value: 60 }] },
+        customSenses: [{ senseId: 'blindsight', distance: 30 }],
+        inventory: [],
+        actions: { class: [] },
+        classSpells: [],
+      },
+    };
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => payload,
+    } as Response);
+    const character = await service.fetchCharacter('senses1');
+    expect(character.senses).toEqual(
+      expect.arrayContaining(['Darkvision 60 ft.', 'Blindsight 30 ft.']),
+    );
+  });
+
+  it('handles pactMagic with explicit slots and without explicit slots (warlock)', async () => {
+    const payload = {
+      success: true,
+      data: {
+        id: 'warlock1',
+        name: 'Warlocky',
+        classes: [{ level: 3, definition: { name: 'Evil Warlock' } }],
+        stats: [],
+        pactMagic: [{ level: 1, used: 1 }],
+        inventory: [],
+        actions: { class: [] },
+        classSpells: [],
+      },
+    };
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => payload,
+    } as Response);
+    const character = await service.fetchCharacter('warlock1');
+    expect(character.spellSlots).toHaveProperty('pact-1');
+
+    // explicit slots
+    const payload2 = JSON.parse(JSON.stringify(payload));
+    payload2.data.pactMagic = [{ level: 1, used: 1, slots: 2 }];
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => payload2,
+    } as Response);
+    const character2 = await service.fetchCharacter('warlock1b');
+    expect(character2.spellSlots!['pact-1']).toEqual({ current: 1, max: 2 });
+  });
 });
