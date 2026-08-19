@@ -1,0 +1,307 @@
+From ad2c0c0e13fd28ba3bbefddd5c21da3011e9ef7f Mon Sep 17 00:00:00 2001
+From: Zukawa7 <2500018236@webmail.uad.ac.id>
+Date: Wed, 19 Aug 2026 19:48:02 +0700
+Subject: [PATCH 5/6] chore: finalize character sheet fixes, normalize
+ spellSlots/pactMagic/senses, add tests and UI tweaks
+
+---
+ public/character-view.html            | 100 +++++++++++++++++++-------
+ public/js/components.js               |  18 ++---
+ src/services/DnDBeyondService.test.ts |  95 ++++++++++++++++++++++++
+ 3 files changed, 181 insertions(+), 32 deletions(-)
+
+diff --git a/public/character-view.html b/public/character-view.html
+index 9002a4a..ed3686c 100644
+--- a/public/character-view.html
++++ b/public/character-view.html
+@@ -853,7 +853,6 @@
+         Survival: 'wis',
+       };
+ 
+-
+       async function load() {
+         try {
+           // Endpoint: GET /api/v2/character/:id/sheet
+@@ -966,16 +965,38 @@
+             .map((_, i) => {
+               const active = i < (ds.successes || 0);
+               if (canEdit)
+-                return VTT.UI.pipHtml(active, { isButton: true, onclick: 'toggleDeathSave("success", '+i+')', title: 'Success '+(i+1), filledClass: 'bg-green-500', emptyClass: 'border border-[#6b7085] bg-transparent', sizeClass: 'w-3 h-3 inline-block rounded-full' });
+-              return VTT.UI.pipHtml(active, { isButton: false, filledTextClass: 'text-green-500', emptyTextClass: 'text-[#6b7085]' });
++                return VTT.UI.pipHtml(active, {
++                  isButton: true,
++                  onclick: 'toggleDeathSave("success", ' + i + ')',
++                  title: 'Success ' + (i + 1),
++                  filledClass: 'bg-green-500',
++                  emptyClass: 'border border-[#6b7085] bg-transparent',
++                  sizeClass: 'w-3 h-3 inline-block rounded-full',
++                });
++              return VTT.UI.pipHtml(active, {
++                isButton: false,
++                filledTextClass: 'text-green-500',
++                emptyTextClass: 'text-[#6b7085]',
++              });
+             })
+             .join('');
+           const fail = Array.from({ length: 3 })
+             .map((_, i) => {
+               const active = i < (ds.failures || 0);
+               if (canEdit)
+-                return VTT.UI.pipHtml(active, { isButton: true, onclick: 'toggleDeathSave("failure", '+i+')', title: 'Failure '+(i+1), filledClass: 'bg-red-500', emptyClass: 'border border-[#6b7085] bg-transparent', sizeClass: 'w-3 h-3 inline-block rounded-full' });
+-              return VTT.UI.pipHtml(active, { isButton: false, filledTextClass: 'text-red-500', emptyTextClass: 'text-[#6b7085]' });
++                return VTT.UI.pipHtml(active, {
++                  isButton: true,
++                  onclick: 'toggleDeathSave("failure", ' + i + ')',
++                  title: 'Failure ' + (i + 1),
++                  filledClass: 'bg-red-500',
++                  emptyClass: 'border border-[#6b7085] bg-transparent',
++                  sizeClass: 'w-3 h-3 inline-block rounded-full',
++                });
++              return VTT.UI.pipHtml(active, {
++                isButton: false,
++                filledTextClass: 'text-red-500',
++                emptyTextClass: 'text-[#6b7085]',
++              });
+             })
+             .join('');
+           dsEl.innerHTML = `<div class="text-[9px] text-[#6b7085] font-bold mb-1">Death Saves</div><div class="flex items-center"> <div class="mr-3">Success: ${suc}</div> <div>Failure: ${fail}</div></div>`;
+@@ -1040,9 +1061,10 @@
+                  <div class="flex gap-1 flex-wrap justify-end" style="max-width: 50%;">
+                    ${Array.from({ length: Math.min(20, r.max || 0) })
+                      .map(
+-                       (_, j) => `${VTT.UI.pipHtml(j < (r.current || 0), { isButton: true, onclick: 'consumeResource('+i+','+j+')', title: 'Use slot', filledClass: 'border-[#d4a544] bg-[#d4a544]', emptyClass: 'border-[#6b7085] bg-transparent', sizeClass: 'w-2.5 h-2.5 inline-block rounded-full' })}`,
++                       (_, j) =>
++                         `${VTT.UI.pipHtml(j < (r.current || 0), { isButton: true, onclick: 'consumeResource(' + i + ',' + j + ')', title: 'Use slot', filledClass: 'border-[#d4a544] bg-[#d4a544]', emptyClass: 'border-[#6b7085] bg-transparent', sizeClass: 'w-2.5 h-2.5 inline-block rounded-full' })}`,
+                      )
+-                     .join('') }
++                     .join('')}
+                  </div>
+               </div>
+             `,
+@@ -1129,8 +1151,11 @@
+ 
+         // Extra senses (Darkvision, Blindsight, etc.) — rendered as small text under passive senses
+         if (c.senses && c.senses.length > 0) {
+-          const sensesText = c.senses.map((s) => `<span class="text-[#a1a7bc] text-[10px] mr-2">${s}</span>`).join('');
+-          document.getElementById('senses').innerHTML += `<div class="w-full mt-2 text-left"><div class="text-[9px] text-[#6b7085] font-bold mb-1">Senses</div><div>${sensesText}</div></div>`;
++          const sensesText = c.senses
++            .map((s) => `<span class="text-[#a1a7bc] text-[10px] mr-2">${s}</span>`)
++            .join('');
++          document.getElementById('senses').innerHTML +=
++            `<div class="w-full mt-2 text-left"><div class="text-[9px] text-[#6b7085] font-bold mb-1">Senses</div><div>${sensesText}</div></div>`;
+         }
+ 
+         // Actions
+@@ -1161,29 +1186,56 @@
+                 const dots = Array.from({ length: Math.max(0, max) }, (_, i) => {
+                   const available = i < current;
+                   if (canEdit) {
+-                    return VTT.UI.pipHtml(available, { isButton: true, onclick: 'consumeSpellSlot('+lv+')', title: available ? 'Use slot' : 'Used', filledClass: 'bg-[#d4a544]', emptyClass: 'border border-[#6b7085] bg-transparent', sizeClass: 'w-3 h-3 inline-block rounded-full' });
++                    return VTT.UI.pipHtml(available, {
++                      isButton: true,
++                      onclick: 'consumeSpellSlot(' + lv + ')',
++                      title: available ? 'Use slot' : 'Used',
++                      filledClass: 'bg-[#d4a544]',
++                      emptyClass: 'border border-[#6b7085] bg-transparent',
++                      sizeClass: 'w-3 h-3 inline-block rounded-full',
++                    });
+                   }
+-                  return VTT.UI.pipHtml(available, { isButton: false, filledTextClass: 'text-[#d4a544]', emptyTextClass: 'text-[#6b7085]' });
++                  return VTT.UI.pipHtml(available, {
++                    isButton: false,
++                    filledTextClass: 'text-[#d4a544]',
++                    emptyTextClass: 'text-[#6b7085]',
++                  });
+                 }).join('');
+                 return `<div class="text-xs text-[#a1a7bc] mb-1"><div class="font-bold text-white text-[10px]">${ordinal(Number(lv))} Level — ${max} Slots</div><div class="mt-1">${dots}</div></div>`;
+               })
+               .join('');
+ 
+             // Pact magic entries (Warlock) — show separately
+-            const pactKeys = Object.keys(slots).filter((k) => k.startsWith('pact-')).sort((a,b)=>Number(a.split('-')[1])-Number(b.split('-')[1]));
++            const pactKeys = Object.keys(slots)
++              .filter((k) => k.startsWith('pact-'))
++              .sort((a, b) => Number(a.split('-')[1]) - Number(b.split('-')[1]));
+             if (pactKeys.length > 0) {
+-              const pactHtml = pactKeys.map((key) => {
+-                const lvl = Number(key.split('-')[1]);
+-                const s = slots[key];
+-                const max = s.max || 0;
+-                const current = s.current || 0;
+-                const dots = Array.from({ length: Math.max(0, max || current) }, (_, i) => {
+-                  const available = i < current;
+-                  if (canEdit) return VTT.UI.pipHtml(available, { isButton: true, onclick: 'consumeSpellSlot("'+key+'")', title: available ? 'Use pact slot' : 'Used', filledClass: 'bg-[#d4a544]', emptyClass: 'border border-[#6b7085] bg-transparent', sizeClass: 'w-3 h-3 inline-block rounded-full' });
+-                  return VTT.UI.pipHtml(available, { isButton: false, filledTextClass: 'text-[#d4a544]', emptyTextClass: 'text-[#6b7085]' });
+-                }).join('');
+-                return `<div class="text-xs text-[#a1a7bc] mb-1"><div class="font-bold text-white text-[10px]">Pact Magic (Warlock) — Level ${lvl} — ${max>0?max:current} Slots</div><div class="mt-1">${dots}</div></div>`;
+-              }).join('');
++              const pactHtml = pactKeys
++                .map((key) => {
++                  const lvl = Number(key.split('-')[1]);
++                  const s = slots[key];
++                  const max = s.max || 0;
++                  const current = s.current || 0;
++                  const dots = Array.from({ length: Math.max(0, max || current) }, (_, i) => {
++                    const available = i < current;
++                    if (canEdit)
++                      return VTT.UI.pipHtml(available, {
++                        isButton: true,
++                        onclick: 'consumeSpellSlot("' + key + '")',
++                        title: available ? 'Use pact slot' : 'Used',
++                        filledClass: 'bg-[#d4a544]',
++                        emptyClass: 'border border-[#6b7085] bg-transparent',
++                        sizeClass: 'w-3 h-3 inline-block rounded-full',
++                      });
++                    return VTT.UI.pipHtml(available, {
++                      isButton: false,
++                      filledTextClass: 'text-[#d4a544]',
++                      emptyTextClass: 'text-[#6b7085]',
++                    });
++                  }).join('');
++                  return `<div class="text-xs text-[#a1a7bc] mb-1"><div class="font-bold text-white text-[10px]">Pact Magic (Warlock) — Level ${lvl} — ${max > 0 ? max : current} Slots</div><div class="mt-1">${dots}</div></div>`;
++                })
++                .join('');
+               slotsEl.innerHTML += pactHtml;
+             }
+           }
+diff --git a/public/js/components.js b/public/js/components.js
+index 33f8344..8feefd7 100644
+--- a/public/js/components.js
++++ b/public/js/components.js
+@@ -183,13 +183,15 @@ VTT.Confirm = {
+ 
+ // ===== UTILITIES =====
+ // Small helpers that other views can reuse
+-window.signed = window.signed || function (n) {
+-  // Return "+N" for non-negative numbers, otherwise return the number string
+-  if (typeof n === 'number') return n >= 0 ? '+' + n : String(n);
+-  const parsed = Number(n);
+-  if (!Number.isFinite(parsed)) return String(n);
+-  return parsed >= 0 ? '+' + parsed : String(parsed);
+-};
++window.signed =
++  window.signed ||
++  function (n) {
++    // Return "+N" for non-negative numbers, otherwise return the number string
++    if (typeof n === 'number') return n >= 0 ? '+' + n : String(n);
++    const parsed = Number(n);
++    if (!Number.isFinite(parsed)) return String(n);
++    return parsed >= 0 ? '+' + parsed : String(parsed);
++  };
+ 
+ // ===== UI HELPERS =====
+ window.VTT = window.VTT || {};
+@@ -210,5 +212,5 @@ VTT.UI.pipHtml = function (available, opts = {}) {
+   if (isButton) {
+     return `<button class="${sizeClass} ${available ? filledClass : emptyClass} mx-1" onclick="${onclick}" title="${title}"></button>`;
+   }
+-  return `<span class="inline-block mx-1 ${available ? (opts.filledTextClass || 'text-[#d4a544]') : (opts.emptyTextClass || 'text-[#6b7085]')}">${available ? '●' : '○'}</span>`;
++  return `<span class="inline-block mx-1 ${available ? opts.filledTextClass || 'text-[#d4a544]' : opts.emptyTextClass || 'text-[#6b7085]'}">${available ? '●' : '○'}</span>`;
+ };
+diff --git a/src/services/DnDBeyondService.test.ts b/src/services/DnDBeyondService.test.ts
+index a80ae4e..7c1d78d 100644
+--- a/src/services/DnDBeyondService.test.ts
++++ b/src/services/DnDBeyondService.test.ts
+@@ -223,4 +223,99 @@ describe('DnDBeyondService', () => {
+     expect(character.modifiers.str).toBe(0);
+     expect(character.level).toBe(0);
+   });
++
++  // Additional targeted tests for normalization of spellSlots, pactMagic, and senses
++  it('computes spellSlots for a single-class cleric level 6', async () => {
++    const payload = {
++      success: true,
++      data: {
++        id: 'cleric6',
++        name: 'Cleric6',
++        classes: [{ level: 6, definition: { name: 'Cleric', hitDice: 8 } }],
++        stats: [
++          { id: 1, value: 16 },
++          { id: 2, value: 10 },
++          { id: 3, value: 12 },
++          { id: 4, value: 10 },
++          { id: 5, value: 10 },
++          { id: 6, value: 8 },
++        ],
++        spellSlots: [
++          { level: 1, used: 0 },
++          { level: 2, used: 1 },
++          { level: 3, used: 0 },
++        ],
++        modifiers: {},
++        inventory: [],
++        actions: { class: [] },
++        classSpells: [],
++      },
++    };
++    vi.mocked(global.fetch).mockResolvedValueOnce({
++      ok: true,
++      json: async () => payload,
++    } as Response);
++    const character = await service.fetchCharacter('cleric6');
++    // Level 6 full caster multiclass table -> slots: 1:4, 2:3, 3:3
++    expect(character.spellSlots!['1']).toEqual({ current: 4, max: 4 });
++    expect(character.spellSlots!['2']).toEqual({ current: 2, max: 3 });
++    expect(character.spellSlots!['3']).toEqual({ current: 3, max: 3 });
++  });
++
++  it('extracts senses from modifiers and customSenses', async () => {
++    const payload = {
++      success: true,
++      data: {
++        id: 'senses1',
++        name: 'SensesGuy',
++        classes: [],
++        stats: [],
++        modifiers: { race: [{ type: 'set-base', subType: 'darkvision', value: 60 }] },
++        customSenses: [{ senseId: 'blindsight', distance: 30 }],
++        inventory: [],
++        actions: { class: [] },
++        classSpells: [],
++      },
++    };
++    vi.mocked(global.fetch).mockResolvedValueOnce({
++      ok: true,
++      json: async () => payload,
++    } as Response);
++    const character = await service.fetchCharacter('senses1');
++    expect(character.senses).toEqual(
++      expect.arrayContaining(['Darkvision 60 ft.', 'Blindsight 30 ft.']),
++    );
++  });
++
++  it('handles pactMagic with explicit slots and without explicit slots (warlock)', async () => {
++    const payload = {
++      success: true,
++      data: {
++        id: 'warlock1',
++        name: 'Warlocky',
++        classes: [{ level: 3, definition: { name: 'Evil Warlock' } }],
++        stats: [],
++        pactMagic: [{ level: 1, used: 1 }],
++        inventory: [],
++        actions: { class: [] },
++        classSpells: [],
++      },
++    };
++    vi.mocked(global.fetch).mockResolvedValueOnce({
++      ok: true,
++      json: async () => payload,
++    } as Response);
++    const character = await service.fetchCharacter('warlock1');
++    expect(character.spellSlots).toHaveProperty('pact-1');
++
++    // explicit slots
++    const payload2 = JSON.parse(JSON.stringify(payload));
++    payload2.data.pactMagic = [{ level: 1, used: 1, slots: 2 }];
++    vi.mocked(global.fetch).mockResolvedValueOnce({
++      ok: true,
++      json: async () => payload2,
++    } as Response);
++    const character2 = await service.fetchCharacter('warlock1b');
++    expect(character2.spellSlots!['pact-1']).toEqual({ current: 1, max: 2 });
++  });
+ });
+-- 
+2.55.0.windows.3
+

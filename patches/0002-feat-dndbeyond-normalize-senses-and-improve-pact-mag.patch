@@ -1,0 +1,115 @@
+From c26b25ca9879e2dedbd8092b4d39835fa3c98016 Mon Sep 17 00:00:00 2001
+From: Zukawa7 <2500018236@webmail.uad.ac.id>
+Date: Wed, 19 Aug 2026 19:40:55 +0700
+Subject: [PATCH 2/6] feat(dndbeyond): normalize senses and improve pact-magic
+ slot handling; include senses in Character type
+
+---
+ src/services/DnDBeyondService.ts | 44 ++++++++++++++++++++++++++++++--
+ src/types/character.ts           |  1 +
+ 2 files changed, 43 insertions(+), 2 deletions(-)
+
+diff --git a/src/services/DnDBeyondService.ts b/src/services/DnDBeyondService.ts
+index f7690b5..22279a0 100644
+--- a/src/services/DnDBeyondService.ts
++++ b/src/services/DnDBeyondService.ts
+@@ -89,6 +89,8 @@ const splitText = (value: unknown): string[] =>
+ interface Modifier {
+   type: string;
+   subType: string;
++  rawValue?: unknown;
++  numericValue?: number;
+ }
+ 
+ /** D&D Beyond groups modifiers by source: race, class, background, feat and item. */
+@@ -97,9 +99,12 @@ export function flattenModifiers(value: unknown): Modifier[] {
+     array(source)
+       .map((item) => {
+         const modifier = dict(item);
++        const rawVal = modifier.value ?? modifier.distance ?? modifier.amount ?? undefined;
+         return {
+           type: text(modifier.type).toLowerCase(),
+           subType: text(modifier.subType).toLowerCase(),
++          rawValue: rawVal,
++          numericValue: Number.isFinite(Number(rawVal)) ? Number(rawVal) : NaN,
+         };
+       })
+       .filter((modifier) => modifier.type && modifier.subType),
+@@ -194,6 +199,24 @@ export class DnDBeyondService {
+         .filter((item) => item.type === 'language')
+         .map((item) => title(item.subType)),
+     };
++    // Senses: from modifiers type 'set-base' and from data.customSenses
++    const senseTypes = ['darkvision', 'blindsight', 'tremorsense', 'truesight'];
++    const senses: string[] = [];
++    modifiers.forEach((m) => {
++      if (m.type === 'set-base' && senseTypes.includes(m.subType)) {
++        const base = title(m.subType);
++        const dist = Number.isFinite(m.numericValue) ? `${m.numericValue} ft.` : '';
++        senses.push((base + (dist ? ' ' + dist : '')).trim());
++      }
++    });
++    const customSensesArr = array(data.customSenses).map(dict);
++    customSensesArr.forEach((cs) => {
++      const name = title(text(cs.senseId ?? cs.name ?? 'Sense'));
++      const dist = number(cs.distance, 0);
++      if (dist > 0) senses.push(`${name} ${dist} ft.`);
++      else senses.push(name);
++    });
++
+     const equipment = array(data.inventory).map((item) =>
+       this.normalizeEquipment(
+         dict(item),
+@@ -271,11 +294,27 @@ export class DnDBeyondService {
+ 
+     // Include pact magic as separate entries if present (warlock)
+     if (pactMagic.length > 0) {
++      // derive warlock level from classes if present
++      const warlockLevel = classesData.reduce((sum, cls) => {
++        const def = dict(cls.definition);
++        const name = text(def.name).toLowerCase();
++        return name.includes('warlock') ? sum + number(cls.level) : sum;
++      }, 0);
++
++      // conservative warlock slots table (slots only) by warlock level 0..20
++      const warlockSlotsByLevel = [0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4];
++
+       pactMagic.forEach((p) => {
+         const lvl = number(p.level);
++        const used = number(p.used ?? p.usedSlots ?? p.usedCount ?? 0);
++        const explicitMax = number(p.slots ?? p.max ?? p.count ?? 0);
++        const maxSlots =
++          explicitMax ||
++          (warlockLevel > 0 ? warlockSlotsByLevel[Math.min(20, warlockLevel)] || 0 : 0);
++        // If still zero, fall back to 0 but still expose used count
++        const current = Math.max(0, maxSlots - used);
+         const key = `pact-${lvl}`;
+-        // D&D Beyond does not provide a direct max for pact slots here; store used/max=0 so UI can show used if present
+-        spellSlots[key] = { current: 0, max: 0 };
++        if (maxSlots > 0 || used > 0) spellSlots[key] = { current, max: maxSlots };
+       });
+     }
+ 
+@@ -340,6 +379,7 @@ export class DnDBeyondService {
+       bonds: splitText(dict(data.traits).bonds),
+       flaws: splitText(dict(data.traits).flaws),
+       spellSlots,
++      senses,
+     };
+   }
+ 
+diff --git a/src/types/character.ts b/src/types/character.ts
+index de1997d..dc978e2 100644
+--- a/src/types/character.ts
++++ b/src/types/character.ts
+@@ -133,6 +133,7 @@ export interface Character {
+   flaws?: string[];
+   spellSlots?: SpellSlots;
+   deathSaves?: DeathSaves;
++  senses?: string[];
+   notes?: string;
+ }
+ 
+-- 
+2.55.0.windows.3
+

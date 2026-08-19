@@ -1,0 +1,79 @@
+From 427208a1edbb94c9593d43e126ef1e3105a21864 Mon Sep 17 00:00:00 2001
+From: Zukawa7 <2500018236@webmail.uad.ac.id>
+Date: Wed, 19 Aug 2026 19:45:59 +0700
+Subject: [PATCH 4/6] feat(ui): show pact-magic entries in spell slots; docs:
+ add Windows sqlite3 notes and developer scripts
+
+---
+ README.md                  | 18 ++++++++++++++++++
+ public/character-view.html | 18 ++++++++++++++++++
+ 2 files changed, 36 insertions(+)
+
+diff --git a/README.md b/README.md
+index 1f04e71..8bd67a6 100644
+--- a/README.md
++++ b/README.md
+@@ -34,6 +34,10 @@ Virtual Tabletop (VTT) sederhana yang terintegrasi dengan **D&D Beyond** dan **O
+ ### Prasyarat
+ Pastikan Anda sudah menginstal [Node.js](https://nodejs.org/) (versi 18 ke atas direkomendasikan).
+ 
++**Catatan untuk pengguna Windows:**
++- Paket `sqlite3` digunakan oleh proyek dan akan mencoba membangun native bindings saat `npm install` (postinstall). Untuk membangun dari sumber pada Windows, biasanya diperlukan Visual Studio Build Tools dengan "Desktop development with C++" workload.
++- Jika Anda tidak bisa memasang build tools, gunakan WSL/WSL2, gunakan Docker, atau jalankan CI pada Linux untuk menjalankan instalasi dan build.
++
+ ### Langkah-langkah
+ 
+ 1. **Instal dependensi**:
+@@ -41,6 +45,20 @@ Pastikan Anda sudah menginstal [Node.js](https://nodejs.org/) (versi 18 ke atas
+    npm install
+    ```
+ 
++   Jika `npm install` gagal karena kegagalan build sqlite3 pada Windows, lihat catatan di atas atau jalankan di WSL/Docker/CI.
++
++2. **Jalankan server**:
++   ```bash
++   npm start
++   ```
++
++3. **Script penting**:
++   - npm run type-check  — TypeScript check (tsc --noEmit)
++   - npm run lint        — ESLint for TypeScript sources
++   - npm test            — Run unit tests (Vitest)
++   - npm run format:all  — Prettier format across src and public
++
++
+ 2. **Jalankan server**:
+    ```bash
+    npm start
+diff --git a/public/character-view.html b/public/character-view.html
+index e6fb313..9002a4a 100644
+--- a/public/character-view.html
++++ b/public/character-view.html
+@@ -1168,6 +1168,24 @@
+                 return `<div class="text-xs text-[#a1a7bc] mb-1"><div class="font-bold text-white text-[10px]">${ordinal(Number(lv))} Level — ${max} Slots</div><div class="mt-1">${dots}</div></div>`;
+               })
+               .join('');
++
++            // Pact magic entries (Warlock) — show separately
++            const pactKeys = Object.keys(slots).filter((k) => k.startsWith('pact-')).sort((a,b)=>Number(a.split('-')[1])-Number(b.split('-')[1]));
++            if (pactKeys.length > 0) {
++              const pactHtml = pactKeys.map((key) => {
++                const lvl = Number(key.split('-')[1]);
++                const s = slots[key];
++                const max = s.max || 0;
++                const current = s.current || 0;
++                const dots = Array.from({ length: Math.max(0, max || current) }, (_, i) => {
++                  const available = i < current;
++                  if (canEdit) return VTT.UI.pipHtml(available, { isButton: true, onclick: 'consumeSpellSlot("'+key+'")', title: available ? 'Use pact slot' : 'Used', filledClass: 'bg-[#d4a544]', emptyClass: 'border border-[#6b7085] bg-transparent', sizeClass: 'w-3 h-3 inline-block rounded-full' });
++                  return VTT.UI.pipHtml(available, { isButton: false, filledTextClass: 'text-[#d4a544]', emptyTextClass: 'text-[#6b7085]' });
++                }).join('');
++                return `<div class="text-xs text-[#a1a7bc] mb-1"><div class="font-bold text-white text-[10px]">Pact Magic (Warlock) — Level ${lvl} — ${max>0?max:current} Slots</div><div class="mt-1">${dots}</div></div>`;
++              }).join('');
++              slotsEl.innerHTML += pactHtml;
++            }
+           }
+         }
+ 
+-- 
+2.55.0.windows.3
+

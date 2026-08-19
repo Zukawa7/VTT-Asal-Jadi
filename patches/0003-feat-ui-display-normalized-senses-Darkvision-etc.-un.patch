@@ -1,0 +1,30 @@
+From 28e46f091d5f2e01384fea1eec9c57db3003eaba Mon Sep 17 00:00:00 2001
+From: Zukawa7 <2500018236@webmail.uad.ac.id>
+Date: Wed, 19 Aug 2026 19:42:02 +0700
+Subject: [PATCH 3/6] feat(ui): display normalized senses (Darkvision/etc.)
+ under Passive Senses on character sheet
+
+---
+ public/character-view.html | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/public/character-view.html b/public/character-view.html
+index 661bf19..e6fb313 100644
+--- a/public/character-view.html
++++ b/public/character-view.html
+@@ -1127,6 +1127,12 @@
+           )
+           .join('');
+ 
++        // Extra senses (Darkvision, Blindsight, etc.) — rendered as small text under passive senses
++        if (c.senses && c.senses.length > 0) {
++          const sensesText = c.senses.map((s) => `<span class="text-[#a1a7bc] text-[10px] mr-2">${s}</span>`).join('');
++          document.getElementById('senses').innerHTML += `<div class="w-full mt-2 text-left"><div class="text-[9px] text-[#6b7085] font-bold mb-1">Senses</div><div>${sensesText}</div></div>`;
++        }
++
+         // Actions
+         const weapons = c.equipment?.filter((item) => item.isWeapon === true) || [];
+         const spells =
+-- 
+2.55.0.windows.3
+

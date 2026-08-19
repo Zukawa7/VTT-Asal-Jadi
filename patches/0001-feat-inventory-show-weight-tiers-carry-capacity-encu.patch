@@ -1,0 +1,46 @@
+From 325322d70cf4838c0e840939b3aff8f81df6e6db Mon Sep 17 00:00:00 2001
+From: Zukawa7 <2500018236@webmail.uad.ac.id>
+Date: Wed, 19 Aug 2026 19:37:03 +0700
+Subject: [PATCH 1/6] =?UTF-8?q?feat(inventory):=20show=20weight=20tiers=20?=
+ =?UTF-8?q?=E2=80=94=20carry=20capacity,=20encumbered=20threshold,=20push/?=
+ =?UTF-8?q?drag/lift=20calculated=20from=20STR?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ public/character-view.html | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/public/character-view.html b/public/character-view.html
+index 9c9a554..661bf19 100644
+--- a/public/character-view.html
++++ b/public/character-view.html
+@@ -1400,11 +1400,19 @@
+           (sum, item) => sum + Number(item.weight || 0) * Number(item.quantity || 1),
+           0,
+         );
+-        const capacity = Number(character?.stats?.str || 10) * 15;
+-
+-        document.getElementById('weight-text').textContent =
+-          `TOTAL WEIGHT: ${allItemsWeight.toFixed(1)} / ${capacity} lb`;
+-        const wPct = Math.min(100, (allItemsWeight / capacity) * 100);
++        const strScore = Number(character?.stats?.str || 10);
++        const capacity = strScore * 15; // Carrying Capacity (5e standard)
++        const encumberedAt = Math.floor(strScore * 5); // Encumbered threshold (variant: STR * 5)
++        const pushDragLift = capacity * 2; // Push/Drag/Lift
++
++        // Show three separate lines: carried / encumbered threshold / push/drag/lift
++        document.getElementById('weight-text').innerHTML = `
++          <div class="text-[10px] text-[#a1a7bc] font-bold">TOTAL WEIGHT: ${allItemsWeight.toFixed(1)} / ${capacity} lb</div>
++          <div class="text-[9px] text-[#6b7085] mt-1">Encumbered At: ${encumberedAt} lb</div>
++          <div class="text-[9px] text-[#6b7085]">Push/Drag/Lift: ${pushDragLift} lb</div>
++        `;
++
++        const wPct = Math.min(100, (allItemsWeight / Math.max(1, capacity)) * 100);
+         const wBar = document.getElementById('weight-bar');
+         wBar.style.width = wPct + '%';
+         if (wPct >= 100) wBar.style.background = '#8a1d1d';
+-- 
+2.55.0.windows.3
+
