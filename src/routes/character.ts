@@ -55,8 +55,14 @@ export function createCharacterRouter(db: DatabaseService, jwtSecret: string, dd
       const row = await db.get<CharacterRow>('SELECT id, character_data, user_id FROM character_sheets WHERE id = ? AND user_id = ?', [req.params.id, userId]);
       if (!row) { res.status(404).json({ error: 'Character not found' }); return; }
       const character = JSON.parse(row.character_data) as Character;
+      const prevHp = character.hp?.current ?? 0;
       if (req.body?.hp && typeof req.body.hp.current === 'number') character.hp.current = Math.max(0, Math.min(character.hp.max, req.body.hp.current));
       if (req.body?.hp && typeof req.body.hp.temp === 'number') character.hp.temp = Math.max(0, req.body.hp.temp);
+      // If character was at 0 HP and is now above 0, reset death saves
+      if ((prevHp === 0 || prevHp === undefined) && character.hp.current > 0) {
+        character.deathSaves = { successes: 0, failures: 0 };
+      }
+      
       if (Array.isArray(req.body?.equipment)) {
         if (req.body.equipment.length > 200) { res.status(400).json({ error: 'Equipment limit exceeded' }); return; }
         character.equipment = req.body.equipment.map((item: Record<string, unknown>) => ({
@@ -113,6 +119,14 @@ export function createCharacterRouter(db: DatabaseService, jwtSecret: string, dd
             resetOn: typeof item.resetOn === 'string' ? item.resetOn.slice(0, 50) : undefined,
           }))
           .filter((item: { name: string }) => item.name.length > 0);
+      }
+
+      if (req.body?.deathSaves && typeof req.body.deathSaves === 'object') {
+        const ds = req.body.deathSaves as { successes?: unknown; failures?: unknown };
+        character.deathSaves = {
+          successes: Math.max(0, Math.min(3, Number(ds.successes ?? character.deathSaves?.successes ?? 0))),
+          failures: Math.max(0, Math.min(3, Number(ds.failures ?? character.deathSaves?.failures ?? 0)))
+        };
       }
 
       if (typeof req.body?.notes === 'string') {

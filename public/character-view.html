@@ -121,6 +121,7 @@
           <div class="h-1 bg-[#0a0a0f] rounded-full overflow-hidden mt-2">
             <div id="hp-bar" class="h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
           </div>
+          <div id="deathSaves" class="mt-2 text-[10px] text-[#a1a7bc]"></div>
         </div>
 
         <!-- AC Card -->
@@ -244,6 +245,9 @@
                   <span id="spell-attack-header" class="text-[9px] text-white bg-[#0a0c11] px-2 py-1 rounded border border-[#26283b] whitespace-nowrap">ATK +0 | DC 10</span>
                 </div>
                 <div class="chips-container mb-3" id="actions-chips">
+                </div>
+                <div id="spellSlots" class="mb-3"></div>
+                <div class="chips-container mb-3" id="actions-chips">
                   <div class="filter-chip active">All</div>
                   <div class="filter-chip">Attack</div>
                   <div class="filter-chip">Action</div>
@@ -280,6 +284,10 @@
                   <div class="flex flex-col items-center">
                     <span class="w-8 h-8 rounded-full font-bold text-xs text-[#4a3600] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#ffd700] to-[#b8860b] gp">0</span>
                     <span class="text-[9px] text-[#6b7085] mt-1 font-bold">GP</span>
+                  </div>
+                  <div class="flex flex-col items-center">
+                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#073211] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#cfe3c7] to-[#6fbf8c] ep">0</span>
+                    <span class="text-[9px] text-[#6b7085] mt-1 font-bold">EP</span>
                   </div>
                   <div class="flex flex-col items-center">
                     <span class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0a0f] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#f5f5f5] to-[#a9a9a9] pp">0</span>
@@ -540,7 +548,24 @@
       
       // Top Stats
       document.getElementById('initiative').textContent = signed(c.modifiers.dex);
-      
+       
+      // Death Saves UI
+      const dsEl = document.getElementById('deathSaves');
+      if (dsEl) {
+        const ds = c.deathSaves || { successes: 0, failures: 0 };
+        const suc = Array.from({length:3}).map((_,i) => {
+          const active = i < (ds.successes || 0);
+          if (canEdit) return `<button class="w-3 h-3 inline-block rounded-full ${active ? 'bg-green-500' : 'border border-[#6b7085] bg-transparent'} mx-1" onclick="toggleDeathSave('success', ${i})" title="Success ${i+1}"></button>`;
+          return `<span class="inline-block mx-1 ${active ? 'text-green-500' : 'text-[#6b7085]'}">${active ? '●' : '○'}</span>`;
+        }).join('');
+        const fail = Array.from({length:3}).map((_,i) => {
+          const active = i < (ds.failures || 0);
+          if (canEdit) return `<button class="w-3 h-3 inline-block rounded-full ${active ? 'bg-red-500' : 'border border-[#6b7085] bg-transparent'} mx-1" onclick="toggleDeathSave('failure', ${i})" title="Failure ${i+1}"></button>`;
+          return `<span class="inline-block mx-1 ${active ? 'text-red-500' : 'text-[#6b7085]'}">${active ? '●' : '○'}</span>`;
+        }).join('');
+        dsEl.innerHTML = `<div class="text-[9px] text-[#6b7085] font-bold mb-1">Death Saves</div><div class="flex items-center"> <div class="mr-3">Success: ${suc}</div> <div>Failure: ${fail}</div></div>`;
+      }
+       
       // Armor Class logic (c.ac fallback)
       let ac = c.ac;
       if (ac === undefined || ac === null) {
@@ -559,12 +584,13 @@
       if(c.currencies) {
         document.querySelector('.cp').textContent = c.currencies.cp||0;
         document.querySelector('.sp').textContent = c.currencies.sp||0;
+        document.querySelector('.ep').textContent = c.currencies.ep||0;
         document.querySelector('.gp').textContent = c.currencies.gp||0;
         document.querySelector('.pp').textContent = c.currencies.pp||0;
       }
       
       if (canEdit) {
-        ['cp','sp','gp','pp'].forEach(type => {
+        ['cp','sp','ep','gp','pp'].forEach(type => {
           document.querySelector('.'+type).onclick = () => {
             const content = `
               <div class="flex flex-col gap-3">
@@ -659,6 +685,32 @@
       window._allAttacks = [...weapons, ...spells];
       renderAttacks(window._allAttacks);
 
+      // Spell Slots UI
+      const slotsEl = document.getElementById('spellSlots');
+      if (slotsEl) {
+        const slots = c.spellSlots || {};
+        const numericKeys = Object.keys(slots).filter(k => !k.startsWith('pact-')).sort((a,b) => Number(a) - Number(b));
+        if (numericKeys.length === 0) {
+          slotsEl.innerHTML = '';
+        } else {
+          slotsEl.innerHTML = numericKeys.map(lv => {
+            const s = slots[lv];
+            const max = s.max || 0;
+            const current = s.current || 0; // remaining slots
+            const used = Math.max(0, max - current);
+            const ordinal = (n) => n===1?'1st':n===2?'2nd':n===3?'3rd':n+'th';
+            const dots = Array.from({length: Math.max(0, max)}, (_,i) => {
+              const available = i < current;
+              if (canEdit) {
+                return `<button class="w-3 h-3 inline-block rounded-full ${available ? 'bg-[#d4a544]' : 'border border-[#6b7085] bg-transparent'} mx-1" onclick="consumeSpellSlot(${lv})" title="${available ? 'Use slot' : 'Used'}"></button>`;
+              }
+              return `<span class="inline-block mx-1 ${available ? 'text-[#d4a544]' : 'text-[#6b7085]'}">${available ? '●' : '○'}</span>`;
+            }).join('');
+            return `<div class="text-xs text-[#a1a7bc] mb-1"><div class="font-bold text-white text-[10px]">${ordinal(Number(lv))} Level — ${max} Slots</div><div class="mt-1">${dots}</div></div>`;
+          }).join('');
+        }
+      }
+
       // Inventory
       window._allItems = c.equipment || [];
       renderEquipment(window._allItems);
@@ -745,6 +797,16 @@
       updateSheet({ resources: newRes });
     };
 
+    window.consumeSpellSlot = function(level) {
+      if (!character || !localStorage.getItem('token')) return;
+      const slots = character.spellSlots || {};
+      const key = String(level);
+      const slot = slots[key];
+      if (!slot || slot.current <= 0) { VTT.Notification?.error('No slots available'); return; }
+      const newSlots = { ...slots, [key]: { current: Math.max(0, slot.current - 1), max: slot.max } };
+      updateSheet({ spellSlots: newSlots });
+    };
+
     // Attacks Renderer
     function renderAttacks(list) {
       if (!list || list.length === 0) {
@@ -775,7 +837,7 @@
         const prepIcon = atk.level !== undefined ? (atk.prepared ? '<span class="text-[#d4a544] mr-2" title="Prepared">★</span>' : '<span class="text-[#6b7085] mr-2" title="Not Prepared">☆</span>') : '';
         const op = (atk.level !== undefined && !atk.prepared && atk.level > 0) ? 'opacity-50' : '';
         return `
-          <div class="flex items-center justify-between py-2 border-b border-[#26283b] last:border-0 hover:bg-[#181c2c]/30 rounded px-1.5 transition ${op}">
+          <div class="flex items-center justify-between py-2 border-b border-[#26283b] last:border-0 hover:bg-[#181c2c]/30 rounded px-1.5 transition ${op}" ${atk.level !== undefined ? `onclick="openSpellModal('${atk.name}')"` : ''}>
             <div class="flex-1 min-w-0 flex items-center">
               ${atk.level !== undefined ? `<div class="cursor-pointer" onclick="event.stopPropagation(); toggleSpellPrep('${atk.name}')">${prepIcon}</div>` : ''}
               <div>
@@ -799,6 +861,23 @@
       if(!character || !localStorage.getItem('token')) return;
       const newSpells = (character.spells || []).map(s => s.name === name ? {...s, prepared: !s.prepared} : s);
       updateSheet({ spells: newSpells });
+    };
+
+    window.openSpellModal = function(name) {
+      if(!character) return;
+      const spell = (window._allAttacks || []).find(s => s.name === name && s.level !== undefined);
+      if(!spell) return;
+      const content = `
+        <div class="text-xs text-[#a1a7bc] mb-2">
+          <div class="mb-2"><strong>Level:</strong> ${spell.level}</div>
+          ${spell.castingTime ? `<div class="mb-2"><strong>Casting Time:</strong> ${spell.castingTime}</div>` : ''}
+          ${spell.range ? `<div class="mb-2"><strong>Range:</strong> ${spell.range}</div>` : ''}
+          ${spell.components ? `<div class="mb-2"><strong>Components:</strong> ${spell.components}</div>` : ''}
+          ${spell.duration ? `<div class="mb-2"><strong>Duration:</strong> ${spell.duration}</div>` : ''}
+          ${spell.damage ? `<div class="mb-2"><strong>Damage:</strong> ${spell.damage}</div>` : ''}
+          ${spell.source ? `<div class="mb-2"><strong>Source:</strong> ${spell.source}</div>` : ''}
+        </div>`;
+      new VTT.Modal({ title: spell.name, content, buttons: [] }).open();
     };
 
     document.querySelectorAll('#actions-chips .filter-chip').forEach(chip => {
@@ -921,6 +1000,18 @@
         const updatedArr = [...resources];
         updatedArr[foundIdx] = { ...res, current: res.current - 1 };
         updateSheet({ resources: updatedArr });
+      }
+    };
+
+    window.toggleDeathSave = function(type, index) {
+      if(!character || !localStorage.getItem('token')) return;
+      const ds = character.deathSaves || { successes: 0, failures: 0 };
+      if(type === 'success') {
+        const newVal = (ds.successes === index + 1) ? index : index + 1;
+        updateSheet({ deathSaves: { successes: newVal, failures: ds.failures } });
+      } else {
+        const newVal = (ds.failures === index + 1) ? index : index + 1;
+        updateSheet({ deathSaves: { successes: ds.successes, failures: newVal } });
       }
     };
 

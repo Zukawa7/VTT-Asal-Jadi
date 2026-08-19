@@ -98,6 +98,69 @@ export class DnDBeyondService {
     const usedHitDice = classesData.reduce((total, item) => total + number(item.hitDiceUsed), 0);
     const speed = dict(dict(race.weightSpeeds).normal).walk;
     const acValue = data.overrideArmorClass ?? data.armorClass;
+
+    // Spell Slots normalization (data.spellSlots contains used slots per level)
+    const rawSpellSlots = array(data.spellSlots).map(dict); // array of { level, used }
+    const pactMagic = array(data.pactMagic).map(dict);
+
+    // Determine caster level for multiclass calculation (exclude Warlock/pact)
+    const fullCasters = ['bard','cleric','druid','sorcerer','wizard'];
+    const halfCasters = ['paladin','ranger'];
+    let casterLevel = 0;
+    for (const cls of classesData) {
+      const def = dict(cls.definition);
+      const name = text(def.name).toLowerCase();
+      const lvl = number(cls.level);
+      if (fullCasters.includes(name)) casterLevel += lvl;
+      else if (halfCasters.includes(name)) casterLevel += Math.floor(lvl / 2);
+    }
+
+    // Multiclass spell slot table (index = caster level 0..20)
+    const multiSlots: number[][] = [
+      [0,0,0,0,0,0,0,0,0],
+      [2,0,0,0,0,0,0,0,0],
+      [3,0,0,0,0,0,0,0,0],
+      [4,2,0,0,0,0,0,0,0],
+      [4,3,0,0,0,0,0,0,0],
+      [4,3,2,0,0,0,0,0,0],
+      [4,3,3,0,0,0,0,0,0],
+      [4,3,3,1,0,0,0,0,0],
+      [4,3,3,2,0,0,0,0,0],
+      [4,3,3,3,1,0,0,0,0],
+      [4,3,3,3,2,0,0,0,0],
+      [4,3,3,3,2,1,0,0,0],
+      [4,3,3,3,2,1,0,0,0],
+      [4,3,3,3,2,1,1,0,0],
+      [4,3,3,3,2,1,1,0,0],
+      [4,3,3,3,2,1,1,1,0],
+      [4,3,3,3,2,1,1,1,0],
+      [4,3,3,3,2,1,1,1,1],
+      [4,3,3,3,3,1,1,1,1],
+      [4,3,3,3,3,2,1,1,1],
+      [4,3,3,3,3,2,2,1,1],
+    ];
+
+    const cappedCasterLevel = Math.max(0, Math.min(20, casterLevel));
+    const spellSlots: Record<string, { current: number; max: number }> = {};
+    for (let lvl = 1; lvl <= 9; lvl++) {
+      const max = multiSlots[cappedCasterLevel]?.[lvl-1] ?? 0;
+      const usedEntry = rawSpellSlots.find(s => number(s.level) === lvl);
+      const used = number(usedEntry?.used ?? 0);
+      const current = Math.max(0, max - used);
+      if (max > 0 || used > 0) spellSlots[String(lvl)] = { current, max };
+    }
+
+    // Include pact magic as separate entries if present (warlock)
+    if (pactMagic.length > 0) {
+      pactMagic.forEach((p) => {
+        const lvl = number(p.level);
+        const used = number(p.used ?? 0);
+        const key = `pact-${lvl}`;
+        // D&D Beyond does not provide a direct max for pact slots here; store used/max=0 so UI can show used if present
+        spellSlots[key] = { current: 0, max: 0 };
+      });
+    }
+
     return {
       id: text(data.id), name: text(data.name, 'Unnamed Character'), avatarUrl: text(data.avatarUrl ?? dict(data.decorations).avatarUrl, DEFAULT_AVATAR),
       race: text(race.fullName, 'Unknown Race'), classes, level,
@@ -110,6 +173,7 @@ export class DnDBeyondService {
       hitDice: { current: Math.max(0, hitDiceMax - usedHitDice), max: hitDiceMax, dieType }, equipment, spells: this.normalizeSpells(data, abilityModifiers, proficiencyBonus, getSpellcastingAbility(classesData)),
       features: this.normalizeFeatures(data, classesData, resources), traits: this.normalizeFeatures(data, classesData, resources), background: { name: text(backgroundDefinition.name, text(background.name)), description: text(backgroundDefinition.shortDescription ?? backgroundDefinition.description, text(background.description)) },
       personalityTraits: splitText(dict(data.traits).personalityTraits), ideals: splitText(dict(data.traits).ideals), bonds: splitText(dict(data.traits).bonds), flaws: splitText(dict(data.traits).flaws),
+      spellSlots,
     };
   }
 
@@ -139,7 +203,28 @@ export class DnDBeyondService {
     const sources = array(data.classSpells).flatMap((item) => array(dict(item).spells)).concat(array(spellData.class), array(spellData.race));
     return sources.map((raw) => {
       const item = dict(raw); const definition = dict(item.definition ?? item); const ability = modifiers[spellcastingAbility];
-      return { name: text(definition.name, 'Unknown Spell'), level: number(definition.level), prepared: bool(item.prepared ?? item.alwaysPrepared), attackBonus: ability + proficiencyBonus, saveDC: 8 + ability + proficiencyBonus, damage: text(definition.damage) || undefined };
+      // Components: 1=Verbal,2=Somatic,3=Material
+      const compArr = array(definition.components).map(number).filter(Boolean);
+      const compStr = compArr.map(c => c === 1 ? 'V' : c === 2 ? 'S' : c === 3 ? 'M' : '').filter(Boolean).join(', ');
+      // Range
+      const rangeObj = dict(definition.range ?? dict(definition).range);
+      let rangeStr = '';
+      if (rangeObj.origin === 'touch') rangeStr = 'Touch';
+      else if (rangeObj.origin === 'self') rangeStr = 'Self';
+      else if (number(rangeObj.rangeValue)) rangeStr = `${number(rangeObj.rangeValue)} ft.`;
+      // Duration
+      const durationObj = dict(definition.duration ?? dict(definition).duration);
+      let durationStr = '';
+      if (durationObj.durationType) {
+        durationStr = `${text(durationObj.durationInterval || '')} ${text(durationObj.durationUnit || '')}`.trim();
+      } else if (definition.duration) {
+        durationStr = text(definition.duration);
+      }
+      // Casting time / activation
+      const activation = dict(definition.activation ?? dict(definition).activation ?? dict(definition).spellData?.activation);
+      let casting = text(definition.castingTimeDescription || activation.activationTime || definition.castingTime || '');
+
+      return { name: text(definition.name, 'Unknown Spell'), level: number(definition.level), prepared: bool(item.prepared ?? item.alwaysPrepared), attackBonus: ability + proficiencyBonus, saveDC: 8 + ability + proficiencyBonus, damage: text(definition.damage) || undefined, castingTime: casting || undefined, range: rangeStr || undefined, components: compStr || undefined, duration: durationStr || undefined, source: text(definition.source) || undefined };
     });
   }
 

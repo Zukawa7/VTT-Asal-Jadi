@@ -19,7 +19,9 @@ export interface Proficiencies { saves: AbilityKey[]; skills: string[]; }
 export interface ProficiencyDetails { armor: string[]; weapons: string[]; tools: string[]; languages: string[]; }
 export interface Resource { name: string; current: number; max: number; resetOn?: string; }
 export interface HitDice { current: number; max: number; dieType: number; }
-export interface Spell { name: string; level: number; prepared?: boolean; attackBonus?: number; saveDC?: number; damage?: string; }
+export interface Spell { name: string; level: number; prepared?: boolean; attackBonus?: number; saveDC?: number; damage?: string; castingTime?: string; range?: string; components?: string; duration?: string; source?: string; } 
+
+export interface DeathSaves { successes: number; failures: number; }
 export interface Feature { name: string; description?: string; category: string; source?: string; usesResourceName?: string; }
 export interface Background { name?: string; description?: string; }
 
@@ -73,6 +75,7 @@ export interface Character {
   bonds?: string[];
   flaws?: string[];
   spellSlots?: SpellSlots;
+  deathSaves?: DeathSaves;
   notes?: string;
 }
 
