@@ -431,10 +431,12 @@ export class DnDBeyondService {
       isWeapon,
       ac: number(definition.armorClass) || undefined,
       acBonus: magicArmorBonus || undefined,
-      attackBonus: isWeapon ? ability + (proficient ? proficiencyBonus : 0) + magicBonus : undefined,
+      attackBonus: isWeapon
+        ? ability + (proficient ? proficiencyBonus : 0) + magicBonus
+        : undefined,
       damage:
         isWeapon && dice
-          ? `${dice}${(damageBonus + magicBonus) >= 0 ? '+' : ''}${damageBonus + magicBonus}`
+          ? `${dice}${damageBonus + magicBonus >= 0 ? '+' : ''}${damageBonus + magicBonus}`
           : undefined,
       range: isWeapon ? (range ? `${range}/${longRange} ft.` : '5 ft.') : undefined,
       description: text(definition.description),
