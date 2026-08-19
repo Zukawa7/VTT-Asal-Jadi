@@ -409,6 +409,14 @@ export class DnDBeyondService {
     const damage = dict(definition.damage);
     const dice = text(damage.diceString);
     const damageBonus = number(definition.damageBonus, ability);
+    const magicBonus = array(definition.grantedModifiers)
+      .map(dict)
+      .filter((mod) => text(mod.type) === 'bonus' && text(mod.subType) === 'magic')
+      .reduce((sum, mod) => sum + number(mod.value), 0);
+    const magicArmorBonus = array(definition.grantedModifiers)
+      .map(dict)
+      .filter((mod) => text(mod.type) === 'bonus' && text(mod.subType) === 'armor-class')
+      .reduce((sum, mod) => sum + number(mod.value), 0);
     const range = number(definition.range);
     const longRange = number(definition.longRange);
     return {
@@ -421,8 +429,13 @@ export class DnDBeyondService {
       category: /armor|weapon|equipment/i.test(kind) ? 'Equipment' : 'Backpack',
       type: kind,
       isWeapon,
-      attackBonus: isWeapon ? ability + (proficient ? proficiencyBonus : 0) : undefined,
-      damage: isWeapon && dice ? `${dice}${damageBonus >= 0 ? '+' : ''}${damageBonus}` : undefined,
+      ac: number(definition.armorClass) || undefined,
+      acBonus: magicArmorBonus || undefined,
+      attackBonus: isWeapon ? ability + (proficient ? proficiencyBonus : 0) + magicBonus : undefined,
+      damage:
+        isWeapon && dice
+          ? `${dice}${(damageBonus + magicBonus) >= 0 ? '+' : ''}${damageBonus + magicBonus}`
+          : undefined,
       range: isWeapon ? (range ? `${range}/${longRange} ft.` : '5 ft.') : undefined,
       description: text(definition.description),
     };

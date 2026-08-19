@@ -181,6 +181,91 @@ describe('DnDBeyondService', () => {
     expect(character.personalityTraits).toEqual(['Curious', 'Quiet']);
   });
 
+  it('includes magic weapon bonuses in attack and damage values', async () => {
+    const payload = {
+      success: true,
+      data: {
+        id: 21,
+        name: 'Magic Warrior',
+        stats: [
+          { id: 1, value: 16 },
+          { id: 2, value: 12 },
+          { id: 3, value: 14 },
+          { id: 4, value: 10 },
+          { id: 5, value: 10 },
+          { id: 6, value: 8 },
+        ],
+        classes: [{ level: 3, definition: { name: 'Fighter' } }],
+        inventory: [
+          {
+            id: 5,
+            equipped: true,
+            definition: {
+              name: 'Mace',
+              filterType: 'Weapon',
+              damage: { diceString: '1d6' },
+              damageBonus: 1,
+              grantedModifiers: [{ type: 'bonus', subType: 'magic', value: 1 }],
+            },
+          },
+        ],
+      },
+    };
+
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => payload,
+    } as Response);
+
+    const character = await service.fetchCharacter('21');
+    expect(character.equipment?.[0]).toMatchObject({
+      attackBonus: 4,
+      damage: '1d6+2',
+    });
+  });
+
+  it('preserves armor base AC and magic AC bonuses on equipped items', async () => {
+    const payload = {
+      success: true,
+      data: {
+        id: 22,
+        name: 'Armored Hero',
+        stats: [
+          { id: 1, value: 12 },
+          { id: 2, value: 16 },
+          { id: 3, value: 14 },
+          { id: 4, value: 10 },
+          { id: 5, value: 10 },
+          { id: 6, value: 8 },
+        ],
+        classes: [{ level: 3, definition: { name: 'Paladin' } }],
+        inventory: [
+          {
+            id: 7,
+            equipped: true,
+            definition: {
+              name: 'Chain Shirt',
+              type: 'Armor',
+              armorClass: 13,
+              grantedModifiers: [{ type: 'bonus', subType: 'armor-class', value: 1 }],
+            },
+          },
+        ],
+      },
+    };
+
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => payload,
+    } as Response);
+
+    const character = await service.fetchCharacter('22');
+    expect(character.equipment?.[0]).toMatchObject({
+      ac: 13,
+      acBonus: 1,
+    });
+  });
+
   it('should throw error on failed fetch', async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: false,

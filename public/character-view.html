@@ -1005,9 +1005,11 @@
         // Armor Class logic (c.ac fallback)
         let ac = c.ac;
         if (ac === undefined || ac === null) {
-          const armorItem = (c.equipment || []).find((i) => i.type === 'armor' && i.equipped);
-          const shieldItem = (c.equipment || []).find((i) => i.type === 'shield' && i.equipped);
-          ac = (armorItem ? armorItem.ac || 10 : 10) + c.modifiers.dex + (shieldItem ? 2 : 0);
+          const equippedItems = (c.equipment || []).filter((i) => i.equipped);
+          const armorItem = equippedItems.find((i) => i.type === 'armor');
+          const shieldItem = equippedItems.find((i) => i.type === 'shield');
+          const acBonus = equippedItems.reduce((sum, item) => sum + (typeof item.acBonus === 'number' ? item.acBonus : 0), 0);
+          ac = (armorItem ? armorItem.ac || 10 : 10) + c.modifiers.dex + (shieldItem ? 2 : 0) + acBonus;
         }
         document.getElementById('armor').textContent = ac;
         document.getElementById('speed').textContent = (c.speed || 30) + ' ft.';

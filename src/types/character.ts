@@ -92,6 +92,8 @@ export interface EquipmentItem {
   category?: 'Equipment' | 'Backpack';
   isWeapon?: boolean;
   type?: string;
+  ac?: number;
+  acBonus?: number;
   attackBonus?: number;
   damage?: string;
   range?: string;
