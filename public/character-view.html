@@ -966,16 +966,16 @@
             .map((_, i) => {
               const active = i < (ds.successes || 0);
               if (canEdit)
-                return `<button class="w-3 h-3 inline-block rounded-full ${active ? 'bg-green-500' : 'border border-[#6b7085] bg-transparent'} mx-1" onclick="toggleDeathSave('success', ${i})" title="Success ${i + 1}"></button>`;
-              return `<span class="inline-block mx-1 ${active ? 'text-green-500' : 'text-[#6b7085]'}">${active ? '●' : '○'}</span>`;
+                return VTT.UI.pipHtml(active, { isButton: true, onclick: 'toggleDeathSave("success", '+i+')', title: 'Success '+(i+1), filledClass: 'bg-green-500', emptyClass: 'border border-[#6b7085] bg-transparent', sizeClass: 'w-3 h-3 inline-block rounded-full' });
+              return VTT.UI.pipHtml(active, { isButton: false, filledTextClass: 'text-green-500', emptyTextClass: 'text-[#6b7085]' });
             })
             .join('');
           const fail = Array.from({ length: 3 })
             .map((_, i) => {
               const active = i < (ds.failures || 0);
               if (canEdit)
-                return `<button class="w-3 h-3 inline-block rounded-full ${active ? 'bg-red-500' : 'border border-[#6b7085] bg-transparent'} mx-1" onclick="toggleDeathSave('failure', ${i})" title="Failure ${i + 1}"></button>`;
-              return `<span class="inline-block mx-1 ${active ? 'text-red-500' : 'text-[#6b7085]'}">${active ? '●' : '○'}</span>`;
+                return VTT.UI.pipHtml(active, { isButton: true, onclick: 'toggleDeathSave("failure", '+i+')', title: 'Failure '+(i+1), filledClass: 'bg-red-500', emptyClass: 'border border-[#6b7085] bg-transparent', sizeClass: 'w-3 h-3 inline-block rounded-full' });
+              return VTT.UI.pipHtml(active, { isButton: false, filledTextClass: 'text-red-500', emptyTextClass: 'text-[#6b7085]' });
             })
             .join('');
           dsEl.innerHTML = `<div class="text-[9px] text-[#6b7085] font-bold mb-1">Death Saves</div><div class="flex items-center"> <div class="mr-3">Success: ${suc}</div> <div>Failure: ${fail}</div></div>`;
@@ -1040,11 +1040,9 @@
                  <div class="flex gap-1 flex-wrap justify-end" style="max-width: 50%;">
                    ${Array.from({ length: Math.min(20, r.max || 0) })
                      .map(
-                       (_, j) => `
-                     <div class="w-2.5 h-2.5 rounded-full border cursor-pointer transition ${j < (r.current || 0) ? 'border-[#d4a544] bg-[#d4a544]' : 'border-[#6b7085] bg-transparent'}" onclick="consumeResource(${i}, ${j})" style="margin-right:2px;"></div>
-                   `,
+                       (_, j) => `${VTT.UI.pipHtml(j < (r.current || 0), { isButton: true, onclick: 'consumeResource('+i+','+j+')', title: 'Use slot', filledClass: 'border-[#d4a544] bg-[#d4a544]', emptyClass: 'border-[#6b7085] bg-transparent', sizeClass: 'w-2.5 h-2.5 inline-block rounded-full' })}`,
                      )
-                     .join('')}
+                     .join('') }
                  </div>
               </div>
             `,
@@ -1157,9 +1155,9 @@
                 const dots = Array.from({ length: Math.max(0, max) }, (_, i) => {
                   const available = i < current;
                   if (canEdit) {
-                    return `<button class="w-3 h-3 inline-block rounded-full ${available ? 'bg-[#d4a544]' : 'border border-[#6b7085] bg-transparent'} mx-1" onclick="consumeSpellSlot(${lv})" title="${available ? 'Use slot' : 'Used'}"></button>`;
+                    return VTT.UI.pipHtml(available, { isButton: true, onclick: 'consumeSpellSlot('+lv+')', title: available ? 'Use slot' : 'Used', filledClass: 'bg-[#d4a544]', emptyClass: 'border border-[#6b7085] bg-transparent', sizeClass: 'w-3 h-3 inline-block rounded-full' });
                   }
-                  return `<span class="inline-block mx-1 ${available ? 'text-[#d4a544]' : 'text-[#6b7085]'}">${available ? '●' : '○'}</span>`;
+                  return VTT.UI.pipHtml(available, { isButton: false, filledTextClass: 'text-[#d4a544]', emptyTextClass: 'text-[#6b7085]' });
                 }).join('');
                 return `<div class="text-xs text-[#a1a7bc] mb-1"><div class="font-bold text-white text-[10px]">${ordinal(Number(lv))} Level — ${max} Slots</div><div class="mt-1">${dots}</div></div>`;
               })

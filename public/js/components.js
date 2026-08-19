@@ -190,3 +190,25 @@ window.signed = window.signed || function (n) {
   if (!Number.isFinite(parsed)) return String(n);
   return parsed >= 0 ? '+' + parsed : String(parsed);
 };
+
+// ===== UI HELPERS =====
+window.VTT = window.VTT || {};
+VTT.UI = VTT.UI || {};
+
+/**
+ * Return an HTML string for a pip/dot used in resources, spell slots, death saves.
+ * available: boolean - filled or not
+ * opts: { isButton, onclick, title, filledClass, emptyClass, sizeClass }
+ */
+VTT.UI.pipHtml = function (available, opts = {}) {
+  const isButton = Boolean(opts.isButton);
+  const onclick = opts.onclick ? opts.onclick : '';
+  const title = opts.title ? opts.title : '';
+  const filledClass = opts.filledClass ? opts.filledClass : 'bg-[#d4a544]';
+  const emptyClass = opts.emptyClass ? opts.emptyClass : 'border border-[#6b7085] bg-transparent';
+  const sizeClass = opts.sizeClass ? opts.sizeClass : 'w-3 h-3 inline-block rounded-full';
+  if (isButton) {
+    return `<button class="${sizeClass} ${available ? filledClass : emptyClass} mx-1" onclick="${onclick}" title="${title}"></button>`;
+  }
+  return `<span class="inline-block mx-1 ${available ? (opts.filledTextClass || 'text-[#d4a544]') : (opts.emptyTextClass || 'text-[#6b7085]')}">${available ? '●' : '○'}</span>`;
+};
