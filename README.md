@@ -34,12 +34,30 @@ Virtual Tabletop (VTT) sederhana yang terintegrasi dengan **D&D Beyond** dan **O
 ### Prasyarat
 Pastikan Anda sudah menginstal [Node.js](https://nodejs.org/) (versi 18 ke atas direkomendasikan).
 
+**Catatan untuk pengguna Windows:**
+- Paket `sqlite3` digunakan oleh proyek dan akan mencoba membangun native bindings saat `npm install` (postinstall). Untuk membangun dari sumber pada Windows, biasanya diperlukan Visual Studio Build Tools dengan "Desktop development with C++" workload.
+- Jika Anda tidak bisa memasang build tools, gunakan WSL/WSL2, gunakan Docker, atau jalankan CI pada Linux untuk menjalankan instalasi dan build.
+
 ### Langkah-langkah
 
 1. **Instal dependensi**:
    ```bash
    npm install
    ```
+
+   Jika `npm install` gagal karena kegagalan build sqlite3 pada Windows, lihat catatan di atas atau jalankan di WSL/Docker/CI.
+
+2. **Jalankan server**:
+   ```bash
+   npm start
+   ```
+
+3. **Script penting**:
+   - npm run type-check  — TypeScript check (tsc --noEmit)
+   - npm run lint        — ESLint for TypeScript sources
+   - npm test            — Run unit tests (Vitest)
+   - npm run format:all  — Prettier format across src and public
+
 
 2. **Jalankan server**:
    ```bash
