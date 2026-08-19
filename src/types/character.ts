@@ -133,6 +133,7 @@ export interface Character {
   flaws?: string[];
   spellSlots?: SpellSlots;
   deathSaves?: DeathSaves;
+  senses?: string[];
   notes?: string;
 }
 
