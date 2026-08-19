@@ -546,7 +546,6 @@
       bar.style.width = hpPct + '%';
       
       // Top Stats
-      document.getElementById('prof').textContent = signed(profBonus);
       document.getElementById('initiative').textContent = signed(c.modifiers.dex);
       
       // Armor Class logic (c.ac fallback)
@@ -573,7 +572,7 @@
       
       if (canEdit) {
         ['cp','sp','gp','pp'].forEach(type => {
-          document.querySelector('.currency-badge.'+type).onclick = () => {
+          document.querySelector('.'+type).onclick = () => {
             const content = `
               <div class="flex flex-col gap-3">
                 <label class="text-xs font-bold text-[#a1a7bc]">Amount (${type.toUpperCase()})</label>
@@ -844,7 +843,7 @@
          </div>` +
         items.map((item,index) =>
           `<div class="flex justify-between items-center py-2 border-b border-[#26283b] last:border-b-0 text-xs w-full cursor-pointer hover:bg-[#181c2c]/30 rounded transition px-1.5" onclick="openItemModal(${window._allItems.indexOf(item)})">
-             <div style="flex:1; text-align:left; font-weight:bold; color:#white; word-break:break-word; padding-right:8px;">${item.equipped ? '<span class="text-[#d4a544] font-bold mr-1">E</span> ' : ''}${item.name}</div>
+             <div style="flex:1; text-align:left; font-weight:bold; color:white; word-break:break-word; padding-right:8px;">${item.equipped ? '<span class="text-[#d4a544] font-bold mr-1">E</span> ' : ''}${item.name}</div>
              <div style="width:40px; text-align:center; color:#a1a7bc; font-size:0.75rem;">${item.quantity}</div>
              <div style="width:60px; text-align:right; color:#6b7085; font-size:0.7rem;">${(Number(item.weight||0)*Number(item.quantity||1)).toFixed(1)} lb</div>
            </div>`
@@ -892,7 +891,7 @@
       const newEq = [...character.equipment];
       newEq[index] = { ...newEq[index], equipped: !newEq[index].equipped };
       updateSheet({ equipment: newEq });
-      document.querySelector('.vtt-modal-close')?.click();
+      document.getElementById('modalClose')?.click();
     };
 
     // Features Renderer
@@ -965,7 +964,7 @@
     window.saveCurrency = function(type) {
       const val = parseInt(document.getElementById('currencyInput').value) || 0;
       updateSheet({ currencies: { ...character.currencies, [type]: val } });
-      document.querySelector('.vtt-modal-close')?.click();
+      document.getElementById('modalClose')?.click();
     };
 
     function openDefensesModal() {
@@ -1001,7 +1000,7 @@
     window.saveConditions = function() {
       const checked = [...document.querySelectorAll('.cond-checkbox:checked')].map(c => c.value);
       updateSheet({ conditions: checked });
-      document.querySelector('.vtt-modal-close')?.click();
+      document.getElementById('modalClose')?.click();
     };
 
     window.openDiceModal = function() {
@@ -1009,11 +1008,11 @@
       const diceTypes = ['d4','d6','d8','d10','d12','d20','d100'];
       const content = `
         <div class="grid grid-cols-3 md:grid-cols-4 gap-2 mb-4">
-          ${diceTypes.map(d => `<button class="rounded border border-[#26283b] bg-[#0a0c11] hover:bg-[#181c2c] text-white py-2 font-bold font-serif text-sm transition" onclick="sendRoll('1${d}', '${d} Roll'); document.querySelector('.vtt-modal-close')?.click();">${d}</button>`).join('')}
+          ${diceTypes.map(d => `<button class="rounded border border-[#26283b] bg-[#0a0c11] hover:bg-[#181c2c] text-white py-2 font-bold font-serif text-sm transition" onclick="sendRoll('1${d}', '${d} Roll'); document.getElementById('modalClose')?.click();">${d}</button>`).join('')}
         </div>
         <div class="flex gap-2">
           <input type="text" id="customRollFormula" class="flex-1 rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2 text-xs text-white outline-none placeholder:text-[#555b70]" placeholder="e.g. 2d6+4">
-          <button class="rounded bg-[#d4a544] px-4 py-2 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition" onclick="const f=document.getElementById('customRollFormula').value; if(f) { sendRoll(f, 'Custom Roll'); document.querySelector('.vtt-modal-close')?.click(); }">Roll</button>
+          <button class="rounded bg-[#d4a544] px-4 py-2 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition" onclick="const f=document.getElementById('customRollFormula').value; if(f) { sendRoll(f, 'Custom Roll'); document.getElementById('modalClose')?.click(); }">Roll</button>
         </div>`;
       new VTT.Modal({ title: 'Dice Roller', content, buttons: [] }).open();
     };
