@@ -1127,6 +1127,12 @@
           )
           .join('');
 
+        // Extra senses (Darkvision, Blindsight, etc.) — rendered as small text under passive senses
+        if (c.senses && c.senses.length > 0) {
+          const sensesText = c.senses.map((s) => `<span class="text-[#a1a7bc] text-[10px] mr-2">${s}</span>`).join('');
+          document.getElementById('senses').innerHTML += `<div class="w-full mt-2 text-left"><div class="text-[9px] text-[#6b7085] font-bold mb-1">Senses</div><div>${sensesText}</div></div>`;
+        }
+
         // Actions
         const weapons = c.equipment?.filter((item) => item.isWeapon === true) || [];
         const spells =
