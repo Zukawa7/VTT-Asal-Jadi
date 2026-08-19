@@ -12,64 +12,123 @@ export function createSessionsRouter(db: DatabaseService, jwtSecret: string): Ro
   router.post('/', auth, async (req, res, next) => {
     try {
       const roomId = String(req.body?.roomId ?? GameSessionService.generateRoomId()).toLowerCase();
-      if (!validateRoomId(roomId)) { res.status(400).json({ error: 'Invalid room ID' }); return; }
+      if (!validateRoomId(roomId)) {
+        res.status(400).json({ error: 'Invalid room ID' });
+        return;
+      }
       const existing = await sessions.get(roomId);
-      if (existing) { res.status(409).json({ error: 'Room already exists' }); return; }
-      const session = await sessions.create(roomId, res.locals.user.id, String(req.body?.name ?? ''), String(req.body?.description ?? ''), req.body?.password ? String(req.body.password) : undefined);
+      if (existing) {
+        res.status(409).json({ error: 'Room already exists' });
+        return;
+      }
+      const session = await sessions.create(
+        roomId,
+        res.locals.user.id,
+        String(req.body?.name ?? ''),
+        String(req.body?.description ?? ''),
+        req.body?.password ? String(req.body.password) : undefined,
+      );
       res.status(201).json(session);
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   });
 
   router.get('/:roomId', async (req, res, next) => {
     try {
-      if (!validateRoomId(req.params.roomId)) { res.status(400).json({ error: 'Invalid room ID' }); return; }
+      if (!validateRoomId(req.params.roomId)) {
+        res.status(400).json({ error: 'Invalid room ID' });
+        return;
+      }
       const session = await sessions.get(req.params.roomId);
-      if (!session) { res.status(404).json({ error: 'Session not found' }); return; }
+      if (!session) {
+        res.status(404).json({ error: 'Session not found' });
+        return;
+      }
       res.json(session);
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   });
 
   router.post('/:roomId/join', auth, async (req, res, next) => {
     try {
       const roomId = String(req.params.roomId);
-      if (!validateRoomId(roomId)) { res.status(400).json({ error: 'Invalid room ID' }); return; }
-      const participant = await sessions.join(roomId, res.locals.user.id, req.body?.password, req.body?.characterId);
+      if (!validateRoomId(roomId)) {
+        res.status(400).json({ error: 'Invalid room ID' });
+        return;
+      }
+      const participant = await sessions.join(
+        roomId,
+        res.locals.user.id,
+        req.body?.password,
+        req.body?.characterId,
+      );
       res.json(participant);
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   });
 
   router.get('/:roomId/participants', auth, async (req, res, next) => {
     try {
       const roomId = String(req.params.roomId);
-      if (!validateRoomId(roomId)) { res.status(400).json({ error: 'Invalid room ID' }); return; }
+      if (!validateRoomId(roomId)) {
+        res.status(400).json({ error: 'Invalid room ID' });
+        return;
+      }
       res.json(await sessions.participants(roomId));
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   });
 
   router.get('/:roomId/analytics', async (req, res, next) => {
     try {
       const roomId = String(req.params.roomId);
-      if (!validateRoomId(roomId)) { res.status(400).json({ error: 'Invalid room ID' }); return; }
+      if (!validateRoomId(roomId)) {
+        res.status(400).json({ error: 'Invalid room ID' });
+        return;
+      }
       res.json(await sessions.analytics(roomId));
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   });
 
   router.get('/:roomId/export.csv', async (req, res, next) => {
     try {
       const roomId = String(req.params.roomId);
-      if (!validateRoomId(roomId)) { res.status(400).json({ error: 'Invalid room ID' }); return; }
+      if (!validateRoomId(roomId)) {
+        res.status(400).json({ error: 'Invalid room ID' });
+        return;
+      }
       const rows = await sessions.exportRolls(roomId);
       const escape = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`;
-      const csv = ['characterId,formula,result,isCritical,rolls,createdAt', ...rows.map((row) => [row.characterId, row.formula, row.result, row.isCritical, row.rolls, row.createdAt].map(escape).join(','))].join('\n');
+      const csv = [
+        'characterId,formula,result,isCritical,rolls,createdAt',
+        ...rows.map((row) =>
+          [row.characterId, row.formula, row.result, row.isCritical, row.rolls, row.createdAt]
+            .map(escape)
+            .join(','),
+        ),
+      ].join('\n');
       res.type('text/csv').attachment(`${roomId}-rolls.csv`).send(csv);
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   });
 
   router.get('/:roomId/export', async (req, res, next) => {
     try {
-      if (!validateRoomId(req.params.roomId)) { res.status(400).json({ error: 'Invalid room ID' }); return; }
+      if (!validateRoomId(req.params.roomId)) {
+        res.status(400).json({ error: 'Invalid room ID' });
+        return;
+      }
       res.json({ roomId: req.params.roomId, rolls: await sessions.exportRolls(req.params.roomId) });
-    } catch (error) { next(error); }
+    } catch (error) {
+      next(error);
+    }
   });
   return router;
 }

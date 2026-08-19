@@ -17,7 +17,9 @@ export function createAuthRouter(db: DatabaseService, jwtSecret: string): Router
 
   router.post('/register', async (req, res, next) => {
     try {
-      const username = String(req.body?.username ?? '').trim().toLowerCase();
+      const username = String(req.body?.username ?? '')
+        .trim()
+        .toLowerCase();
       const password = String(req.body?.password ?? '');
       if (!validateUsername(username) || password.length < 6) {
         res.status(400).json({ error: 'Invalid username or password format' });
@@ -41,14 +43,18 @@ export function createAuthRouter(db: DatabaseService, jwtSecret: string): Router
 
   router.post('/login', async (req, res, next) => {
     try {
-      const username = String(req.body?.username ?? '').trim().toLowerCase();
+      const username = String(req.body?.username ?? '')
+        .trim()
+        .toLowerCase();
       const password = String(req.body?.password ?? '');
       const user = await db.get<UserRow>('SELECT * FROM users WHERE username = ?', [username]);
       if (!user || hashPassword(password, user.salt) !== user.password_hash) {
         res.status(401).json({ error: 'Invalid username or password' });
         return;
       }
-      const token = jwt.sign({ id: user.id, username: user.username }, jwtSecret, { expiresIn: '7d' });
+      const token = jwt.sign({ id: user.id, username: user.username }, jwtSecret, {
+        expiresIn: '7d',
+      });
       res.json({ token, username: user.username });
     } catch (error) {
       next(error);

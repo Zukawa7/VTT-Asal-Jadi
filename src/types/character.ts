@@ -1,4 +1,3 @@
-
 export type AbilityKey = 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha';
 
 export interface AbilityScores {
@@ -10,20 +9,78 @@ export interface AbilityScores {
   cha: number;
 }
 
-export interface CharacterClass { name: string; level: number; isStarting?: boolean; }
-export interface HitPoints { current: number; max: number; temp: number; }
-export interface SpellSlot { current: number; max: number; }
+export interface CharacterClass {
+  name: string;
+  level: number;
+  isStarting?: boolean;
+}
+export interface HitPoints {
+  current: number;
+  max: number;
+  temp: number;
+}
+export interface SpellSlot {
+  current: number;
+  max: number;
+}
 export type SpellSlots = Record<string, SpellSlot>;
-export interface Currency { cp: number; sp: number; ep?: number; gp: number; pp: number; }
-export interface Proficiencies { saves: AbilityKey[]; skills: string[]; }
-export interface ProficiencyDetails { armor: string[]; weapons: string[]; tools: string[]; languages: string[]; }
-export interface Resource { name: string; current: number; max: number; resetOn?: string; }
-export interface HitDice { current: number; max: number; dieType: number; }
-export interface Spell { name: string; level: number; prepared?: boolean; attackBonus?: number; saveDC?: number; damage?: string; castingTime?: string; range?: string; components?: string; duration?: string; source?: string; } 
+export interface Currency {
+  cp: number;
+  sp: number;
+  ep?: number;
+  gp: number;
+  pp: number;
+}
+export interface Proficiencies {
+  saves: AbilityKey[];
+  skills: string[];
+}
+export interface ProficiencyDetails {
+  armor: string[];
+  weapons: string[];
+  tools: string[];
+  languages: string[];
+}
+export interface Resource {
+  name: string;
+  current: number;
+  max: number;
+  resetOn?: string;
+}
+export interface HitDice {
+  current: number;
+  max: number;
+  dieType: number;
+}
+export interface Spell {
+  name: string;
+  level: number;
+  prepared?: boolean;
+  attackBonus?: number;
+  saveDC?: number;
+  damage?: string;
+  castingTime?: string;
+  range?: string;
+  components?: string;
+  duration?: string;
+  source?: string;
+}
 
-export interface DeathSaves { successes: number; failures: number; }
-export interface Feature { name: string; description?: string; category: string; source?: string; usesResourceName?: string; }
-export interface Background { name?: string; description?: string; }
+export interface DeathSaves {
+  successes: number;
+  failures: number;
+}
+export interface Feature {
+  name: string;
+  description?: string;
+  category: string;
+  source?: string;
+  usesResourceName?: string;
+}
+export interface Background {
+  name?: string;
+  description?: string;
+}
 
 export interface EquipmentItem {
   id?: string | number;
@@ -79,8 +136,22 @@ export interface Character {
   notes?: string;
 }
 
-export interface DndBeyondCharacterResponse { success: boolean; data?: Record<string, unknown>; message?: string; }
-export interface DndBeyondStat { id: number; value: number | null; }
+export interface DndBeyondCharacterResponse {
+  success: boolean;
+  data?: Record<string, unknown>;
+  message?: string;
+}
+export interface DndBeyondStat {
+  id: number;
+  value: number | null;
+}
 
-export interface DndBeyondModifier { type?: string; subType?: string; }
-export interface DndBeyondLimitedUse { maxUses?: number; numberUsed?: number; resetType?: number; }
+export interface DndBeyondModifier {
+  type?: string;
+  subType?: string;
+}
+export interface DndBeyondLimitedUse {
+  maxUses?: number;
+  numberUsed?: number;
+  resetType?: number;
+}

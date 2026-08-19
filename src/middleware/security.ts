@@ -8,5 +8,6 @@ import helmet from 'helmet';
 export const securityMiddleware = helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
-  hsts: process.env.NODE_ENV === 'production' ? { maxAge: 31536000, includeSubDomains: true } : false,
+  hsts:
+    process.env.NODE_ENV === 'production' ? { maxAge: 31536000, includeSubDomains: true } : false,
 });

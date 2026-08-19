@@ -4,7 +4,6 @@ import type { RoomState, TokenState } from '../types/api.js';
 import type { DiceRoll } from './DiceRollerService.js';
 import { validateRoomId } from '../utils/validators.js';
 
-
 export type TypedIo = Server<SocketClientToServerEvents, SocketServerToClientEvents>;
 export type TypedSocket = Socket<SocketClientToServerEvents, SocketServerToClientEvents>;
 

@@ -6,7 +6,7 @@ class ThemeToggle {
   init() {
     // Always force dark theme to match the template's dark obsidian design
     document.documentElement.setAttribute('data-theme', 'dark');
-    
+
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
       meta.setAttribute('content', '#0a0b10');
@@ -29,7 +29,7 @@ class ThemeToggle {
       } else {
         btn.innerHTML = '🌙';
       }
-      
+
       // Remove any existing click event listener by replacing the button
       const newBtn = btn.cloneNode(true);
       btn.parentNode.replaceChild(newBtn, btn);

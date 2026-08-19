@@ -3,11 +3,27 @@
   "env": { "es2022": true, "node": true },
   "parser": "@typescript-eslint/parser",
   "parserOptions": { "ecmaVersion": "latest", "sourceType": "module", "project": "./tsconfig.json" },
-  "plugins": ["@typescript-eslint"],
-  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
-  "ignorePatterns": ["dist/", "public/", "node_modules/", "server-legacy.js", "db-legacy.js"],
+  "plugins": ["@typescript-eslint", "prettier"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
+  "ignorePatterns": ["dist/", "node_modules/", "server-legacy.js", "db-legacy.js"],
   "rules": {
     "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/consistent-type-imports": "error"
-  }
+    "@typescript-eslint/consistent-type-imports": "error",
+    "prettier/prettier": "error"
+  },
+  "overrides": [
+    {
+      "files": ["*.js", "public/**/*.js"],
+      "parser": "espree",
+      "env": { "browser": true },
+      "globals": { "io": "readonly" },
+      "parserOptions": { "ecmaVersion": "latest", "sourceType": "module" },
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/consistent-type-imports": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "no-undef": "off"
+      }
+    }
+  ]
 }

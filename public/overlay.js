@@ -12,7 +12,11 @@ const overlayDefaults = {
 const overlayParams = new URLSearchParams(window.location.search);
 const overlayStorageKey = 'vtt-overlay-config';
 const savedOverlayConfig = (() => {
-  try { return JSON.parse(localStorage.getItem(overlayStorageKey) || '{}'); } catch { return {}; }
+  try {
+    return JSON.parse(localStorage.getItem(overlayStorageKey) || '{}');
+  } catch {
+    return {};
+  }
 })();
 
 function booleanParam(value, fallback) {
@@ -23,22 +27,53 @@ function booleanParam(value, fallback) {
 const overlayConfig = {
   ...overlayDefaults,
   ...savedOverlayConfig,
-  position: overlayParams.get('position') || overlayParams.get('pos') || savedOverlayConfig.position || overlayDefaults.position,
-  animationStyle: overlayParams.get('animation') || savedOverlayConfig.animationStyle || overlayDefaults.animationStyle,
-  fontSize: overlayParams.get('fontSize') || savedOverlayConfig.fontSize || overlayDefaults.fontSize,
-  showFormula: booleanParam(overlayParams.get('showFormula'), savedOverlayConfig.showFormula ?? overlayDefaults.showFormula),
-  autoHideTimeout: Math.min(30, Math.max(5, Number(overlayParams.get('timeout') || savedOverlayConfig.autoHideTimeout || overlayDefaults.autoHideTimeout))),
-  soundEffectsEnabled: booleanParam(overlayParams.get('sound'), savedOverlayConfig.soundEffectsEnabled ?? overlayDefaults.soundEffectsEnabled),
+  position:
+    overlayParams.get('position') ||
+    overlayParams.get('pos') ||
+    savedOverlayConfig.position ||
+    overlayDefaults.position,
+  animationStyle:
+    overlayParams.get('animation') ||
+    savedOverlayConfig.animationStyle ||
+    overlayDefaults.animationStyle,
+  fontSize:
+    overlayParams.get('fontSize') || savedOverlayConfig.fontSize || overlayDefaults.fontSize,
+  showFormula: booleanParam(
+    overlayParams.get('showFormula'),
+    savedOverlayConfig.showFormula ?? overlayDefaults.showFormula,
+  ),
+  autoHideTimeout: Math.min(
+    30,
+    Math.max(
+      5,
+      Number(
+        overlayParams.get('timeout') ||
+          savedOverlayConfig.autoHideTimeout ||
+          overlayDefaults.autoHideTimeout,
+      ),
+    ),
+  ),
+  soundEffectsEnabled: booleanParam(
+    overlayParams.get('sound'),
+    savedOverlayConfig.soundEffectsEnabled ?? overlayDefaults.soundEffectsEnabled,
+  ),
 };
 
 const validPositions = ['top', 'bottom', 'center'];
 const validAnimations = ['slide', 'fade', 'bounce'];
 const validFontSizes = ['small', 'medium', 'large'];
-if (!validPositions.includes(overlayConfig.position)) overlayConfig.position = overlayDefaults.position;
-if (!validAnimations.includes(overlayConfig.animationStyle)) overlayConfig.animationStyle = overlayDefaults.animationStyle;
-if (!validFontSizes.includes(overlayConfig.fontSize)) overlayConfig.fontSize = overlayDefaults.fontSize;
+if (!validPositions.includes(overlayConfig.position))
+  overlayConfig.position = overlayDefaults.position;
+if (!validAnimations.includes(overlayConfig.animationStyle))
+  overlayConfig.animationStyle = overlayDefaults.animationStyle;
+if (!validFontSizes.includes(overlayConfig.fontSize))
+  overlayConfig.fontSize = overlayDefaults.fontSize;
 
-document.body.classList.add(`position-${overlayConfig.position}`, `animation-${overlayConfig.animationStyle}`, `font-${overlayConfig.fontSize}`);
+document.body.classList.add(
+  `position-${overlayConfig.position}`,
+  `animation-${overlayConfig.animationStyle}`,
+  `font-${overlayConfig.fontSize}`,
+);
 
 const socket = io();
 const room = overlayParams.get('room') || 'default-room';
@@ -51,8 +86,9 @@ socket.on('new-roll', (data) => {
 
 function createRollCard(data) {
   const card = document.createElement('div');
-  card.className = 'roll-card border border-[#26283b] bg-[#11131f]/95 backdrop-blur-md rounded-xl p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.8)] flex items-center justify-between gap-4 transition-all duration-500 relative';
-  
+  card.className =
+    'roll-card border border-[#26283b] bg-[#11131f]/95 backdrop-blur-md rounded-xl p-4 shadow-[0px_8px_32px_rgba(0,0,0,0.8)] flex items-center justify-between gap-4 transition-all duration-500 relative';
+
   const corners = `
     <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l pointer-events-none"></span>
     <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r pointer-events-none"></span>
@@ -66,18 +102,26 @@ function createRollCard(data) {
     const rawRoll = data.rolls?.[0];
     if (rawRoll === 20) {
       resultClass = 'text-[#d4a544] border-[#d4a544] bg-[#d4a544]/10';
-      badgeText = '<span class="badge text-[#d4a544] text-[9px] font-bold uppercase tracking-wider mb-1">Nat 20!</span>';
+      badgeText =
+        '<span class="badge text-[#d4a544] text-[9px] font-bold uppercase tracking-wider mb-1">Nat 20!</span>';
     }
     if (rawRoll === 1) {
       resultClass = 'text-[#8a1d1d] border-[#8a1d1d] bg-[#8a1d1d]/10';
-      badgeText = '<span class="badge text-[#8a1d1d] text-[9px] font-bold uppercase tracking-wider mb-1">Crit Fail</span>';
+      badgeText =
+        '<span class="badge text-[#8a1d1d] text-[9px] font-bold uppercase tracking-wider mb-1">Crit Fail</span>';
     }
   }
   const avatarImg = `<img src="${data.characterAvatar || ''}" class="w-10 h-10 rounded-full border border-[#26283b] object-cover bg-[#0a0c11]">`;
   const formula = `${data.formula || ''} (${(data.rolls || []).join(', ')})`;
-  const modifier = data.modifier ? (data.modifier >= 0 ? ` + ${data.modifier}` : ` - ${Math.abs(data.modifier)}`) : '';
-  const formulaMarkup = overlayConfig.showFormula ? `<p class="formula text-[#e4c183] font-mono text-[10px] truncate">${formula}${modifier}</p>` : '';
-  
+  const modifier = data.modifier
+    ? data.modifier >= 0
+      ? ` + ${data.modifier}`
+      : ` - ${Math.abs(data.modifier)}`
+    : '';
+  const formulaMarkup = overlayConfig.showFormula
+    ? `<p class="formula text-[#e4c183] font-mono text-[10px] truncate">${formula}${modifier}</p>`
+    : '';
+
   card.innerHTML = `
     ${corners}
     <div class="flex items-center gap-3 min-w-0">
@@ -93,7 +137,7 @@ function createRollCard(data) {
       <div class="result font-bold px-3 py-1 rounded border ${resultClass}">${data.result}</div>
     </div>
   `;
-  
+
   feed.appendChild(card);
   while (feed.children.length > 5) feed.removeChild(feed.firstElementChild);
   window.setTimeout(() => removeCard(card), overlayConfig.autoHideTimeout * 1000);

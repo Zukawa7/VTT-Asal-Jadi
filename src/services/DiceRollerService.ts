@@ -27,23 +27,36 @@ export class DiceRollerService {
     if (keepCount < 1 || keepCount > count) throw new Error('Invalid dice keep count');
     const modifier = Number(match[4] || 0);
     const rolls = Array.from({ length: count }, () => Math.floor(Math.random() * sides) + 1);
-    const keptRolls = keepMode === 'h'
-      ? [...rolls].sort((a, b) => b - a).slice(0, keepCount)
-      : keepMode === 'l' ? [...rolls].sort((a, b) => a - b).slice(0, keepCount) : rolls;
+    const keptRolls =
+      keepMode === 'h'
+        ? [...rolls].sort((a, b) => b - a).slice(0, keepCount)
+        : keepMode === 'l'
+          ? [...rolls].sort((a, b) => a - b).slice(0, keepCount)
+          : rolls;
     const result = keptRolls.reduce((sum, value) => sum + value, modifier);
     const criticalRoll = keptRolls.length === 1 ? keptRolls[0] : undefined;
-    const critical = sides === 20 && criticalRoll !== undefined
-      ? criticalRoll === 20 ? 'success' : criticalRoll === 1 ? 'failure' : null
-      : null;
+    const critical =
+      sides === 20 && criticalRoll !== undefined
+        ? criticalRoll === 20
+          ? 'success'
+          : criticalRoll === 1
+            ? 'failure'
+            : null
+        : null;
     return { formula: normalized, rolls, keptRolls, modifier, result, critical };
   }
 
   abilityCheck(label: string, modifier: number, proficiencyBonus = 0): CheckRoll {
-    const roll = this.roll(`1d20${modifier + proficiencyBonus >= 0 ? '+' : ''}${modifier + proficiencyBonus}`);
+    const roll = this.roll(
+      `1d20${modifier + proficiencyBonus >= 0 ? '+' : ''}${modifier + proficiencyBonus}`,
+    );
     return { ...roll, label, proficiencyBonus };
   }
 
   savingThrow(label: string, modifier: number, proficiencyBonus = 0): CheckRoll {
-    return { ...this.abilityCheck(label, modifier, proficiencyBonus), label: `${label} Saving Throw` };
+    return {
+      ...this.abilityCheck(label, modifier, proficiencyBonus),
+      label: `${label} Saving Throw`,
+    };
   }
 }

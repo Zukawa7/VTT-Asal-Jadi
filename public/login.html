@@ -1,198 +1,222 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="h-full">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - VTT Asal Jadi</title>
-  <link rel="stylesheet" href="/styles/tailwind.css?v=9">
-</head>
-<body class="bg-[#0a0a0f] text-white min-h-screen">
-  <main class="relative min-h-screen overflow-hidden bg-[#0a0a0f] flex items-center justify-center p-6 sm:p-[60px]">
-    <!-- DarkModeToggle -->
-    <button
-      type="button"
-      data-theme-toggle
-      class="absolute right-6 top-6 z-20 flex items-center gap-2 rounded-full border border-[#26283b] bg-[#11131f] px-3 py-3 text-white transition-colors hover:bg-[#181c2c] sm:right-10 sm:top-10"
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - VTT Asal Jadi</title>
+    <link rel="stylesheet" href="/styles/tailwind.css?v=9" />
+  </head>
+  <body class="bg-[#0a0a0f] text-white min-h-screen">
+    <main
+      class="relative min-h-screen overflow-hidden bg-[#0a0a0f] flex items-center justify-center p-6 sm:p-[60px]"
     >
-      <i data-lucide="moon" class="h-4 w-4"></i>
-      <span class="text-xs font-normal">DARK MODE</span>
-    </button>
+      <!-- DarkModeToggle -->
+      <button
+        type="button"
+        data-theme-toggle
+        class="absolute right-6 top-6 z-20 flex items-center gap-2 rounded-full border border-[#26283b] bg-[#11131f] px-3 py-3 text-white transition-colors hover:bg-[#181c2c] sm:right-10 sm:top-10"
+      >
+        <i data-lucide="moon" class="h-4 w-4"></i>
+        <span class="text-xs font-normal">DARK MODE</span>
+      </button>
 
-    <!-- BackgroundGlow -->
-    <div
-      aria-hidden="true"
-      class="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] max-w-none -translate-x-1/2 -translate-y-[340px] rounded-full"
-      style="background: radial-gradient(circle, rgba(212,165,68,0.18) 0%, rgba(212,165,68,0.06) 35%, transparent 70%);"
-    ></div>
+      <!-- BackgroundGlow -->
+      <div
+        aria-hidden="true"
+        class="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] max-w-none -translate-x-1/2 -translate-y-[340px] rounded-full"
+        style="
+          background: radial-gradient(
+            circle,
+            rgba(212, 165, 68, 0.18) 0%,
+            rgba(212, 165, 68, 0.06) 35%,
+            transparent 70%
+          );
+        "
+      ></div>
 
-    <div class="relative z-10 w-full max-w-[460px] rounded-2xl border border-[#26283b] bg-[#11131f] p-8 shadow-2xl sm:p-12">
-      <div class="mb-8 text-center">
-        <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[#d4a544] bg-[#181c2c]">
-          <i data-lucide="dice-5" class="h-5 w-5 text-[#d4a544]"></i>
+      <div
+        class="relative z-10 w-full max-w-[460px] rounded-2xl border border-[#26283b] bg-[#11131f] p-8 shadow-2xl sm:p-12"
+      >
+        <div class="mb-8 text-center">
+          <div
+            class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[#d4a544] bg-[#181c2c]"
+          >
+            <i data-lucide="dice-5" class="h-5 w-5 text-[#d4a544]"></i>
+          </div>
+          <h3 class="text-2xl font-extrabold text-white" style="font-family: 'EB Garamond', serif">
+            VTT ASAL JADI
+          </h3>
+          <p class="mt-2 text-xs text-[#a1a7bc]">
+            Sign in to manage your D&amp;D Beyond characters
+          </p>
         </div>
-        <h3 class="text-2xl font-extrabold text-white" style="font-family: 'EB Garamond', serif;">VTT ASAL JADI</h3>
-        <p class="mt-2 text-xs text-[#a1a7bc]">Sign in to manage your D&amp;D Beyond characters</p>
-      </div>
 
-      <form id="loginForm" class="space-y-4">
-        <!-- Username/Email Field -->
-        <label class="block">
-          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]">USERNAME OR EMAIL</span>
-          <input
-            id="username"
-            type="text"
-            required
-            autocomplete="username"
-            placeholder="Enter your username"
-            class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]"
-          />
-        </label>
-
-        <!-- Password Field -->
-        <label class="block">
-          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]">PASSWORD</span>
-          <div class="relative flex items-center">
+        <form id="loginForm" class="space-y-4">
+          <!-- Username/Email Field -->
+          <label class="block">
+            <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]"
+              >USERNAME OR EMAIL</span
+            >
             <input
-              id="password"
-              type="password"
+              id="username"
+              type="text"
               required
-              autocomplete="current-password"
-              placeholder="Enter your password"
-              class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] pl-3 pr-10 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]"
+              autocomplete="username"
+              placeholder="Enter your username"
+              class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]"
             />
+          </label>
+
+          <!-- Password Field -->
+          <label class="block">
+            <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]"
+              >PASSWORD</span
+            >
+            <div class="relative flex items-center">
+              <input
+                id="password"
+                type="password"
+                required
+                autocomplete="current-password"
+                placeholder="Enter your password"
+                class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] pl-3 pr-10 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]"
+              />
+              <button
+                type="button"
+                id="togglePassword"
+                class="absolute right-3 text-[#a1a7bc] hover:text-white"
+                aria-label="Show password"
+              >
+                <i data-lucide="eye" class="h-4 w-4"></i>
+              </button>
+            </div>
+          </label>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="flex w-full items-center justify-between gap-3">
+            <label for="rememberMe" class="flex cursor-pointer items-center gap-2">
+              <input type="checkbox" id="rememberMe" class="hidden" />
+              <button
+                type="button"
+                id="rememberMeBtn"
+                class="flex h-4 w-4 items-center justify-center rounded border border-[#d4a544] bg-[#0a0c11]"
+                aria-pressed="false"
+              >
+                <!-- Checkmark SVG will be toggled here -->
+              </button>
+              <span class="text-[13px] font-normal leading-none text-[#a1a7bc]">
+                Keep me logged in
+              </span>
+            </label>
             <button
               type="button"
-              id="togglePassword"
-              class="absolute right-3 text-[#a1a7bc] hover:text-white"
-              aria-label="Show password"
+              class="text-[13px] font-medium leading-none text-[#d4a544] hover:text-[#e4c183]"
             >
-              <i data-lucide="eye" class="h-4 w-4"></i>
+              Forgot Password?
             </button>
           </div>
-        </label>
 
-        <!-- Remember Me & Forgot Password -->
-        <div class="flex w-full items-center justify-between gap-3">
-          <label
-            for="rememberMe"
-            class="flex cursor-pointer items-center gap-2"
-          >
-            <input type="checkbox" id="rememberMe" class="hidden" />
-            <button
-              type="button"
-              id="rememberMeBtn"
-              class="flex h-4 w-4 items-center justify-center rounded border border-[#d4a544] bg-[#0a0c11]"
-              aria-pressed="false"
-            >
-              <!-- Checkmark SVG will be toggled here -->
-            </button>
-            <span class="text-[13px] font-normal leading-none text-[#a1a7bc]">
-              Keep me logged in
-            </span>
-          </label>
+          <!-- Error Message -->
+          <div
+            id="loginError"
+            class="hidden text-sm text-red-500 text-center bg-red-950/20 border border-red-900/50 rounded-lg p-3"
+          ></div>
+
+          <!-- Submit Button -->
           <button
-            type="button"
-            class="text-[13px] font-medium leading-none text-[#d4a544] hover:text-[#e4c183]"
+            type="submit"
+            class="w-full rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0a0f] transition hover:bg-[#e4c183]"
           >
-            Forgot Password?
+            SIGN IN TO TABLETOP
           </button>
-        </div>
+        </form>
 
-        <!-- Error Message -->
-        <div id="loginError" class="hidden text-sm text-red-500 text-center bg-red-950/20 border border-red-900/50 rounded-lg p-3"></div>
+        <p class="mt-6 text-center text-xs text-[#6b7085]">
+          Don't have an account?
+          <a href="/register" class="text-[#d4a544] hover:text-[#e4c183] font-bold"
+            >Register here</a
+          >
+        </p>
+      </div>
+    </main>
 
-        <!-- Submit Button -->
-        <button
-          type="submit"
-          class="w-full rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0a0f] transition hover:bg-[#e4c183]"
-        >
-          SIGN IN TO TABLETOP
-        </button>
-      </form>
-
-      <p class="mt-6 text-center text-xs text-[#6b7085]">
-        Don't have an account? <a href="/register" class="text-[#d4a544] hover:text-[#e4c183] font-bold">Register here</a>
-      </p>
-    </div>
-  </main>
-
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    lucide.createIcons();
-
-    // Check token
-    if (localStorage.getItem('token')) {
-      window.location.href = '/dashboard';
-    }
-
-    // Toggle Password Visibility
-    const togglePasswordBtn = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-    togglePasswordBtn.addEventListener('click', () => {
-      const isPassword = passwordInput.type === 'password';
-      passwordInput.type = isPassword ? 'text' : 'password';
-      togglePasswordBtn.innerHTML = isPassword 
-        ? '<i data-lucide="eye-off" class="h-4 w-4"></i>'
-        : '<i data-lucide="eye" class="h-4 w-4"></i>';
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
       lucide.createIcons();
-    });
 
-    // Custom Checkbox
-    const rememberMeCheckbox = document.getElementById('rememberMe');
-    const rememberMeBtn = document.getElementById('rememberMeBtn');
-    rememberMeBtn.addEventListener('click', () => {
-      const checked = !rememberMeCheckbox.checked;
-      rememberMeCheckbox.checked = checked;
-      rememberMeBtn.setAttribute('aria-pressed', checked ? 'true' : 'false');
-      if (checked) {
-        rememberMeBtn.classList.remove('bg-[#0a0c11]');
-        rememberMeBtn.classList.add('bg-[#d4a544]');
-        rememberMeBtn.innerHTML = `
+      // Check token
+      if (localStorage.getItem('token')) {
+        window.location.href = '/dashboard';
+      }
+
+      // Toggle Password Visibility
+      const togglePasswordBtn = document.getElementById('togglePassword');
+      const passwordInput = document.getElementById('password');
+      togglePasswordBtn.addEventListener('click', () => {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        togglePasswordBtn.innerHTML = isPassword
+          ? '<i data-lucide="eye-off" class="h-4 w-4"></i>'
+          : '<i data-lucide="eye" class="h-4 w-4"></i>';
+        lucide.createIcons();
+      });
+
+      // Custom Checkbox
+      const rememberMeCheckbox = document.getElementById('rememberMe');
+      const rememberMeBtn = document.getElementById('rememberMeBtn');
+      rememberMeBtn.addEventListener('click', () => {
+        const checked = !rememberMeCheckbox.checked;
+        rememberMeCheckbox.checked = checked;
+        rememberMeBtn.setAttribute('aria-pressed', checked ? 'true' : 'false');
+        if (checked) {
+          rememberMeBtn.classList.remove('bg-[#0a0c11]');
+          rememberMeBtn.classList.add('bg-[#d4a544]');
+          rememberMeBtn.innerHTML = `
           <svg viewBox="0 0 12 12" class="h-3 w-3 text-[#0a0a0f]" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M2 6l3 3 5-6" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         `;
-      } else {
-        rememberMeBtn.classList.remove('bg-[#d4a544]');
-        rememberMeBtn.classList.add('bg-[#0a0c11]');
-        rememberMeBtn.innerHTML = '';
-      }
-    });
+        } else {
+          rememberMeBtn.classList.remove('bg-[#d4a544]');
+          rememberMeBtn.classList.add('bg-[#0a0c11]');
+          rememberMeBtn.innerHTML = '';
+        }
+      });
 
-    // Form Submission
-    const loginForm = document.getElementById('loginForm');
-    const loginError = document.getElementById('loginError');
+      // Form Submission
+      const loginForm = document.getElementById('loginForm');
+      const loginError = document.getElementById('loginError');
 
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      loginError.classList.add('hidden');
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        loginError.classList.add('hidden');
 
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
 
-      try {
-        const response = await fetch('/api/v2/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
+        try {
+          const response = await fetch('/api/v2/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+          });
 
-        const contentType = response.headers.get('content-type') || '';
-        const data = contentType.includes('application/json')
-          ? await response.json()
-          : { error: `Login endpoint returned ${response.status} ${response.statusText}` };
-        if (!response.ok) throw new Error(data.error || 'Login failed');
+          const contentType = response.headers.get('content-type') || '';
+          const data = contentType.includes('application/json')
+            ? await response.json()
+            : { error: `Login endpoint returned ${response.status} ${response.statusText}` };
+          if (!response.ok) throw new Error(data.error || 'Login failed');
 
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('username', data.username);
-        window.location.href = '/dashboard';
-      } catch (err) {
-        loginError.textContent = err.message;
-        loginError.classList.remove('hidden');
-      }
-    });
-  </script>
-  <script src="/js/components.js"></script>
-  <script src="/js/theme-toggle.js"></script>
-</body>
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('username', data.username);
+          window.location.href = '/dashboard';
+        } catch (err) {
+          loginError.textContent = err.message;
+          loginError.classList.remove('hidden');
+        }
+      });
+    </script>
+    <script src="/js/components.js"></script>
+    <script src="/js/theme-toggle.js"></script>
+  </body>
 </html>

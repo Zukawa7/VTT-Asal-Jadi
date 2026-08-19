@@ -15,12 +15,20 @@ const character: Character = {
 };
 
 function createDatabase() {
-  const rows = new Map<string, { id: string; user_id: number; character_data: string; last_synced: string }>();
+  const rows = new Map<
+    string,
+    { id: string; user_id: number; character_data: string; last_synced: string }
+  >();
   return {
     rows,
     run: vi.fn(async (sql: string, params: unknown[] = []) => {
       if (sql.includes('INSERT INTO character_sheets')) {
-        rows.set(String(params[0]), { id: String(params[0]), user_id: Number(params[1]), character_data: String(params[2]), last_synced: new Date().toISOString() });
+        rows.set(String(params[0]), {
+          id: String(params[0]),
+          user_id: Number(params[1]),
+          character_data: String(params[2]),
+          last_synced: new Date().toISOString(),
+        });
       }
       return { lastID: 1, changes: 1 };
     }),
@@ -54,7 +62,7 @@ describe('CharacterSyncService', () => {
     const service = new CharacterSyncService(db as never, {} as never);
     service.start(5000);
     expect(db.all).toHaveBeenCalled(); // immediate call
-    
+
     db.all.mockClear();
     vi.advanceTimersByTime(5000);
     expect(db.all).toHaveBeenCalled(); // interval call
@@ -72,23 +80,26 @@ describe('CharacterSyncService', () => {
 
   it('syncs all characters gracefully handling errors', async () => {
     const db = createDatabase();
-    db.all = vi.fn().mockResolvedValue([{ id: '1', user_id: 1 }, { id: '2', user_id: 2 }]);
+    db.all = vi.fn().mockResolvedValue([
+      { id: '1', user_id: 1 },
+      { id: '2', user_id: 2 },
+    ]);
     const mockDndBeyond = {
-      fetchCharacter: vi.fn()
+      fetchCharacter: vi
+        .fn()
         .mockResolvedValueOnce({ id: '1', name: 'Char 1' })
-        .mockRejectedValueOnce(new Error('API Error'))
+        .mockRejectedValueOnce(new Error('API Error')),
     };
     const service = new CharacterSyncService(db as never, mockDndBeyond as never);
-    
+
     // Call the private method via any or start
     service.start(5000);
-    await new Promise(resolve => setTimeout(resolve, 0)); // wait for promise to resolve
-    
+    await new Promise((resolve) => setTimeout(resolve, 0)); // wait for promise to resolve
+
     expect(mockDndBeyond.fetchCharacter).toHaveBeenCalledTimes(2);
     expect(db.run).toHaveBeenCalledTimes(1); // Only saved the successful one
     service.stop();
   });
-
 
   it('updates only the owner character HP', async () => {
     const db = createDatabase();

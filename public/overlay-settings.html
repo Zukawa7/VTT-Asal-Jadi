@@ -1,192 +1,263 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="h-full">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>OBS Overlay Settings - VTT Asal Jadi</title>
-  <link rel="stylesheet" href="/styles/tailwind.css?v=9">
-</head>
-<body class="bg-[#0a0a0f] text-white min-h-screen">
-  <main class="relative min-h-screen overflow-hidden bg-[#0a0a0f] flex items-center justify-center p-6 sm:p-[60px]">
-    <!-- DarkModeToggle -->
-    <button
-      type="button"
-      data-theme-toggle
-      class="absolute right-6 top-6 z-20 flex items-center gap-2 rounded-full border border-[#26283b] bg-[#11131f] px-3 py-3 text-white transition-colors hover:bg-[#181c2c] sm:right-10 sm:top-10"
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OBS Overlay Settings - VTT Asal Jadi</title>
+    <link rel="stylesheet" href="/styles/tailwind.css?v=9" />
+  </head>
+  <body class="bg-[#0a0a0f] text-white min-h-screen">
+    <main
+      class="relative min-h-screen overflow-hidden bg-[#0a0a0f] flex items-center justify-center p-6 sm:p-[60px]"
     >
-      <i data-lucide="moon" class="h-4 w-4"></i>
-      <span class="text-xs font-normal">DARK MODE</span>
-    </button>
+      <!-- DarkModeToggle -->
+      <button
+        type="button"
+        data-theme-toggle
+        class="absolute right-6 top-6 z-20 flex items-center gap-2 rounded-full border border-[#26283b] bg-[#11131f] px-3 py-3 text-white transition-colors hover:bg-[#181c2c] sm:right-10 sm:top-10"
+      >
+        <i data-lucide="moon" class="h-4 w-4"></i>
+        <span class="text-xs font-normal">DARK MODE</span>
+      </button>
 
-    <!-- BackgroundGlow -->
-    <div
-      aria-hidden="true"
-      class="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] max-w-none -translate-x-1/2 -translate-y-[340px] rounded-full"
-      style="background: radial-gradient(circle, rgba(212,165,68,0.18) 0%, rgba(212,165,68,0.06) 35%, transparent 70%);"
-    ></div>
+      <!-- BackgroundGlow -->
+      <div
+        aria-hidden="true"
+        class="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] max-w-none -translate-x-1/2 -translate-y-[340px] rounded-full"
+        style="
+          background: radial-gradient(
+            circle,
+            rgba(212, 165, 68, 0.18) 0%,
+            rgba(212, 165, 68, 0.06) 35%,
+            transparent 70%
+          );
+        "
+      ></div>
 
-    <div class="relative z-10 w-full max-w-[460px] rounded-2xl border border-[#26283b] bg-[#11131f] p-8 shadow-2xl sm:p-12">
-      <!-- Corner brackets -->
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
+      <div
+        class="relative z-10 w-full max-w-[460px] rounded-2xl border border-[#26283b] bg-[#11131f] p-8 shadow-2xl sm:p-12"
+      >
+        <!-- Corner brackets -->
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"
+        ></span>
 
-      <div class="mb-8 text-center">
-        <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[#d4a544] bg-[#181c2c]">
-          <i data-lucide="settings" class="h-5 w-5 text-[#d4a544]"></i>
-        </div>
-        <h3 class="text-2xl font-extrabold text-white" style="font-family: 'EB Garamond', serif;">OBS OVERLAY SETTINGS</h3>
-        <p class="mt-2 text-xs text-[#a1a7bc]">Configure your broadcast overlay</p>
-      </div>
-
-      <form id="settings" class="space-y-5">
-        <!-- Room ID -->
-        <label class="block">
-          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]">Session Room ID</span>
-          <input id="room" class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]" placeholder="e.g. default-room" />
-        </label>
-
-        <!-- Position & Animation Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <label class="block">
-            <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]">Screen Position</span>
-            <select id="position" class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544]">
-              <option value="bottom">Bottom (Standard HUD)</option>
-              <option value="top">Top (Header HUD)</option>
-              <option value="center">Center (Dramatic)</option>
-            </select>
-          </label>
-
-          <label class="block">
-            <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]">Card Animation</span>
-            <select id="animationStyle" class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544]">
-              <option value="slide">Slide In</option>
-              <option value="fade">Smooth Fade</option>
-              <option value="bounce">Bounce In</option>
-            </select>
-          </label>
-        </div>
-
-        <!-- Font Size -->
-        <label class="block">
-          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]">Result Font Size</span>
-          <select id="fontSize" class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544]">
-            <option value="small">Small (Compact Stream)</option>
-            <option value="medium">Medium (Standard Stream)</option>
-            <option value="large">Large (Dramatic Focus)</option>
-          </select>
-        </label>
-
-        <!-- Show Formula Checkbox -->
-        <label class="flex items-center gap-2 text-[11px] text-[#a1a7bc]">
-          <input id="showFormula" type="checkbox" class="accent-[#d4a544]" />
-          <span>Show Roll Formula & Breakdown</span>
-        </label>
-
-        <!-- Auto-Dismiss Timeout Range -->
-        <div class="block">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-[#e4c183]">Auto-Dismiss Timeout</span>
-            <span class="text-xs font-bold text-[#d4a544]"><output id="timeoutValue">10</output> seconds</span>
+        <div class="mb-8 text-center">
+          <div
+            class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[#d4a544] bg-[#181c2c]"
+          >
+            <i data-lucide="settings" class="h-5 w-5 text-[#d4a544]"></i>
           </div>
-          <input id="autoHideTimeout" type="range" min="5" max="30" value="10" class="w-full accent-[#d4a544]" />
+          <h3 class="text-2xl font-extrabold text-white" style="font-family: 'EB Garamond', serif">
+            OBS OVERLAY SETTINGS
+          </h3>
+          <p class="mt-2 text-xs text-[#a1a7bc]">Configure your broadcast overlay</p>
         </div>
 
-        <!-- Sound Effects Checkbox -->
-        <label class="flex items-center gap-2 text-[11px] text-[#a1a7bc]">
-          <input id="soundEffectsEnabled" type="checkbox" class="accent-[#d4a544]" />
-          <span>Sound Effects Trigger (Reserved)</span>
-        </label>
+        <form id="settings" class="space-y-5">
+          <!-- Room ID -->
+          <label class="block">
+            <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]"
+              >Session Room ID</span
+            >
+            <input
+              id="room"
+              class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]"
+              placeholder="e.g. default-room"
+            />
+          </label>
 
-        <!-- Action Buttons -->
-        <div class="space-y-3 pt-2">
-          <button type="submit" class="w-full rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition flex items-center justify-center gap-2">
-            <i data-lucide="save" class="h-3.5 w-3.5"></i>
-            <span>SAVE SETTINGS</span>
-          </button>
-          <button type="button" id="openOverlay" class="w-full rounded-md border border-[#26283b] py-3 text-[10px] font-bold text-[#a1a7bc] hover:bg-[#181c2c] transition">
-            OPEN LIVE OVERLAY
-          </button>
-          <a href="/vtt" class="block w-full text-center rounded-md border border-[#26283b] py-3 text-[10px] font-bold text-[#6b7085] hover:bg-[#181c2c] transition">
-            RETURN TO VTT WORKSTATION
-          </a>
-        </div>
+          <!-- Position & Animation Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label class="block">
+              <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]"
+                >Screen Position</span
+              >
+              <select
+                id="position"
+                class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544]"
+              >
+                <option value="bottom">Bottom (Standard HUD)</option>
+                <option value="top">Top (Header HUD)</option>
+                <option value="center">Center (Dramatic)</option>
+              </select>
+            </label>
 
-        <p id="status" class="text-xs text-center font-bold text-green-500"></p>
-      </form>
-    </div>
-  </main>
+            <label class="block">
+              <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]"
+                >Card Animation</span
+              >
+              <select
+                id="animationStyle"
+                class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544]"
+              >
+                <option value="slide">Slide In</option>
+                <option value="fade">Smooth Fade</option>
+                <option value="bounce">Bounce In</option>
+              </select>
+            </label>
+          </div>
 
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    lucide.createIcons();
+          <!-- Font Size -->
+          <label class="block">
+            <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]"
+              >Result Font Size</span
+            >
+            <select
+              id="fontSize"
+              class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544]"
+            >
+              <option value="small">Small (Compact Stream)</option>
+              <option value="medium">Medium (Standard Stream)</option>
+              <option value="large">Large (Dramatic Focus)</option>
+            </select>
+          </label>
 
-    const key = 'vtt-overlay-config';
-    const defaults = {
-      position: 'bottom',
-      animationStyle: 'slide',
-      fontSize: 'medium',
-      showFormula: true,
-      autoHideTimeout: 10,
-      soundEffectsEnabled: false
-    };
+          <!-- Show Formula Checkbox -->
+          <label class="flex items-center gap-2 text-[11px] text-[#a1a7bc]">
+            <input id="showFormula" type="checkbox" class="accent-[#d4a544]" />
+            <span>Show Roll Formula & Breakdown</span>
+          </label>
 
-    const $ = id => document.getElementById(id);
-    let config = { ...defaults };
-    try {
-      config = { ...config, ...JSON.parse(localStorage.getItem(key) || '{}') };
-    } catch {}
+          <!-- Auto-Dismiss Timeout Range -->
+          <div class="block">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[#e4c183]"
+                >Auto-Dismiss Timeout</span
+              >
+              <span class="text-xs font-bold text-[#d4a544]"
+                ><output id="timeoutValue">10</output> seconds</span
+              >
+            </div>
+            <input
+              id="autoHideTimeout"
+              type="range"
+              min="5"
+              max="30"
+              value="10"
+              class="w-full accent-[#d4a544]"
+            />
+          </div>
 
-    function load() {
-      ['position', 'animationStyle', 'fontSize'].forEach(id => {
-        if ($(id)) $(id).value = config[id];
-      });
-      ['showFormula', 'soundEffectsEnabled'].forEach(id => {
-        if ($(id)) $(id).checked = Boolean(config[id]);
-      });
-      if ($('autoHideTimeout')) $('autoHideTimeout').value = config.autoHideTimeout;
-      if ($('timeoutValue')) $('timeoutValue').value = config.autoHideTimeout;
-      if ($('room')) $('room').value = new URLSearchParams(location.search).get('room') || '';
-    }
+          <!-- Sound Effects Checkbox -->
+          <label class="flex items-center gap-2 text-[11px] text-[#a1a7bc]">
+            <input id="soundEffectsEnabled" type="checkbox" class="accent-[#d4a544]" />
+            <span>Sound Effects Trigger (Reserved)</span>
+          </label>
 
-    load();
+          <!-- Action Buttons -->
+          <div class="space-y-3 pt-2">
+            <button
+              type="submit"
+              class="w-full rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition flex items-center justify-center gap-2"
+            >
+              <i data-lucide="save" class="h-3.5 w-3.5"></i>
+              <span>SAVE SETTINGS</span>
+            </button>
+            <button
+              type="button"
+              id="openOverlay"
+              class="w-full rounded-md border border-[#26283b] py-3 text-[10px] font-bold text-[#a1a7bc] hover:bg-[#181c2c] transition"
+            >
+              OPEN LIVE OVERLAY
+            </button>
+            <a
+              href="/vtt"
+              class="block w-full text-center rounded-md border border-[#26283b] py-3 text-[10px] font-bold text-[#6b7085] hover:bg-[#181c2c] transition"
+            >
+              RETURN TO VTT WORKSTATION
+            </a>
+          </div>
 
-    if ($('autoHideTimeout')) {
-      $('autoHideTimeout').oninput = e => {
-        $('timeoutValue').value = e.target.value;
+          <p id="status" class="text-xs text-center font-bold text-green-500"></p>
+        </form>
+      </div>
+    </main>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      lucide.createIcons();
+
+      const key = 'vtt-overlay-config';
+      const defaults = {
+        position: 'bottom',
+        animationStyle: 'slide',
+        fontSize: 'medium',
+        showFormula: true,
+        autoHideTimeout: 10,
+        soundEffectsEnabled: false,
       };
-    }
 
-    $('settings').onsubmit = e => {
-      e.preventDefault();
-      config = {
-        position: $('position').value,
-        animationStyle: $('animationStyle').value,
-        fontSize: $('fontSize').value,
-        showFormula: $('showFormula').checked,
-        autoHideTimeout: Number($('autoHideTimeout').value),
-        soundEffectsEnabled: $('soundEffectsEnabled').checked
+      const $ = (id) => document.getElementById(id);
+      let config = { ...defaults };
+      try {
+        config = { ...config, ...JSON.parse(localStorage.getItem(key) || '{}') };
+      } catch {}
+
+      function load() {
+        ['position', 'animationStyle', 'fontSize'].forEach((id) => {
+          if ($(id)) $(id).value = config[id];
+        });
+        ['showFormula', 'soundEffectsEnabled'].forEach((id) => {
+          if ($(id)) $(id).checked = Boolean(config[id]);
+        });
+        if ($('autoHideTimeout')) $('autoHideTimeout').value = config.autoHideTimeout;
+        if ($('timeoutValue')) $('timeoutValue').value = config.autoHideTimeout;
+        if ($('room')) $('room').value = new URLSearchParams(location.search).get('room') || '';
+      }
+
+      load();
+
+      if ($('autoHideTimeout')) {
+        $('autoHideTimeout').oninput = (e) => {
+          $('timeoutValue').value = e.target.value;
+        };
+      }
+
+      $('settings').onsubmit = (e) => {
+        e.preventDefault();
+        config = {
+          position: $('position').value,
+          animationStyle: $('animationStyle').value,
+          fontSize: $('fontSize').value,
+          showFormula: $('showFormula').checked,
+          autoHideTimeout: Number($('autoHideTimeout').value),
+          soundEffectsEnabled: $('soundEffectsEnabled').checked,
+        };
+        localStorage.setItem(key, JSON.stringify(config));
+        $('status').textContent = 'Overlay settings saved successfully!';
+        setTimeout(() => {
+          $('status').textContent = '';
+        }, 3000);
       };
-      localStorage.setItem(key, JSON.stringify(config));
-      $('status').textContent = 'Overlay settings saved successfully!';
-      setTimeout(() => { $('status').textContent = ''; }, 3000);
-    };
 
-    $('openOverlay').onclick = () => {
-      const p = new URLSearchParams({
-        room: $('room').value || 'default-room',
-        position: $('position').value,
-        animation: $('animationStyle').value,
-        fontSize: $('fontSize').value,
-        showFormula: String($('showFormula').checked),
-        timeout: $('autoHideTimeout').value,
-        sound: String($('soundEffectsEnabled').checked)
-      });
-      window.open('/overlay.html?' + p, '_blank');
-    };
-  </script>
-  <script src="/js/components.js"></script>
-  <script src="/js/theme-toggle.js"></script>
-</body>
+      $('openOverlay').onclick = () => {
+        const p = new URLSearchParams({
+          room: $('room').value || 'default-room',
+          position: $('position').value,
+          animation: $('animationStyle').value,
+          fontSize: $('fontSize').value,
+          showFormula: String($('showFormula').checked),
+          timeout: $('autoHideTimeout').value,
+          sound: String($('soundEffectsEnabled').checked),
+        });
+        window.open('/overlay.html?' + p, '_blank');
+      };
+    </script>
+    <script src="/js/components.js"></script>
+    <script src="/js/theme-toggle.js"></script>
+  </body>
 </html>

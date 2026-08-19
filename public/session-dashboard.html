@@ -1,213 +1,318 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="h-full">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Session Dashboard - VTT Asal Jadi</title>
-  
-  <script src="/socket.io/socket.io.js"></script>
-  <link rel="stylesheet" href="/styles/tailwind.css?v=9">
-</head>
-<body class="bg-[#0a0a0f] text-white min-h-screen flex flex-col font-sans">
-  
-  <!-- Header / Navigation -->
-  <nav class="sticky top-0 z-30 border-b border-[#1c1f2d] bg-[#0a0a0f]/90 px-6 py-4 backdrop-blur">
-    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
-      <div class="flex items-center gap-2 text-xs font-bold text-white">
-        <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
-        <span>VTT ASAL JADI</span>
-      </div>
-      <div class="flex items-center gap-5 text-[10px] text-[#a1a7bc]">
-        <span class="hidden sm:inline">Logged in as <span id="headerUsername" class="font-bold text-[#d4a544]">Username</span></span>
-        <a href="/dashboard" class="hover:text-[#d4a544] transition-colors">Dashboard</a>
-        <a href="/vtt" class="hover:text-[#d4a544] transition-colors">Open VTT</a>
-      </div>
-    </div>
-  </nav>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Session Dashboard - VTT Asal Jadi</title>
 
-  <!-- Main Content -->
-  <main class="flex-1 max-w-6xl w-full mx-auto px-6 py-10 space-y-6 flex flex-col gap-6">
-    
-    <!-- Section Title -->
-    <div class="max-w-2xl">
-      <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#d4a544]">02 / Telemetry</p>
-      <h2 class="mb-2 text-3xl font-extrabold text-white" style="font-family: 'EB Garamond', serif;">
-        Session Telemetry Dashboard
-      </h2>
-      <p class="text-sm leading-6 text-[#a1a7bc]">
-        View real-time roll data, export session history to CSV, and analyze dice roll distribution.
-      </p>
-    </div>
-
-    <!-- Session Search Bar & Control Panel -->
-    <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-6 relative">
-      <!-- Corner brackets -->
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <div class="flex flex-col sm:flex-row gap-3 items-center">
-        <label class="block flex-1 w-full">
-          <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]">Session Room ID</span>
-          <input id="room" value="default-room" placeholder="Enter Session Room ID (e.g. default-room)" class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]" />
-        </label>
-        <div class="flex gap-2 w-full sm:w-auto self-end mt-4 sm:mt-0">
-          <button id="load" class="rounded-md bg-[#d4a544] px-4 py-2.5 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition-colors whitespace-nowrap">Load Session</button>
-          <button id="csv" class="rounded-md border border-[#26283b] bg-[#11131f] px-4 py-2.5 text-xs font-bold text-[#a1a7bc] hover:bg-[#181c2c] transition-colors whitespace-nowrap">Export CSV</button>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="/styles/tailwind.css?v=9" />
+  </head>
+  <body class="bg-[#0a0a0f] text-white min-h-screen flex flex-col font-sans">
+    <!-- Header / Navigation -->
+    <nav
+      class="sticky top-0 z-30 border-b border-[#1c1f2d] bg-[#0a0a0f]/90 px-6 py-4 backdrop-blur"
+    >
+      <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-xs font-bold text-white">
+          <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
+          <span>VTT ASAL JADI</span>
+        </div>
+        <div class="flex items-center gap-5 text-[10px] text-[#a1a7bc]">
+          <span class="hidden sm:inline"
+            >Logged in as
+            <span id="headerUsername" class="font-bold text-[#d4a544]">Username</span></span
+          >
+          <a href="/dashboard" class="hover:text-[#d4a544] transition-colors">Dashboard</a>
+          <a href="/vtt" class="hover:text-[#d4a544] transition-colors">Open VTT</a>
         </div>
       </div>
-      <p id="status" class="text-xs text-[#a1a7bc] mt-3"></p>
-    </div>
+    </nav>
 
-    <!-- 3 KPI Metric Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-4 relative">
-        <!-- Corner brackets -->
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-        <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">Total Session Rolls</p>
-        <p id="total" class="mt-2 text-2xl font-bold text-[#d4a544]">0</p>
-      </div>
-      <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-4 relative">
-        <!-- Corner brackets -->
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-        <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">Average Dice Result</p>
-        <p id="average" class="mt-2 text-2xl font-bold text-blue-400">0</p>
-      </div>
-      <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-4 relative">
-        <!-- Corner brackets -->
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-        <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-        <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">Critical Rolls (Nat 20 / Nat 1)</p>
-        <p id="critical" class="mt-2 text-2xl font-bold text-red-500">0</p>
-      </div>
-    </div>
-
-    <!-- Most Used Formulas Distribution Bar Chart -->
-    <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-6 relative">
-      <!-- Corner brackets -->
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <div class="mb-5 flex items-center justify-between border-b border-[#26283b] pb-3">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <i data-lucide="bar-chart-3" class="h-4 w-4 text-[#d4a544]"></i>
-          <span>Formula Distribution</span>
-        </h3>
-      </div>
-      <div id="formulas" class="space-y-3 mt-4">
-        <p class="text-[#6b7085] text-xs">No data loaded.</p>
-      </div>
-    </div>
-
-    <!-- Recent Session Rolls Table -->
-    <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-6 relative">
-      <!-- Corner brackets -->
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <div class="mb-5 flex items-center justify-between border-b border-[#26283b] pb-3">
-        <h2 class="text-sm font-bold text-white flex items-center gap-2">
-          <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
-          <span>Recent Session Rolls</span>
+    <!-- Main Content -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-6 py-10 space-y-6 flex flex-col gap-6">
+      <!-- Section Title -->
+      <div class="max-w-2xl">
+        <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#d4a544]">
+          02 / Telemetry
+        </p>
+        <h2
+          class="mb-2 text-3xl font-extrabold text-white"
+          style="font-family: 'EB Garamond', serif"
+        >
+          Session Telemetry Dashboard
         </h2>
-        <span class="text-[10px] text-[#6b7085]">Real-time live telemetry stream</span>
+        <p class="text-sm leading-6 text-[#a1a7bc]">
+          View real-time roll data, export session history to CSV, and analyze dice roll
+          distribution.
+        </p>
       </div>
-      <div class="overflow-x-auto mt-4">
-        <table class="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr class="border-b border-[#26283b] text-[#e4c183] font-bold uppercase tracking-wider text-[10px]">
-              <th class="py-3 px-4">Character</th>
-              <th class="py-3 px-4">Action</th>
-              <th class="py-3 px-4">Formula</th>
-              <th class="py-3 px-4">Result</th>
-              <th class="py-3 px-4">Time</th>
-            </tr>
-          </thead>
-          <tbody id="rolls" class="divide-y divide-[#26283b]/50">
-            <tr>
-              <td colspan="5" class="py-6 text-center text-[#6b7085]">No data loaded.</td>
-            </tr>
-          </tbody>
-        </table>
+
+      <!-- Session Search Bar & Control Panel -->
+      <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-6 relative">
+        <!-- Corner brackets -->
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"
+        ></span>
+
+        <div class="flex flex-col sm:flex-row gap-3 items-center">
+          <label class="block flex-1 w-full">
+            <span class="mb-2 block text-[10px] font-bold uppercase tracking-wider text-[#e4c183]"
+              >Session Room ID</span
+            >
+            <input
+              id="room"
+              value="default-room"
+              placeholder="Enter Session Room ID (e.g. default-room)"
+              class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none placeholder:text-[#555b70] focus:border-[#d4a544]"
+            />
+          </label>
+          <div class="flex gap-2 w-full sm:w-auto self-end mt-4 sm:mt-0">
+            <button
+              id="load"
+              class="rounded-md bg-[#d4a544] px-4 py-2.5 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition-colors whitespace-nowrap"
+            >
+              Load Session
+            </button>
+            <button
+              id="csv"
+              class="rounded-md border border-[#26283b] bg-[#11131f] px-4 py-2.5 text-xs font-bold text-[#a1a7bc] hover:bg-[#181c2c] transition-colors whitespace-nowrap"
+            >
+              Export CSV
+            </button>
+          </div>
+        </div>
+        <p id="status" class="text-xs text-[#a1a7bc] mt-3"></p>
       </div>
-    </div>
 
-  </main>
+      <!-- 3 KPI Metric Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-4 relative">
+          <!-- Corner brackets -->
+          <span
+            aria-hidden="true"
+            class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+          ></span>
+          <span
+            aria-hidden="true"
+            class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+          ></span>
+          <span
+            aria-hidden="true"
+            class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+          ></span>
+          <span
+            aria-hidden="true"
+            class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+          ></span>
+          <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">Total Session Rolls</p>
+          <p id="total" class="mt-2 text-2xl font-bold text-[#d4a544]">0</p>
+        </div>
+        <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-4 relative">
+          <!-- Corner brackets -->
+          <span
+            aria-hidden="true"
+            class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+          ></span>
+          <span
+            aria-hidden="true"
+            class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+          ></span>
+          <span
+            aria-hidden="true"
+            class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+          ></span>
+          <span
+            aria-hidden="true"
+            class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+          ></span>
+          <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">Average Dice Result</p>
+          <p id="average" class="mt-2 text-2xl font-bold text-blue-400">0</p>
+        </div>
+        <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-4 relative">
+          <!-- Corner brackets -->
+          <span
+            aria-hidden="true"
+            class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+          ></span>
+          <span
+            aria-hidden="true"
+            class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+          ></span>
+          <span
+            aria-hidden="true"
+            class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+          ></span>
+          <span
+            aria-hidden="true"
+            class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+          ></span>
+          <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">
+            Critical Rolls (Nat 20 / Nat 1)
+          </p>
+          <p id="critical" class="mt-2 text-2xl font-bold text-red-500">0</p>
+        </div>
+      </div>
 
-  <!-- Footer -->
-  <footer class="border-t border-[#1c1f2d] bg-[#0a0a0f] py-6 text-center text-xs text-[#6b7085]">
-    <p>VTT Asal Jadi - Dark Fantasy Tabletop & Character Management</p>
-  </footer>
+      <!-- Most Used Formulas Distribution Bar Chart -->
+      <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-6 relative">
+        <!-- Corner brackets -->
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"
+        ></span>
 
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    lucide.createIcons();
+        <div class="mb-5 flex items-center justify-between border-b border-[#26283b] pb-3">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="bar-chart-3" class="h-4 w-4 text-[#d4a544]"></i>
+            <span>Formula Distribution</span>
+          </h3>
+        </div>
+        <div id="formulas" class="space-y-3 mt-4">
+          <p class="text-[#6b7085] text-xs">No data loaded.</p>
+        </div>
+      </div>
 
-    // Set Header Username
-    const savedUsername = localStorage.getItem('username') || 'Player';
-    const headerUsernameEl = document.getElementById('headerUsername');
-    if (headerUsernameEl) {
-      headerUsernameEl.textContent = savedUsername;
-    }
+      <!-- Recent Session Rolls Table -->
+      <div class="border border-[#26283b] bg-[#11131f] rounded-xl p-6 relative">
+        <!-- Corner brackets -->
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"
+        ></span>
 
-    const room = document.getElementById('room');
-    const statusEl = document.getElementById('status');
-    const socket = io();
+        <div class="mb-5 flex items-center justify-between border-b border-[#26283b] pb-3">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
+            <span>Recent Session Rolls</span>
+          </h2>
+          <span class="text-[10px] text-[#6b7085]">Real-time live telemetry stream</span>
+        </div>
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr
+                class="border-b border-[#26283b] text-[#e4c183] font-bold uppercase tracking-wider text-[10px]"
+              >
+                <th class="py-3 px-4">Character</th>
+                <th class="py-3 px-4">Action</th>
+                <th class="py-3 px-4">Formula</th>
+                <th class="py-3 px-4">Result</th>
+                <th class="py-3 px-4">Time</th>
+              </tr>
+            </thead>
+            <tbody id="rolls" class="divide-y divide-[#26283b]/50">
+              <tr>
+                <td colspan="5" class="py-6 text-center text-[#6b7085]">No data loaded.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
 
-    socket.on('new-roll', data => {
-      if (data && data.roomId && data.roomId.toLowerCase() === room.value.trim().toLowerCase()) {
-        loadSession();
+    <!-- Footer -->
+    <footer class="border-t border-[#1c1f2d] bg-[#0a0a0f] py-6 text-center text-xs text-[#6b7085]">
+      <p>VTT Asal Jadi - Dark Fantasy Tabletop & Character Management</p>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      lucide.createIcons();
+
+      // Set Header Username
+      const savedUsername = localStorage.getItem('username') || 'Player';
+      const headerUsernameEl = document.getElementById('headerUsername');
+      if (headerUsernameEl) {
+        headerUsernameEl.textContent = savedUsername;
       }
-    });
 
-    async function loadSession() {
-      const id = room.value.trim().toLowerCase();
-      if (!/^[a-z0-9-]{3,50}$/.test(id)) {
-        statusEl.textContent = 'Invalid room ID. Must be 3-50 alphanumeric characters or hyphens.';
-        return;
-      }
-      statusEl.textContent = 'Loading session data...';
-      socket.emit('join-room', id);
+      const room = document.getElementById('room');
+      const statusEl = document.getElementById('status');
+      const socket = io();
 
-      try {
-        const response = await fetch('/api/v2/rolls/' + encodeURIComponent(id));
-        if (!response.ok) throw new Error('Unable to load roll history for room: ' + id);
-        
-        const rolls = await response.json();
-        const total = rolls.length;
-        const average = total ? rolls.reduce((sum, x) => sum + Number(x.result || 0), 0) / total : 0;
-        const critical = rolls.filter(x => x.isCritical).length;
+      socket.on('new-roll', (data) => {
+        if (data && data.roomId && data.roomId.toLowerCase() === room.value.trim().toLowerCase()) {
+          loadSession();
+        }
+      });
 
-        document.getElementById('total').textContent = total;
-        document.getElementById('average').textContent = average.toFixed(2);
-        document.getElementById('critical').textContent = critical;
+      async function loadSession() {
+        const id = room.value.trim().toLowerCase();
+        if (!/^[a-z0-9-]{3,50}$/.test(id)) {
+          statusEl.textContent =
+            'Invalid room ID. Must be 3-50 alphanumeric characters or hyphens.';
+          return;
+        }
+        statusEl.textContent = 'Loading session data...';
+        socket.emit('join-room', id);
 
-        // Formula counts
-        const formulaCounts = {};
-        rolls.forEach(x => {
-          formulaCounts[x.formula] = (formulaCounts[x.formula] || 0) + 1;
-        });
-        const formulas = Object.entries(formulaCounts).sort((a, b) => b[1] - a[1]);
-        const maxUses = formulas.length ? formulas[0][1] : 1;
+        try {
+          const response = await fetch('/api/v2/rolls/' + encodeURIComponent(id));
+          if (!response.ok) throw new Error('Unable to load roll history for room: ' + id);
 
-        // Render Distribution Bar Chart
-        if (formulas.length) {
-          document.getElementById('formulas').innerHTML = formulas.map(([formula, uses]) => {
-            const pct = Math.round((uses / maxUses) * 100);
-            return `
+          const rolls = await response.json();
+          const total = rolls.length;
+          const average = total
+            ? rolls.reduce((sum, x) => sum + Number(x.result || 0), 0) / total
+            : 0;
+          const critical = rolls.filter((x) => x.isCritical).length;
+
+          document.getElementById('total').textContent = total;
+          document.getElementById('average').textContent = average.toFixed(2);
+          document.getElementById('critical').textContent = critical;
+
+          // Formula counts
+          const formulaCounts = {};
+          rolls.forEach((x) => {
+            formulaCounts[x.formula] = (formulaCounts[x.formula] || 0) + 1;
+          });
+          const formulas = Object.entries(formulaCounts).sort((a, b) => b[1] - a[1]);
+          const maxUses = formulas.length ? formulas[0][1] : 1;
+
+          // Render Distribution Bar Chart
+          if (formulas.length) {
+            document.getElementById('formulas').innerHTML = formulas
+              .map(([formula, uses]) => {
+                const pct = Math.round((uses / maxUses) * 100);
+                return `
               <div class="bg-[#0a0c11] border border-[#26283b] rounded-lg p-3">
                 <div class="flex justify-between items-center mb-1">
                   <code class="text-[#d4a544] font-bold font-mono text-xs">${formula}</code>
@@ -218,14 +323,18 @@
                 </div>
               </div>
             `;
-          }).join('');
-        } else {
-          document.getElementById('formulas').innerHTML = '<p class="text-[#6b7085] text-xs">No rolls recorded in this session yet.</p>';
-        }
+              })
+              .join('');
+          } else {
+            document.getElementById('formulas').innerHTML =
+              '<p class="text-[#6b7085] text-xs">No rolls recorded in this session yet.</p>';
+          }
 
-        // Render Table
-        if (rolls.length) {
-          document.getElementById('rolls').innerHTML = rolls.map(x => `
+          // Render Table
+          if (rolls.length) {
+            document.getElementById('rolls').innerHTML = rolls
+              .map(
+                (x) => `
             <tr class="hover:bg-[#181c2c]/30 transition-colors">
               <td class="py-3 px-4 font-semibold text-white">${x.characterName || 'Adventurer'}</td>
               <td class="py-3 px-4 text-[#a1a7bc]">${x.rollName || 'Roll'}</td>
@@ -233,46 +342,53 @@
               <td class="py-3 px-4 font-bold text-sm ${x.isCritical ? 'text-red-500' : 'text-[#d4a544]'}">${x.result}${x.isCritical ? ' ★' : ''}</td>
               <td class="py-3 px-4 text-[#6b7085] text-[10px]">${x.createdAt ? new Date(x.createdAt).toLocaleString() : ''}</td>
             </tr>
-          `).join('');
-        } else {
-          document.getElementById('rolls').innerHTML = '<tr><td colspan="5" class="py-6 text-center text-[#6b7085]">No rolls yet in this session.</td></tr>';
+          `,
+              )
+              .join('');
+          } else {
+            document.getElementById('rolls').innerHTML =
+              '<tr><td colspan="5" class="py-6 text-center text-[#6b7085]">No rolls yet in this session.</td></tr>';
+          }
+
+          statusEl.textContent = `Session loaded · ${total} rolls recorded`;
+        } catch (e) {
+          statusEl.textContent = e.message;
         }
-
-        statusEl.textContent = `Session loaded · ${total} rolls recorded`;
-      } catch (e) {
-        statusEl.textContent = e.message;
       }
-    }
 
-    document.getElementById('load').onclick = loadSession;
+      document.getElementById('load').onclick = loadSession;
 
-    document.getElementById('csv').onclick = async () => {
-      const id = room.value.trim().toLowerCase();
-      const response = await fetch('/api/v2/rolls/' + encodeURIComponent(id));
-      if (!response.ok) return;
-      const rolls = await response.json();
-      const rows = [
-        ['Character', 'Action', 'Formula', 'Result', 'Critical', 'Created At'],
-        ...rolls.map(x => [
-          x.characterName || 'Adventurer',
-          x.rollName || 'Roll',
-          x.formula,
-          x.result,
-          x.isCritical ? 'yes' : 'no',
-          x.createdAt || ''
-        ])
-      ];
-      const csv = rows.map(row => row.map(value => '"' + String(value).replaceAll('"', '""') + '"').join(',')).join('\n');
-      const link = document.createElement('a');
-      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-      link.download = id + '-roll-history.csv';
-      link.click();
-    };
+      document.getElementById('csv').onclick = async () => {
+        const id = room.value.trim().toLowerCase();
+        const response = await fetch('/api/v2/rolls/' + encodeURIComponent(id));
+        if (!response.ok) return;
+        const rolls = await response.json();
+        const rows = [
+          ['Character', 'Action', 'Formula', 'Result', 'Critical', 'Created At'],
+          ...rolls.map((x) => [
+            x.characterName || 'Adventurer',
+            x.rollName || 'Roll',
+            x.formula,
+            x.result,
+            x.isCritical ? 'yes' : 'no',
+            x.createdAt || '',
+          ]),
+        ];
+        const csv = rows
+          .map((row) =>
+            row.map((value) => '"' + String(value).replaceAll('"', '""') + '"').join(','),
+          )
+          .join('\n');
+        const link = document.createElement('a');
+        link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+        link.download = id + '-roll-history.csv';
+        link.click();
+      };
 
-    loadSession();
-  </script>
+      loadSession();
+    </script>
 
-  <script src="/js/components.js"></script>
-  <script src="/js/theme-toggle.js"></script>
-</body>
+    <script src="/js/components.js"></script>
+    <script src="/js/theme-toggle.js"></script>
+  </body>
 </html>

@@ -11,7 +11,19 @@ function createDb() {
     }),
     all: vi.fn(async (sql: string) => {
       if (sql.includes('GROUP BY')) return [{ formula: '1d20', uses: 2 }];
-      return [{ id: 1, characterId: '123', characterName: 'Hero', rollName: 'Attack', formula: '1d20', result: 20, isCritical: 1, rolls: '[20]', createdAt: '2026-01-01T00:00:00.000Z' }];
+      return [
+        {
+          id: 1,
+          characterId: '123',
+          characterName: 'Hero',
+          rollName: 'Attack',
+          formula: '1d20',
+          result: 20,
+          isCritical: 1,
+          rolls: '[20]',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ];
     }),
     run: vi.fn(),
   };

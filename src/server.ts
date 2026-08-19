@@ -7,9 +7,6 @@ import { RollPersistenceService } from './services/RollPersistenceService.js';
 import { WebSocketManager } from './services/WebSocketManager.js';
 import { securityMiddleware } from './middleware/security.js';
 
-
-
-
 export interface ServerConfig {
   port: number;
   nodeEnv: 'development' | 'test' | 'production';
@@ -18,7 +15,8 @@ export interface ServerConfig {
 export function getServerConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
   const port = Number(env.PORT ?? 3000);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid PORT');
-  const nodeEnv = env.NODE_ENV === 'production' || env.NODE_ENV === 'test' ? env.NODE_ENV : 'development';
+  const nodeEnv =
+    env.NODE_ENV === 'production' || env.NODE_ENV === 'test' ? env.NODE_ENV : 'development';
   return { port, nodeEnv };
 }
 
@@ -36,10 +34,12 @@ async function start(): Promise<void> {
   const websocketManager = new WebSocketManager(legacy.io);
   legacy.setRealtimeManager(websocketManager);
 
-
-  legacy.app.use('/api/v2', createApiRouter(database, config.jwtSecret, (character) => {
-    legacy.io.emit('character-updated', character);
-  }));
+  legacy.app.use(
+    '/api/v2',
+    createApiRouter(database, config.jwtSecret, (character) => {
+      legacy.io.emit('character-updated', character);
+    }),
+  );
   const characterSync = new CharacterSyncService(database);
   if (config.characterSyncEnabled) {
     characterSync.start();
@@ -51,6 +51,8 @@ async function start(): Promise<void> {
 }
 
 void start().catch((error: unknown) => {
-  logger.error('Server bootstrap failed', { error: error instanceof Error ? error.message : String(error) });
+  logger.error('Server bootstrap failed', {
+    error: error instanceof Error ? error.message : String(error),
+  });
   process.exitCode = 1;
 });

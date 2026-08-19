@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { validateCharacterId, validateDiceFormula, validateRoomId, validateUsername } from './validators.js';
+import {
+  validateCharacterId,
+  validateDiceFormula,
+  validateRoomId,
+  validateUsername,
+} from './validators.js';
 
 describe('validators', () => {
   it('validates safe room IDs', () => {

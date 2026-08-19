@@ -5,8 +5,19 @@ import { createSessionsRouter } from './sessions.js';
 
 function createDb() {
   return {
-    get: vi.fn(async (sql: string) => sql.includes('FROM game_sessions') ? { id: 3, roomId: 'room-test' } : undefined),
-    all: vi.fn(async () => [{ characterId: '123', formula: '2d6+4', result: 12, isCritical: 0, rolls: '[4,4]', createdAt: '2026-01-01T00:00:00.000Z' }]),
+    get: vi.fn(async (sql: string) =>
+      sql.includes('FROM game_sessions') ? { id: 3, roomId: 'room-test' } : undefined,
+    ),
+    all: vi.fn(async () => [
+      {
+        characterId: '123',
+        formula: '2d6+4',
+        result: 12,
+        isCritical: 0,
+        rolls: '[4,4]',
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    ]),
     run: vi.fn(),
   };
 }

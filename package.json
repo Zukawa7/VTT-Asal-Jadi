@@ -13,7 +13,10 @@
     "dev": "npm run build:css && tsx watch src/server.ts",
     "type-check": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\"",
+    "lint:js": "eslint \"public/**/*.js\"",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "format:all": "prettier --write \"src/**/*.{ts,tsx}\" \"public/**/*.{js,html,css,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"public/**/*.{js,html,css,md}\"",
     "prepare": "husky",
     "postinstall": "npm rebuild sqlite3 --build-from-source"
   },
@@ -57,6 +60,8 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.23.12",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0"
   }
 }

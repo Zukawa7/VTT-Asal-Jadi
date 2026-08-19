@@ -2,7 +2,10 @@ import sqlite3 from 'sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 
-export interface DatabaseRunResult { lastID: number; changes: number; }
+export interface DatabaseRunResult {
+  lastID: number;
+  changes: number;
+}
 
 function resolveWritableDatabasePath(databasePath: string): string {
   try {
@@ -119,23 +122,29 @@ export class DatabaseService {
 
   get<T>(sql: string, params: unknown[] = []): Promise<T | undefined> {
     return new Promise((resolve, reject) => {
-      this.db.get(sql, params, (error, row) => error ? reject(error) : resolve(row as T | undefined));
+      this.db.get(sql, params, (error, row) =>
+        error ? reject(error) : resolve(row as T | undefined),
+      );
     });
   }
 
   all<T>(sql: string, params: unknown[] = []): Promise<T[]> {
     return new Promise((resolve, reject) => {
-      this.db.all(sql, params, (error, rows) => error ? reject(error) : resolve((rows ?? []) as T[]));
+      this.db.all(sql, params, (error, rows) =>
+        error ? reject(error) : resolve((rows ?? []) as T[]),
+      );
     });
   }
 
   exec(sql: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.db.exec(sql, (error) => error ? reject(error) : resolve());
+      this.db.exec(sql, (error) => (error ? reject(error) : resolve()));
     });
   }
 
   close(): Promise<void> {
-    return new Promise((resolve, reject) => this.db.close((error) => error ? reject(error) : resolve()));
+    return new Promise((resolve, reject) =>
+      this.db.close((error) => (error ? reject(error) : resolve())),
+    );
   }
 }

@@ -76,8 +76,8 @@ if (addTokenBtn) {
         name: currentCharacter.name,
         avatarUrl: currentCharacter.avatarUrl,
         x: 0,
-        y: 0
-      }
+        y: 0,
+      },
     });
   });
 }
@@ -104,7 +104,7 @@ if (mapContainer) {
       roomId: currentRoom,
       tokenId,
       x,
-      y
+      y,
     });
   });
 }
@@ -117,7 +117,7 @@ function joinRoom() {
   }
   addLogMessage({
     system: true,
-    text: `Connected to room: "${currentRoom}"`
+    text: `Connected to room: "${currentRoom}"`,
   });
   loadRollHistory(currentRoom);
 }
@@ -127,15 +127,19 @@ async function loadRollHistory(roomId) {
     const response = await fetch(`/api/v2/rolls/${encodeURIComponent(roomId)}`);
     if (!response.ok) return;
     const history = await response.json();
-    history.reverse().forEach((roll) => addLogMessage({
-      characterName: roll.characterName || 'Adventurer',
-      characterAvatar: roll.characterAvatar || 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png',
-      rollName: roll.rollName || 'Historical Roll',
-      formula: roll.formula,
-      result: roll.result,
-      rolls: Array.isArray(roll.rolls) ? roll.rolls : [],
-      modifier: roll.modifier || 0,
-    }));
+    history.reverse().forEach((roll) =>
+      addLogMessage({
+        characterName: roll.characterName || 'Adventurer',
+        characterAvatar:
+          roll.characterAvatar ||
+          'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png',
+        rollName: roll.rollName || 'Historical Roll',
+        formula: roll.formula,
+        result: roll.result,
+        rolls: Array.isArray(roll.rolls) ? roll.rolls : [],
+        modifier: roll.modifier || 0,
+      }),
+    );
   } catch (error) {
     console.warn('Unable to load roll history:', error);
   }
@@ -194,16 +198,16 @@ async function importCharacter() {
     const token = localStorage.getItem('token');
     // First try fetching public/cached sheet
     let response = await fetch(`/api/v2/character/${encodeURIComponent(charId)}/sheet`);
-    
+
     // If not found and user has auth token, import from DDB API
     if (!response.ok && token) {
       const importRes = await fetch('/api/v2/character/import', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ characterId: charId })
+        body: JSON.stringify({ characterId: charId }),
       });
       if (importRes.ok) {
         response = await fetch(`/api/v2/character/${encodeURIComponent(charId)}/sheet`);
@@ -215,22 +219,25 @@ async function importCharacter() {
       try {
         const errData = await response.json();
         errText = errData.error || errText;
-      } catch {}
+      } catch (e) {
+        // ignore JSON parse errors for non-JSON responses
+      }
       throw new Error(errText);
     }
 
     const data = await response.json();
     currentCharacter = data;
     renderCharacterSheet(data);
-    
+
     addLogMessage({
       system: true,
-      text: `Character "${data.name}" (${data.race} ${data.classes.map(c => `${c.name} ${c.level}`).join('/')}) imported successfully!`
+      text: `Character "${data.name}" (${data.race} ${data.classes.map((c) => `${c.name} ${c.level}`).join('/')}) imported successfully!`,
     });
-
   } catch (err) {
     console.error(err);
-    showImportError(err.message || 'An error occurred while importing. Please double-check the ID.');
+    showImportError(
+      err.message || 'An error occurred while importing. Please double-check the ID.',
+    );
   } finally {
     if (importBtn) importBtn.disabled = false;
     if (importBtnText) importBtnText.textContent = 'Import';
@@ -250,15 +257,19 @@ function renderCharacterSheet(char) {
   if (charPlaceholder) charPlaceholder.classList.add('hidden');
   if (charSheet) charSheet.classList.remove('hidden');
 
-  if (charAvatar) charAvatar.src = char.avatarUrl || 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png';
+  if (charAvatar)
+    charAvatar.src =
+      char.avatarUrl ||
+      'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png';
   if (charName) charName.textContent = char.name;
-  
-  const classStr = char.classes.map(c => `${c.name} ${c.level}`).join('/') + ` (Level ${char.level})`;
+
+  const classStr =
+    char.classes.map((c) => `${c.name} ${c.level}`).join('/') + ` (Level ${char.level})`;
   if (charSub) charSub.textContent = `${char.race} | ${classStr}`;
 
   if (charCurrentHp) charCurrentHp.textContent = char.hp.current;
   if (charMaxHp) charMaxHp.textContent = char.hp.max;
-  
+
   if (charTempHp && charTempHpContainer) {
     if (char.hp.temp > 0) {
       charTempHp.textContent = char.hp.temp;
@@ -272,7 +283,7 @@ function renderCharacterSheet(char) {
   if (hpBar && char.hp.max > 0) {
     const hpPercent = Math.max(0, Math.min(100, (char.hp.current / char.hp.max) * 100));
     hpBar.style.width = `${hpPercent}%`;
-    
+
     // Color HP bar based on health
     if (hpPercent < 25) {
       hpBar.style.background = 'var(--danger, #ef4444)';
@@ -285,10 +296,10 @@ function renderCharacterSheet(char) {
 
   // Render Stats & Modifiers
   const stats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
-  stats.forEach(stat => {
+  stats.forEach((stat) => {
     const scoreEl = document.getElementById(`statScore-${stat}`);
     const modEl = document.getElementById(`statMod-${stat}`);
-    
+
     if (scoreEl && char.stats && char.stats[stat] !== undefined) {
       scoreEl.textContent = char.stats[stat];
     }
@@ -300,10 +311,10 @@ function renderCharacterSheet(char) {
 }
 
 // Roll logic
-window.rollStat = function(statLabel, statKey) {
+window.rollStat = function (statLabel, statKey) {
   if (!currentCharacter) return;
-  
-  const modifier = currentCharacter.modifiers ? (currentCharacter.modifiers[statKey] || 0) : 0;
+
+  const modifier = currentCharacter.modifiers ? currentCharacter.modifiers[statKey] || 0 : 0;
   const roll = Math.floor(Math.random() * 20) + 1;
   const total = roll + modifier;
   const sign = modifier >= 0 ? '+' : '';
@@ -317,13 +328,13 @@ window.rollStat = function(statLabel, statKey) {
     formula: formula,
     result: total,
     rolls: [roll],
-    modifier: modifier
+    modifier: modifier,
   };
 
   socket.emit('send-roll', rollData);
 };
 
-window.rollDice = function(sides, mode) {
+window.rollDice = function (sides, mode) {
   let rolls = [];
   let result = 0;
   let rollTitle = `d${sides} Roll`;
@@ -349,7 +360,9 @@ window.rollDice = function(sides, mode) {
   }
 
   const name = currentCharacter ? currentCharacter.name : 'Adventurer';
-  const avatar = currentCharacter ? currentCharacter.avatarUrl : 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png';
+  const avatar = currentCharacter
+    ? currentCharacter.avatarUrl
+    : 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png';
 
   const rollData = {
     roomId: currentRoom,
@@ -359,13 +372,13 @@ window.rollDice = function(sides, mode) {
     formula: formula,
     result: result,
     rolls: rolls,
-    modifier: 0
+    modifier: 0,
   };
 
   socket.emit('send-roll', rollData);
 };
 
-window.openCustomRoll = function() {
+window.openCustomRoll = function () {
   if (customRollForm) {
     customRollForm.classList.toggle('hidden');
     if (!customRollForm.classList.contains('hidden') && customRollInput) {
@@ -374,7 +387,7 @@ window.openCustomRoll = function() {
   }
 };
 
-window.executeCustomRoll = function() {
+window.executeCustomRoll = function () {
   if (!customRollInput) return;
   const formula = customRollInput.value.trim();
   if (!formula) return;
@@ -386,7 +399,9 @@ window.executeCustomRoll = function() {
   }
 
   const name = currentCharacter ? currentCharacter.name : 'Adventurer';
-  const avatar = currentCharacter ? currentCharacter.avatarUrl : 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png';
+  const avatar = currentCharacter
+    ? currentCharacter.avatarUrl
+    : 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png';
 
   const rollData = {
     roomId: currentRoom,
@@ -396,7 +411,7 @@ window.executeCustomRoll = function() {
     formula: parsed.formula,
     result: parsed.result,
     rolls: parsed.rolls,
-    modifier: parsed.modifier
+    modifier: parsed.modifier,
   };
 
   socket.emit('send-roll', rollData);
@@ -406,14 +421,14 @@ window.executeCustomRoll = function() {
 // Dice parser helper
 function parseAndRoll(formula) {
   const cleanFormula = formula.replace(/\s+/g, '').toLowerCase();
-  const match = cleanFormula.match(/^(\d*)d(\d+)([hl]\d+|kh\d+|kl\d+)?([\+\-]\d+)?$/);
+  const match = cleanFormula.match(/^(\d*)d(\d+)([hl]\d+|kh\d+|kl\d+)?([+-]\d+)?$/);
   if (!match) return null;
-  
+
   const count = match[1] ? parseInt(match[1]) : 1;
   const sides = parseInt(match[2]);
   let keepMode = null;
   let keepCount = count;
-  
+
   if (match[3]) {
     if (match[3].startsWith('kh') || match[3].startsWith('h')) {
       keepMode = 'h';
@@ -423,10 +438,11 @@ function parseAndRoll(formula) {
       keepCount = parseInt(match[3].replace(/^[kl]+/, '')) || 1;
     }
   }
-  
+
   const modifier = match[4] ? parseInt(match[4]) : 0;
-  
-  if (count <= 0 || count > 100 || sides <= 0 || sides > 1000 || keepCount < 1 || keepCount > count) return null;
+
+  if (count <= 0 || count > 100 || sides <= 0 || sides > 1000 || keepCount < 1 || keepCount > count)
+    return null;
 
   const rolls = [];
   let sum = 0;
@@ -435,17 +451,22 @@ function parseAndRoll(formula) {
     rolls.push(roll);
     sum += roll;
   }
-  
-  const keptRolls = keepMode === 'h' ? [...rolls].sort((a, b) => b - a).slice(0, keepCount) : keepMode === 'l' ? [...rolls].sort((a, b) => a - b).slice(0, keepCount) : rolls;
+
+  const keptRolls =
+    keepMode === 'h'
+      ? [...rolls].sort((a, b) => b - a).slice(0, keepCount)
+      : keepMode === 'l'
+        ? [...rolls].sort((a, b) => a - b).slice(0, keepCount)
+        : rolls;
   const result = keptRolls.reduce((total, value) => total + value, modifier);
-  
+
   return {
     formula: `${count}d${sides}${match[3] || ''}${modifier !== 0 ? (modifier > 0 ? '+' + modifier : modifier) : ''}`,
     count,
     sides,
     modifier,
     rolls,
-    result
+    result,
   };
 }
 
@@ -466,17 +487,21 @@ function addLogMessage(data) {
   } else {
     const avatarImg = `<img src="${data.characterAvatar}" class="w-5 h-5 rounded-full inline-block mr-1.5 align-middle object-cover" style="background: var(--bg-tertiary);">`;
     const rollsList = data.rolls && data.rolls.length ? `(${data.rolls.join(', ')})` : '';
-    const modStr = data.modifier ? (data.modifier >= 0 ? ` + ${data.modifier}` : ` - ${Math.abs(data.modifier)}`) : '';
-    
+    const modStr = data.modifier
+      ? data.modifier >= 0
+        ? ` + ${data.modifier}`
+        : ` - ${Math.abs(data.modifier)}`
+      : '';
+
     // Critical coloring
     let resultColor = 'color: var(--gold-400);';
     if (data.formula && data.formula.includes('d20') && data.rolls && data.rolls.length === 1) {
       if (data.rolls[0] === 20) resultColor = 'color: var(--success); font-weight: 900;';
       if (data.rolls[0] === 1) resultColor = 'color: var(--danger); font-weight: 900;';
     }
-    
-    const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    
+
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
     msgEl.innerHTML = `
       <div class="flex items-center gap-1 text-xs" style="color: var(--text-secondary);">
         ${avatarImg}
@@ -499,9 +524,10 @@ function addLogMessage(data) {
 window.addLogMessage = addLogMessage;
 window.logRoll = addLogMessage;
 
-window.clearLog = function() {
+window.clearLog = function () {
   if (logContainer) {
-    logContainer.innerHTML = '<div class="italic" style="color: var(--text-tertiary);">No rolls yet. Join a room and roll some dice!</div>';
+    logContainer.innerHTML =
+      '<div class="italic" style="color: var(--text-tertiary);">No rolls yet. Join a room and roll some dice!</div>';
   }
 };
 
@@ -509,7 +535,8 @@ window.clearLog = function() {
 function updateMapBackground(mapUrl) {
   if (!mapContainer || !mapUrl) return;
   mapContainer.style.backgroundImage = `linear-gradient(to right, rgba(245, 158, 11, 0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(245, 158, 11, 0.2) 1px, transparent 1px), url('${mapUrl}')`;
-  mapContainer.style.backgroundSize = 'calc(100% / 12) calc(100% / 12), calc(100% / 12) calc(100% / 12), cover';
+  mapContainer.style.backgroundSize =
+    'calc(100% / 12) calc(100% / 12), calc(100% / 12) calc(100% / 12), cover';
   mapContainer.style.backgroundPosition = '0 0, 0 0, center';
   if (mapUrlInput) mapUrlInput.value = mapUrl;
 }
@@ -518,11 +545,12 @@ function renderTokens(tokens) {
   if (!mapContainer) return;
   // Remove existing token elements
   const tokenEls = mapContainer.querySelectorAll('.token-element');
-  tokenEls.forEach(el => el.remove());
+  tokenEls.forEach((el) => el.remove());
 
-  Object.values(tokens).forEach(token => {
+  Object.values(tokens).forEach((token) => {
     const tokenEl = document.createElement('div');
-    tokenEl.className = 'token-element absolute cursor-pointer group p-1 transition-all duration-100 z-10';
+    tokenEl.className =
+      'token-element absolute cursor-pointer group p-1 transition-all duration-100 z-10';
     tokenEl.style.width = 'calc(100% / 12)';
     tokenEl.style.height = 'calc(100% / 12)';
     tokenEl.style.left = `calc((${token.x} / 12) * 100%)`;
@@ -548,10 +576,10 @@ function renderTokens(tokens) {
   });
 }
 
-window.removeToken = function(tokenId) {
+window.removeToken = function (tokenId) {
   socket.emit('remove-token', {
     roomId: currentRoom,
-    tokenId
+    tokenId,
   });
 };
 
@@ -564,19 +592,22 @@ function updateObsUrl() {
   obsUrlInput.value = url;
 }
 
-window.copyObsUrl = function(btnEvent) {
+window.copyObsUrl = function (btnEvent) {
   if (!obsUrlInput) return;
   obsUrlInput.select();
   obsUrlInput.setSelectionRange(0, 99999);
   navigator.clipboard.writeText(obsUrlInput.value);
-  
-  const targetBtn = (btnEvent && btnEvent.target) ? btnEvent.target : document.querySelector('button[onclick*="copyObsUrl"]');
+
+  const targetBtn =
+    btnEvent && btnEvent.target
+      ? btnEvent.target
+      : document.querySelector('button[onclick*="copyObsUrl"]');
   if (targetBtn) {
     const origText = targetBtn.textContent;
     targetBtn.textContent = 'Copied!';
     targetBtn.style.background = 'var(--success, #10b981)';
     targetBtn.style.color = '#ffffff';
-    
+
     setTimeout(() => {
       targetBtn.textContent = origText;
       targetBtn.style.background = '';
@@ -588,30 +619,34 @@ window.copyObsUrl = function(btnEvent) {
 // --- DICE POOL LOGIC ---
 let dicePool = {};
 
-window.addToPool = function(sides) {
+window.addToPool = function (sides) {
   if (!dicePool[sides]) dicePool[sides] = 0;
   dicePool[sides]++;
   renderDicePool();
 };
 
-window.renderDicePool = function() {
+window.renderDicePool = function () {
   const container = document.getElementById('dicePoolContainer');
   if (!container) return;
-  
+
   const entries = Object.entries(dicePool).filter(([s, c]) => c > 0);
   if (entries.length === 0) {
-    container.innerHTML = '<span class="text-xs italic" style="color: var(--text-tertiary);">Click dice to add to pool...</span>';
+    container.innerHTML =
+      '<span class="text-xs italic" style="color: var(--text-tertiary);">Click dice to add to pool...</span>';
     return;
   }
-  
-  container.innerHTML = entries.map(([sides, count]) => 
-    `<span class="badge-gold cursor-pointer" style="padding: 2px 6px; font-size: 11px;" onclick="removeFromPool(${sides})" title="Click to remove 1">
+
+  container.innerHTML = entries
+    .map(
+      ([sides, count]) =>
+        `<span class="badge-gold cursor-pointer" style="padding: 2px 6px; font-size: 11px;" onclick="removeFromPool(${sides})" title="Click to remove 1">
        ${count}d${sides} <span style="opacity: 0.6; margin-left: 2px;">×</span>
-     </span>`
-  ).join(' ');
+     </span>`,
+    )
+    .join(' ');
 };
 
-window.removeFromPool = function(sides) {
+window.removeFromPool = function (sides) {
   if (dicePool[sides] > 0) {
     dicePool[sides]--;
     renderDicePool();
@@ -624,20 +659,20 @@ if (clearPoolBtn) {
     dicePool = {};
     renderDicePool();
     const mod = document.getElementById('diceModifier');
-    if (mod) mod.value = "0";
+    if (mod) mod.value = '0';
   });
 }
 
-window.rollPool = function() {
+window.rollPool = function () {
   const entries = Object.entries(dicePool).filter(([s, c]) => c > 0);
   if (entries.length === 0) return; // empty pool
 
   const modifier = parseInt(document.getElementById('diceModifier')?.value || 0);
-  
+
   let totalResult = modifier;
   let allRolls = [];
   let formulaParts = [];
-  
+
   for (const [sides, count] of entries) {
     formulaParts.push(`${count}d${sides}`);
     for (let i = 0; i < count; i++) {
@@ -646,13 +681,15 @@ window.rollPool = function() {
       totalResult += roll;
     }
   }
-  
+
   let formulaStr = formulaParts.join(' + ');
   if (modifier > 0) formulaStr += ` + ${modifier}`;
   else if (modifier < 0) formulaStr += ` - ${Math.abs(modifier)}`;
 
   const name = currentCharacter ? currentCharacter.name : 'Adventurer';
-  const avatar = currentCharacter ? currentCharacter.avatarUrl : 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png';
+  const avatar = currentCharacter
+    ? currentCharacter.avatarUrl
+    : 'https://www.dndbeyond.com/content/skins/waterdeep/images/characters/default-avatar.png';
 
   const rollData = {
     roomId: currentRoom,
@@ -662,13 +699,13 @@ window.rollPool = function() {
     formula: formulaStr,
     result: totalResult,
     rolls: allRolls,
-    modifier: modifier
+    modifier: modifier,
   };
 
   socket.emit('send-roll', rollData);
-  
+
   // Clear pool after roll
   dicePool = {};
   renderDicePool();
-  if (document.getElementById('diceModifier')) document.getElementById('diceModifier').value = "0";
+  if (document.getElementById('diceModifier')) document.getElementById('diceModifier').value = '0';
 };

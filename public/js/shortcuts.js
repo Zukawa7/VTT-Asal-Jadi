@@ -41,7 +41,7 @@ document.addEventListener('keydown', (e) => {
             <li class="flex justify-between items-center"><span>Roll d100</span><span><kbd class="bg-[#0a0c11] border border-[#26283b] px-1.5 py-0.5 rounded text-white font-bold">0</kbd></span></li>
             <li class="flex justify-between items-center"><span>Open Dashboard</span><span><kbd class="bg-[#0a0c11] border border-[#26283b] px-1.5 py-0.5 rounded text-white font-bold">C</kbd></span></li>
           </ul>
-        `
+        `,
       }).open();
     }
   }

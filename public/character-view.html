@@ -1,648 +1,1078 @@
 <!doctype html>
 <html lang="en" class="h-full">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Character Sheet - VTT Asal Jadi</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <title>Character Sheet - VTT Asal Jadi</title>
 
-  <link rel="stylesheet" href="/styles/tailwind.css?v=9">
-  <script src="/socket.io/socket.io.js"></script>
-  
-  <style>
-    /* Custom Scrollbar for chips container */
-    .chips-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; }
-    .chips-container::-webkit-scrollbar { height: 4px; }
-    .chips-container::-webkit-scrollbar-track { background: transparent; }
-    .chips-container::-webkit-scrollbar-thumb { background: #26283b; border-radius: 4px; }
+    <link rel="stylesheet" href="/styles/tailwind.css?v=9" />
+    <script src="/socket.io/socket.io.js"></script>
 
-    .filter-chip {
-      flex-shrink: 0;
-      padding: 6px 14px;
-      border-radius: 9999px;
-      border: 1px solid #26283b;
-      background: #0a0c11;
-      color: #a1a7bc;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .filter-chip:hover {
-      border-color: #d4a544;
-      color: #e4c183;
-    }
-    .filter-chip.active {
-      background: #d4a544;
-      border-color: #d4a544;
-      color: #0a0a0f;
-    }
-  </style>
-</head>
-<body class="bg-[#0a0a0f] text-white min-h-screen flex flex-col font-sans">
+    <style>
+      /* Custom Scrollbar for chips container */
+      .chips-container {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+      }
+      .chips-container::-webkit-scrollbar {
+        height: 4px;
+      }
+      .chips-container::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .chips-container::-webkit-scrollbar-thumb {
+        background: #26283b;
+        border-radius: 4px;
+      }
 
-  <!-- Header / Navigation -->
-  <nav class="sticky top-0 z-30 border-b border-[#1c1f2d] bg-[#0a0a0f]/90 px-6 py-4 backdrop-blur">
-    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
-      <div class="flex items-center gap-2 text-xs font-bold text-white">
-        <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
-        <span>VTT ASAL JADI</span>
+      .filter-chip {
+        flex-shrink: 0;
+        padding: 6px 14px;
+        border-radius: 9999px;
+        border: 1px solid #26283b;
+        background: #0a0c11;
+        color: #a1a7bc;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .filter-chip:hover {
+        border-color: #d4a544;
+        color: #e4c183;
+      }
+      .filter-chip.active {
+        background: #d4a544;
+        border-color: #d4a544;
+        color: #0a0a0f;
+      }
+    </style>
+  </head>
+  <body class="bg-[#0a0a0f] text-white min-h-screen flex flex-col font-sans">
+    <!-- Header / Navigation -->
+    <nav
+      class="sticky top-0 z-30 border-b border-[#1c1f2d] bg-[#0a0a0f]/90 px-6 py-4 backdrop-blur"
+    >
+      <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-xs font-bold text-white">
+          <i data-lucide="dice-5" class="h-4 w-4 text-[#d4a544]"></i>
+          <span>VTT ASAL JADI</span>
+        </div>
+        <div class="flex items-center gap-5 text-[10px] text-[#a1a7bc]">
+          <span class="hidden sm:inline"
+            >Logged in as
+            <span id="headerUsername" class="font-bold text-[#d4a544]">Username</span></span
+          >
+          <a href="/dashboard" class="hover:text-[#d4a544] transition-colors">Dashboard</a>
+          <a href="/session-dashboard" class="hover:text-[#d4a544] transition-colors"
+            >Session Logs</a
+          >
+          <a href="/vtt" class="hover:text-[#d4a544] transition-colors">Open VTT</a>
+          <button
+            id="logoutBtn"
+            class="rounded-md bg-[#8a1d1d] px-3 py-1.5 text-[10px] font-bold text-white transition hover:bg-[#a63a37]"
+          >
+            Logout
+          </button>
+        </div>
       </div>
-      <div class="flex items-center gap-5 text-[10px] text-[#a1a7bc]">
-        <span class="hidden sm:inline">Logged in as <span id="headerUsername" class="font-bold text-[#d4a544]">Username</span></span>
-        <a href="/dashboard" class="hover:text-[#d4a544] transition-colors">Dashboard</a>
-        <a href="/session-dashboard" class="hover:text-[#d4a544] transition-colors">Session Logs</a>
-        <a href="/vtt" class="hover:text-[#d4a544] transition-colors">Open VTT</a>
-        <button id="logoutBtn" class="rounded-md bg-[#8a1d1d] px-3 py-1.5 text-[10px] font-bold text-white transition hover:bg-[#a63a37]">Logout</button>
-      </div>
+    </nav>
+
+    <!-- BackgroundGlow -->
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] max-w-none -translate-x-1/2 -translate-y-[340px] rounded-full"
+      style="
+        background: radial-gradient(
+          circle,
+          rgba(212, 165, 68, 0.18) 0%,
+          rgba(212, 165, 68, 0.06) 35%,
+          transparent 70%
+        );
+      "
+    ></div>
+
+    <!-- Loading & Error states -->
+    <div
+      id="loading"
+      class="text-center p-20 text-xl font-bold text-[#d4a544] animate-pulse w-full"
+    >
+      Loading character sheet...
     </div>
-  </nav>
+    <div id="error" class="hidden text-center p-20 text-xl text-red-500 w-full"></div>
 
-  <!-- BackgroundGlow -->
-  <div
-    aria-hidden="true"
-    class="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] max-w-none -translate-x-1/2 -translate-y-[340px] rounded-full"
-    style="background: radial-gradient(circle, rgba(212,165,68,0.18) 0%, rgba(212,165,68,0.06) 35%, transparent 70%);"
-  ></div>
+    <!-- Main Content -->
+    <main
+      class="flex-1 w-full max-w-6xl mx-auto px-6 py-10 flex flex-col pb-32"
+      id="content"
+      style="display: none"
+    >
+      <!-- Main Card Container -->
+      <div class="rounded-xl border border-[#26283b] bg-[#11131f] p-5 shadow-2xl relative">
+        <!-- Corner brackets -->
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"
+        ></span>
+        <span
+          aria-hidden="true"
+          class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"
+        ></span>
 
-  <!-- Loading & Error states -->
-  <div id="loading" class="text-center p-20 text-xl font-bold text-[#d4a544] animate-pulse w-full">Loading character sheet...</div>
-  <div id="error" class="hidden text-center p-20 text-xl text-red-500 w-full"></div>
-
-  <!-- Main Content -->
-  <main class="flex-1 w-full max-w-6xl mx-auto px-6 py-10 flex flex-col pb-32" id="content" style="display:none">
-
-    <!-- Main Card Container -->
-    <div class="rounded-xl border border-[#26283b] bg-[#11131f] p-5 shadow-2xl relative">
-      <!-- Corner brackets -->
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-      <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-
-      <!-- Header Row -->
-      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[#26283b] pb-5">
-        <div class="flex items-center gap-3">
-          <img id="avatar" src="" class="w-12 h-12 rounded-full border border-[#d4a544] object-cover bg-[#0a0c11]" alt="Avatar">
-          <div>
-            <h3 id="name" class="text-lg font-bold text-white uppercase tracking-wider" style="font-family: 'EB Garamond', serif">Name</h3>
-            <p class="text-[10px] text-[#a1a7bc] mt-1 flex items-center gap-2 flex-wrap">
-              <span id="level" class="rounded bg-[#8a1d1d] px-1.5 py-0.5 text-[8px] font-bold text-white uppercase">LEVEL 1</span>
-              <span id="meta">Race · Class</span>
-              <span class="text-[#6b7085]">•</span>
-              <span id="alignment">True Neutral</span>
-              <span class="text-[#6b7085]">•</span>
-              <span id="xp">0 XP</span>
-            </p>
+        <!-- Header Row -->
+        <div
+          class="flex flex-wrap items-center justify-between gap-4 border-b border-[#26283b] pb-5"
+        >
+          <div class="flex items-center gap-3">
+            <img
+              id="avatar"
+              src=""
+              class="w-12 h-12 rounded-full border border-[#d4a544] object-cover bg-[#0a0c11]"
+              alt="Avatar"
+            />
+            <div>
+              <h3
+                id="name"
+                class="text-lg font-bold text-white uppercase tracking-wider"
+                style="font-family: 'EB Garamond', serif"
+              >
+                Name
+              </h3>
+              <p class="text-[10px] text-[#a1a7bc] mt-1 flex items-center gap-2 flex-wrap">
+                <span
+                  id="level"
+                  class="rounded bg-[#8a1d1d] px-1.5 py-0.5 text-[8px] font-bold text-white uppercase"
+                  >LEVEL 1</span
+                >
+                <span id="meta">Race · Class</span>
+                <span class="text-[#6b7085]">•</span>
+                <span id="alignment">True Neutral</span>
+                <span class="text-[#6b7085]">•</span>
+                <span id="xp">0 XP</span>
+              </p>
+            </div>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <button
+              id="manageBtn"
+              class="rounded-md border border-[#26283b] bg-[#11131f] px-3 py-1.5 text-[10px] font-bold text-white hover:bg-[#181c2c] transition"
+              onclick="location.href = '/dashboard/character/edit/' + (character?.id || '')"
+            >
+              MANAGE
+            </button>
+            <button
+              id="inspirationBtn"
+              class="rounded-md border border-[#26283b] bg-[#11131f] px-3 py-1.5 text-[10px] font-bold text-[#a1a7bc] hover:bg-[#181c2c] transition"
+            >
+              INSPIRATION
+            </button>
+            <button
+              class="rounded-md bg-[#8a1d1d] px-4 py-2 text-[10px] font-bold text-white hover:bg-[#a63a37] transition"
+              onclick="openHpModal()"
+            >
+              REST CHARACTER
+            </button>
           </div>
         </div>
-        <div class="flex gap-2 flex-wrap">
-          <button id="manageBtn" class="rounded-md border border-[#26283b] bg-[#11131f] px-3 py-1.5 text-[10px] font-bold text-white hover:bg-[#181c2c] transition" onclick="location.href='/dashboard/character/edit/'+(character?.id||'')">MANAGE</button>
-          <button id="inspirationBtn" class="rounded-md border border-[#26283b] bg-[#11131f] px-3 py-1.5 text-[10px] font-bold text-[#a1a7bc] hover:bg-[#181c2c] transition">INSPIRATION</button>
-          <button class="rounded-md bg-[#8a1d1d] px-4 py-2 text-[10px] font-bold text-white hover:bg-[#a63a37] transition" onclick="openHpModal()">REST CHARACTER</button>
-        </div>
-      </div>
 
-      <!-- 4 StatCards Grid -->
-      <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <!-- HP Card -->
-        <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative cursor-pointer hover:bg-[#181c2c]/20 transition" onclick="openHpModal()">
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-          <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">HIT POINTS</p>
-          <div class="flex justify-between items-baseline mt-2">
-            <p class="text-2xl font-bold text-white"><span id="hp-current">0</span> <span class="text-xs text-[#6b7085]">/</span> <span id="hp-max" class="text-xs text-[#a1a7bc]">0</span></p>
-            <p id="hp-temp" class="text-[10px] text-blue-400 font-bold"></p>
-          </div>
-          <div class="h-1 bg-[#0a0a0f] rounded-full overflow-hidden mt-2">
-            <div id="hp-bar" class="h-full bg-green-500 transition-all duration-300" style="width:0%"></div>
-          </div>
-          <div id="deathSaves" class="mt-2 text-[10px] text-[#a1a7bc]"></div>
-        </div>
-
-        <!-- AC Card -->
-        <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-          <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">ARMOR CLASS</p>
-          <p id="armor" class="mt-2 text-2xl font-bold text-white">10</p>
-        </div>
-
-        <!-- Initiative Card -->
-        <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative cursor-pointer hover:bg-[#181c2c]/40 transition" onclick="rollStat('Initiative', 'dex')">
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-          <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">INITIATIVE</p>
-          <p id="initiative" class="mt-2 text-2xl font-bold text-[#d4a544]">+0</p>
-        </div>
-
-        <!-- Speed Card -->
-        <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-          <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">SPEED</p>
-          <p id="speed" class="mt-2 text-2xl font-bold text-white">30 ft.</p>
-        </div>
-      </div>
-
-      <!-- 2-Column Grid -->
-      <div class="mt-5 grid gap-4 lg:grid-cols-[1fr_1.4fr]">
-        <!-- Left Column: Ability Scores -->
-        <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative h-fit">
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-          <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-          
-          <div class="mb-4 flex items-center justify-between">
-            <h4 class="text-xs font-bold text-white">ABILITY SCORES</h4>
-            <i data-lucide="bar-chart-3" class="h-4 w-4 text-[#d4a544]"></i>
-          </div>
-          <div id="abilities" class="grid grid-cols-3 gap-2"></div>
-        </div>
-
-        <!-- Right Column: Tabs & Tab Contents -->
-        <div class="flex flex-col gap-4">
-          <!-- Tabs Navigation Chips -->
-          <div class="chips-container" id="tab-chips">
-            <div class="filter-chip active" onclick="switchTab('abilities')">Abilities</div>
-            <div class="filter-chip" onclick="switchTab('skills')">Skills</div>
-            <div class="filter-chip" onclick="switchTab('actions')">Actions</div>
-            <div class="filter-chip" onclick="switchTab('inventory')">Inventory</div>
-            <div class="filter-chip" onclick="switchTab('features')">Features</div>
-            <div class="filter-chip" onclick="switchTab('proficiencies')">Proficiencies</div>
-            <div class="filter-chip" onclick="switchTab('background')">Background</div>
-            <div class="filter-chip" onclick="switchTab('notes')">Notes</div>
+        <!-- 4 StatCards Grid -->
+        <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <!-- HP Card -->
+          <div
+            class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative cursor-pointer hover:bg-[#181c2c]/20 transition"
+            onclick="openHpModal()"
+          >
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+            ></span>
+            <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">HIT POINTS</p>
+            <div class="flex justify-between items-baseline mt-2">
+              <p class="text-2xl font-bold text-white">
+                <span id="hp-current">0</span> <span class="text-xs text-[#6b7085]">/</span>
+                <span id="hp-max" class="text-xs text-[#a1a7bc]">0</span>
+              </p>
+              <p id="hp-temp" class="text-[10px] text-blue-400 font-bold"></p>
+            </div>
+            <div class="h-1 bg-[#0a0a0f] rounded-full overflow-hidden mt-2">
+              <div
+                id="hp-bar"
+                class="h-full bg-green-500 transition-all duration-300"
+                style="width: 0%"
+              ></div>
+            </div>
+            <div id="deathSaves" class="mt-2 text-[10px] text-[#a1a7bc]"></div>
           </div>
 
-          <!-- Tab Contents Container -->
-          <div class="flex-1 flex flex-col gap-4">
-            <!-- Saving Throws & Senses (grouped under Abilities tab) -->
-            <div id="section-abilities" class="tab-section space-y-4" data-tab="abilities">
-              <!-- Saving Throws -->
-              <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
+          <!-- AC Card -->
+          <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+            ></span>
+            <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">ARMOR CLASS</p>
+            <p id="armor" class="mt-2 text-2xl font-bold text-white">10</p>
+          </div>
+
+          <!-- Initiative Card -->
+          <div
+            class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative cursor-pointer hover:bg-[#181c2c]/40 transition"
+            onclick="rollStat('Initiative', 'dex')"
+          >
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+            ></span>
+            <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">INITIATIVE</p>
+            <p id="initiative" class="mt-2 text-2xl font-bold text-[#d4a544]">+0</p>
+          </div>
+
+          <!-- Speed Card -->
+          <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+            ></span>
+            <p class="text-[9px] uppercase tracking-wider text-[#6b7085]">SPEED</p>
+            <p id="speed" class="mt-2 text-2xl font-bold text-white">30 ft.</p>
+          </div>
+        </div>
+
+        <!-- 2-Column Grid -->
+        <div class="mt-5 grid gap-4 lg:grid-cols-[1fr_1.4fr]">
+          <!-- Left Column: Ability Scores -->
+          <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative h-fit">
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+            ></span>
+            <span
+              aria-hidden="true"
+              class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+            ></span>
+
+            <div class="mb-4 flex items-center justify-between">
+              <h4 class="text-xs font-bold text-white">ABILITY SCORES</h4>
+              <i data-lucide="bar-chart-3" class="h-4 w-4 text-[#d4a544]"></i>
+            </div>
+            <div id="abilities" class="grid grid-cols-3 gap-2"></div>
+          </div>
+
+          <!-- Right Column: Tabs & Tab Contents -->
+          <div class="flex flex-col gap-4">
+            <!-- Tabs Navigation Chips -->
+            <div class="chips-container" id="tab-chips">
+              <div class="filter-chip active" onclick="switchTab('abilities')">Abilities</div>
+              <div class="filter-chip" onclick="switchTab('skills')">Skills</div>
+              <div class="filter-chip" onclick="switchTab('actions')">Actions</div>
+              <div class="filter-chip" onclick="switchTab('inventory')">Inventory</div>
+              <div class="filter-chip" onclick="switchTab('features')">Features</div>
+              <div class="filter-chip" onclick="switchTab('proficiencies')">Proficiencies</div>
+              <div class="filter-chip" onclick="switchTab('background')">Background</div>
+              <div class="filter-chip" onclick="switchTab('notes')">Notes</div>
+            </div>
+
+            <!-- Tab Contents Container -->
+            <div class="flex-1 flex flex-col gap-4">
+              <!-- Saving Throws & Senses (grouped under Abilities tab) -->
+              <div id="section-abilities" class="tab-section space-y-4" data-tab="abilities">
+                <!-- Saving Throws -->
+                <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+                  ></span>
+                  <div class="mb-4 flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-white">SAVING THROWS</h4>
+                    <span class="text-[10px] text-[#6b7085]">PROFICIENCY</span>
+                  </div>
+                  <div id="saves" class="grid gap-2 sm:grid-cols-2"></div>
+                </div>
+
+                <!-- Senses -->
+                <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+                  ></span>
+                  <div class="mb-4 flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-white">PASSIVE SENSES</h4>
+                    <i data-lucide="eye" class="h-4 w-4 text-[#d4a544]"></i>
+                  </div>
+                  <div id="senses" class="flex justify-around gap-2 text-center w-full"></div>
+                </div>
+              </div>
+
+              <!-- Skills Tab -->
+              <div
+                id="section-skills"
+                class="tab-section hidden border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative"
+                data-tab="skills"
+              >
+                <span
+                  aria-hidden="true"
+                  class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+                ></span>
+                <span
+                  aria-hidden="true"
+                  class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+                ></span>
+                <span
+                  aria-hidden="true"
+                  class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+                ></span>
+                <span
+                  aria-hidden="true"
+                  class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+                ></span>
                 <div class="mb-4 flex items-center justify-between">
-                  <h4 class="text-xs font-bold text-white">SAVING THROWS</h4>
+                  <h4 class="text-xs font-bold text-white">SKILLS</h4>
                   <span class="text-[10px] text-[#6b7085]">PROFICIENCY</span>
                 </div>
-                <div id="saves" class="grid gap-2 sm:grid-cols-2"></div>
+                <div id="skills" class="grid gap-2 sm:grid-cols-2"></div>
               </div>
 
-              <!-- Senses -->
-              <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-                <div class="mb-4 flex items-center justify-between">
-                  <h4 class="text-xs font-bold text-white">PASSIVE SENSES</h4>
-                  <i data-lucide="eye" class="h-4 w-4 text-[#d4a544]"></i>
-                </div>
-                <div id="senses" class="flex justify-around gap-2 text-center w-full"></div>
-              </div>
-            </div>
+              <!-- Actions Tab (Weapons & Spells) -->
+              <div id="section-actions" class="tab-section hidden space-y-4" data-tab="actions">
+                <!-- Class Resources -->
+                <div
+                  id="section-resources"
+                  class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative"
+                  style="display: none"
+                ></div>
 
-            <!-- Skills Tab -->
-            <div id="section-skills" class="tab-section hidden border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative" data-tab="skills">
-              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-              <div class="mb-4 flex items-center justify-between">
-                <h4 class="text-xs font-bold text-white">SKILLS</h4>
-                <span class="text-[10px] text-[#6b7085]">PROFICIENCY</span>
-              </div>
-              <div id="skills" class="grid gap-2 sm:grid-cols-2"></div>
-            </div>
-
-            <!-- Actions Tab (Weapons & Spells) -->
-            <div id="section-actions" class="tab-section hidden space-y-4" data-tab="actions">
-              <!-- Class Resources -->
-              <div id="section-resources" class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative" style="display:none;"></div>
-              
-              <!-- Actions -->
-              <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-                <div class="mb-4 flex items-center justify-between">
-                  <h4 class="text-xs font-bold text-white">ACTIONS</h4>
-                  <span id="spell-attack-header" class="text-[9px] text-white bg-[#0a0c11] px-2 py-1 rounded border border-[#26283b] whitespace-nowrap">ATK +0 | DC 10</span>
-                </div>
-                <div class="chips-container mb-3" id="actions-chips">
-                </div>
-                <div id="spellSlots" class="mb-3"></div>
-                <div class="chips-container mb-3" id="actions-chips">
-                  <div class="filter-chip active">All</div>
-                  <div class="filter-chip">Attack</div>
-                  <div class="filter-chip">Action</div>
-                  <div class="filter-chip">Bonus Action</div>
-                  <div class="filter-chip">Reaction</div>
-                </div>
-                <div id="attacksContainer" class="space-y-2 text-sm mt-2">
-                  <div class="text-[#6b7085] italic text-xs">No weapons or spells found.</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Inventory Tab (Currencies & Equipment) -->
-            <div id="section-inventory" class="tab-section hidden space-y-4" data-tab="inventory">
-              <!-- Currencies -->
-              <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-                <div class="mb-4 flex items-center justify-between">
-                  <h4 class="text-xs font-bold text-white">CURRENCIES</h4>
-                  <i data-lucide="coins" class="h-4 w-4 text-[#d4a544]"></i>
-                </div>
-                <div class="flex justify-between items-center mb-2 px-4 w-full">
-                  <div class="flex flex-col items-center">
-                    <span class="w-8 h-8 rounded-full font-bold text-xs text-white border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#cd7f32] to-[#8b4513] cp">0</span>
-                    <span class="text-[9px] text-[#6b7085] mt-1 font-bold">CP</span>
+                <!-- Actions -->
+                <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+                  ></span>
+                  <div class="mb-4 flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-white">ACTIONS</h4>
+                    <span
+                      id="spell-attack-header"
+                      class="text-[9px] text-white bg-[#0a0c11] px-2 py-1 rounded border border-[#26283b] whitespace-nowrap"
+                      >ATK +0 | DC 10</span
+                    >
                   </div>
-                  <div class="flex flex-col items-center">
-                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0a0f] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#e0e0e0] to-[#808080] sp">0</span>
-                    <span class="text-[9px] text-[#6b7085] mt-1 font-bold">SP</span>
+                  <div class="chips-container mb-3" id="actions-chips"></div>
+                  <div id="spellSlots" class="mb-3"></div>
+                  <div class="chips-container mb-3" id="actions-chips">
+                    <div class="filter-chip active">All</div>
+                    <div class="filter-chip">Attack</div>
+                    <div class="filter-chip">Action</div>
+                    <div class="filter-chip">Bonus Action</div>
+                    <div class="filter-chip">Reaction</div>
                   </div>
-                  <div class="flex flex-col items-center">
-                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#4a3600] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#ffd700] to-[#b8860b] gp">0</span>
-                    <span class="text-[9px] text-[#6b7085] mt-1 font-bold">GP</span>
-                  </div>
-                  <div class="flex flex-col items-center">
-                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#073211] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#cfe3c7] to-[#6fbf8c] ep">0</span>
-                    <span class="text-[9px] text-[#6b7085] mt-1 font-bold">EP</span>
-                  </div>
-                  <div class="flex flex-col items-center">
-                    <span class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0a0f] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#f5f5f5] to-[#a9a9a9] pp">0</span>
-                    <span class="text-[9px] text-[#6b7085] mt-1 font-bold">PP</span>
+                  <div id="attacksContainer" class="space-y-2 text-sm mt-2">
+                    <div class="text-[#6b7085] italic text-xs">No weapons or spells found.</div>
                   </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3 w-full mt-4">
-                  <button class="rounded-md bg-[#d4a544] py-2.5 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition" onclick="openHpModal()">HEAL / DMG</button>
-                  <button class="rounded-md border border-[#26283b] bg-[#11131f] py-2.5 text-xs font-bold text-[#a1a7bc] hover:bg-[#181c2c] transition" onclick="location.href='/vtt?room=character-'+(character?.id||'')">OPEN VTT</button>
+              </div>
+
+              <!-- Inventory Tab (Currencies & Equipment) -->
+              <div id="section-inventory" class="tab-section hidden space-y-4" data-tab="inventory">
+                <!-- Currencies -->
+                <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+                  ></span>
+                  <div class="mb-4 flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-white">CURRENCIES</h4>
+                    <i data-lucide="coins" class="h-4 w-4 text-[#d4a544]"></i>
+                  </div>
+                  <div class="flex justify-between items-center mb-2 px-4 w-full">
+                    <div class="flex flex-col items-center">
+                      <span
+                        class="w-8 h-8 rounded-full font-bold text-xs text-white border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#cd7f32] to-[#8b4513] cp"
+                        >0</span
+                      >
+                      <span class="text-[9px] text-[#6b7085] mt-1 font-bold">CP</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                      <span
+                        class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0a0f] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#e0e0e0] to-[#808080] sp"
+                        >0</span
+                      >
+                      <span class="text-[9px] text-[#6b7085] mt-1 font-bold">SP</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                      <span
+                        class="w-8 h-8 rounded-full font-bold text-xs text-[#4a3600] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#ffd700] to-[#b8860b] gp"
+                        >0</span
+                      >
+                      <span class="text-[9px] text-[#6b7085] mt-1 font-bold">GP</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                      <span
+                        class="w-8 h-8 rounded-full font-bold text-xs text-[#073211] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#cfe3c7] to-[#6fbf8c] ep"
+                        >0</span
+                      >
+                      <span class="text-[9px] text-[#6b7085] mt-1 font-bold">EP</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                      <span
+                        class="w-8 h-8 rounded-full font-bold text-xs text-[#0a0a0f] border border-[#26283b] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#f5f5f5] to-[#a9a9a9] pp"
+                        >0</span
+                      >
+                      <span class="text-[9px] text-[#6b7085] mt-1 font-bold">PP</span>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3 w-full mt-4">
+                    <button
+                      class="rounded-md bg-[#d4a544] py-2.5 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition"
+                      onclick="openHpModal()"
+                    >
+                      HEAL / DMG
+                    </button>
+                    <button
+                      class="rounded-md border border-[#26283b] bg-[#11131f] py-2.5 text-xs font-bold text-[#a1a7bc] hover:bg-[#181c2c] transition"
+                      onclick="location.href = '/vtt?room=character-' + (character?.id || '')"
+                    >
+                      OPEN VTT
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Equipment -->
+                <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+                  ></span>
+                  <div class="mb-4 flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-white">EQUIPMENT</h4>
+                    <div id="weight-text" class="text-[10px] text-[#a1a7bc] font-bold">
+                      WEIGHT: 0 lb
+                    </div>
+                  </div>
+                  <div
+                    class="w-full bg-[#0a0c11] rounded h-2 mb-3 border border-[#26283b] overflow-hidden"
+                  >
+                    <div
+                      id="weight-bar"
+                      class="h-full bg-[#d4a544]"
+                      style="
+                        width: 0%;
+                        transition:
+                          width 0.3s,
+                          background 0.3s;
+                      "
+                    ></div>
+                  </div>
+                  <input
+                    type="text"
+                    id="inventorySearch"
+                    class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2 text-xs text-white outline-none placeholder:text-[#555b70] mb-3"
+                    placeholder="Search items..."
+                  />
+                  <div class="chips-container mb-3" id="inventory-chips">
+                    <div class="filter-chip active">All</div>
+                    <div class="filter-chip">Equipment</div>
+                    <div class="filter-chip">Backpack</div>
+                  </div>
+                  <div id="equipment" class="space-y-1 mt-2 w-full"></div>
                 </div>
               </div>
 
-              <!-- Equipment -->
-              <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-                <div class="mb-4 flex items-center justify-between">
-                  <h4 class="text-xs font-bold text-white">EQUIPMENT</h4>
-                  <div id="weight-text" class="text-[10px] text-[#a1a7bc] font-bold">WEIGHT: 0 lb</div>
-                </div>
-                <div class="w-full bg-[#0a0c11] rounded h-2 mb-3 border border-[#26283b] overflow-hidden">
-                   <div id="weight-bar" class="h-full bg-[#d4a544]" style="width:0%; transition: width 0.3s, background 0.3s;"></div>
-                </div>
-                <input type="text" id="inventorySearch" class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2 text-xs text-white outline-none placeholder:text-[#555b70] mb-3" placeholder="Search items...">
-                <div class="chips-container mb-3" id="inventory-chips">
-                  <div class="filter-chip active">All</div>
-                  <div class="filter-chip">Equipment</div>
-                  <div class="filter-chip">Backpack</div>
-                </div>
-                <div id="equipment" class="space-y-1 mt-2 w-full"></div>
-              </div>
-            </div>
-
-            <!-- Features Tab -->
-            <div id="section-features" class="tab-section hidden space-y-4" data-tab="features">
-              <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-                <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-                <div class="mb-4 flex items-center justify-between">
-                  <h4 class="text-xs font-bold text-white">FEATURES & TRAITS</h4>
-                </div>
-                <div class="chips-container mb-3" id="features-chips">
-                  <div class="filter-chip active">All</div>
-                  <div class="filter-chip">Class Features</div>
-                  <div class="filter-chip">Species Traits</div>
-                  <div class="filter-chip">Feats</div>
-                </div>
-                <div id="featuresList" class="space-y-4 text-sm mt-2">
-                   <div class="text-[#6b7085] italic text-xs">Features imported from D&D Beyond will appear here.</div>
+              <!-- Features Tab -->
+              <div id="section-features" class="tab-section hidden space-y-4" data-tab="features">
+                <div class="border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative">
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+                  ></span>
+                  <span
+                    aria-hidden="true"
+                    class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+                  ></span>
+                  <div class="mb-4 flex items-center justify-between">
+                    <h4 class="text-xs font-bold text-white">FEATURES & TRAITS</h4>
+                  </div>
+                  <div class="chips-container mb-3" id="features-chips">
+                    <div class="filter-chip active">All</div>
+                    <div class="filter-chip">Class Features</div>
+                    <div class="filter-chip">Species Traits</div>
+                    <div class="filter-chip">Feats</div>
+                  </div>
+                  <div id="featuresList" class="space-y-4 text-sm mt-2">
+                    <div class="text-[#6b7085] italic text-xs">
+                      Features imported from D&D Beyond will appear here.
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Proficiencies Tab -->
-            <div id="section-proficiencies" class="tab-section hidden border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative" data-tab="proficiencies">
-              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"></span>
-              <h2 class="text-xs font-bold uppercase tracking-wider text-[#e4c183] border-b border-[#26283b] pb-2 mb-4">Proficiencies & Training</h2>
-              <div class="text-xs space-y-2 text-[#a1a7bc]" id="proficienciesContainer">
-                 <div class="text-[#6b7085] italic text-xs">No proficiency data available.</div>
+              <!-- Proficiencies Tab -->
+              <div
+                id="section-proficiencies"
+                class="tab-section hidden border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative"
+                data-tab="proficiencies"
+              >
+                <span
+                  aria-hidden="true"
+                  class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+                ></span>
+                <span
+                  aria-hidden="true"
+                  class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+                ></span>
+                <span
+                  aria-hidden="true"
+                  class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+                ></span>
+                <span
+                  aria-hidden="true"
+                  class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r border-b"
+                ></span>
+                <h2
+                  class="text-xs font-bold uppercase tracking-wider text-[#e4c183] border-b border-[#26283b] pb-2 mb-4"
+                >
+                  Proficiencies & Training
+                </h2>
+                <div class="text-xs space-y-2 text-[#a1a7bc]" id="proficienciesContainer">
+                  <div class="text-[#6b7085] italic text-xs">No proficiency data available.</div>
+                </div>
               </div>
-            </div>
 
-            <!-- Background Tab -->
-            <div id="section-background" class="tab-section hidden border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative" data-tab="background">
-              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"></span>
-              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"></span>
-              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"></span>
-              <span aria-hidden="true" class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r-2 border-b-2"></span>
-              <div id="backgroundContainer">
-                <h2 class="text-xs font-bold uppercase tracking-wider text-[#e4c183] border-b border-[#26283b] pb-2 mb-4">Background</h2>
-                <div class="text-xs text-[#6b7085] italic">Background details imported from D&DB will appear here.</div>
+              <!-- Background Tab -->
+              <div
+                id="section-background"
+                class="tab-section hidden border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative"
+                data-tab="background"
+              >
+                <span
+                  aria-hidden="true"
+                  class="absolute h-2 w-2 border-[#d4a544] top-1 left-1 border-t border-l"
+                ></span>
+                <span
+                  aria-hidden="true"
+                  class="absolute h-2 w-2 border-[#d4a544] top-1 right-1 border-t border-r"
+                ></span>
+                <span
+                  aria-hidden="true"
+                  class="absolute h-2 w-2 border-[#d4a544] bottom-1 left-1 border-b border-l"
+                ></span>
+                <span
+                  aria-hidden="true"
+                  class="absolute h-2 w-2 border-[#d4a544] right-1 bottom-1 border-r-2 border-b-2"
+                ></span>
+                <div id="backgroundContainer">
+                  <h2
+                    class="text-xs font-bold uppercase tracking-wider text-[#e4c183] border-b border-[#26283b] pb-2 mb-4"
+                  >
+                    Background
+                  </h2>
+                  <div class="text-xs text-[#6b7085] italic">
+                    Background details imported from D&DB will appear here.
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Notes Tab -->
-            <div id="section-notes" class="tab-section hidden border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative" data-tab="notes">
-              <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
-              <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
-              <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
-              <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
-              <h2 class="text-xs font-bold uppercase tracking-wider text-[#e4c183] border-b border-[#26283b] pb-2 mb-4">Notes</h2>
-              <textarea id="charNotes" class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544] min-h-[120px] resize-vertical" placeholder="Add character biography or notes here..."></textarea>
-              <button class="w-full mt-3 rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition" id="saveNotesBtn">Save Notes</button>
+              <!-- Notes Tab -->
+              <div
+                id="section-notes"
+                class="tab-section hidden border border-[#26283b] bg-[#11131f] rounded-lg p-4 relative"
+                data-tab="notes"
+              >
+                <span
+                  aria-hidden="true"
+                  class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"
+                ></span>
+                <span
+                  aria-hidden="true"
+                  class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"
+                ></span>
+                <span
+                  aria-hidden="true"
+                  class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"
+                ></span>
+                <span
+                  aria-hidden="true"
+                  class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"
+                ></span>
+                <h2
+                  class="text-xs font-bold uppercase tracking-wider text-[#e4c183] border-b border-[#26283b] pb-2 mb-4"
+                >
+                  Notes
+                </h2>
+                <textarea
+                  id="charNotes"
+                  class="w-full rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2.5 text-xs text-white outline-none focus:border-[#d4a544] min-h-[120px] resize-vertical"
+                  placeholder="Add character biography or notes here..."
+                ></textarea>
+                <button
+                  class="w-full mt-3 rounded-md bg-[#d4a544] py-3 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition"
+                  id="saveNotesBtn"
+                >
+                  Save Notes
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Padding for bottom FABs -->
+      <div style="height: 100px; width: 100%"></div>
+    </main>
+
+    <!-- Floating Action Buttons -->
+    <div class="fixed bottom-6 right-6 flex gap-3 z-50">
+      <div
+        class="w-12 h-12 rounded-full border border-[#26283b] bg-[#11131f] flex items-center justify-center text-lg text-white hover:bg-[#181c2c] transition shadow-lg cursor-pointer"
+        id="fabDiceBtn"
+        title="Dice Roller"
+        onclick="openDiceModal()"
+      >
+        🎲
+      </div>
+      <div
+        class="w-12 h-12 rounded-full border border-[#26283b] bg-[#11131f] flex items-center justify-center text-lg text-white hover:bg-[#181c2c] transition shadow-lg cursor-pointer"
+        onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+        title="Scroll Top"
+      >
+        ▲
+      </div>
     </div>
 
-    <!-- Padding for bottom FABs -->
-    <div style="height: 100px; width: 100%;"></div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/js/components.js"></script>
 
-  </main>
+    <script>
+      lucide.createIcons();
 
-  <!-- Floating Action Buttons -->
-  <div class="fixed bottom-6 right-6 flex gap-3 z-50">
-    <div class="w-12 h-12 rounded-full border border-[#26283b] bg-[#11131f] flex items-center justify-center text-lg text-white hover:bg-[#181c2c] transition shadow-lg cursor-pointer" id="fabDiceBtn" title="Dice Roller" onclick="openDiceModal()">🎲</div>
-    <div class="w-12 h-12 rounded-full border border-[#26283b] bg-[#11131f] flex items-center justify-center text-lg text-white hover:bg-[#181c2c] transition shadow-lg cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll Top">▲</div>
-  </div>
+      // Set Header Username
+      const savedUsername = localStorage.getItem('username') || 'Player';
+      const headerUsernameEl = document.getElementById('headerUsername');
+      if (headerUsernameEl) {
+        headerUsernameEl.textContent = savedUsername;
+      }
 
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="/js/components.js"></script>
-  
-  <script>
-    lucide.createIcons();
+      window.switchTab = function (tabName) {
+        // 1. Hide all tab sections
+        document.querySelectorAll('.tab-section').forEach((el) => {
+          el.classList.add('hidden');
+          el.style.display = 'none';
+        });
+        // 2. Show the matching tab sections
+        document.querySelectorAll('.tab-section[data-tab="' + tabName + '"]').forEach((el) => {
+          el.classList.remove('hidden');
+          el.style.display = 'block';
+        });
+        // 3. Update active state on tab chips
+        document.querySelectorAll('#tab-chips .filter-chip').forEach((chip) => {
+          const name = chip.textContent.trim().toLowerCase();
+          if (name === tabName) {
+            chip.classList.add('active');
+          } else {
+            chip.classList.remove('active');
+          }
+        });
+      };
 
-    // Set Header Username
-    const savedUsername = localStorage.getItem('username') || 'Player';
-    const headerUsernameEl = document.getElementById('headerUsername');
-    if (headerUsernameEl) {
-      headerUsernameEl.textContent = savedUsername;
-    }
-
-    window.switchTab = function(tabName) {
-      // 1. Hide all tab sections
-      document.querySelectorAll('.tab-section').forEach(el => {
-        el.classList.add('hidden');
-        el.style.display = 'none';
-      });
-      // 2. Show the matching tab sections
-      document.querySelectorAll('.tab-section[data-tab="'+tabName+'"]').forEach(el => {
-        el.classList.remove('hidden');
-        el.style.display = 'block';
-      });
-      // 3. Update active state on tab chips
-      document.querySelectorAll('#tab-chips .filter-chip').forEach(chip => {
-        const name = chip.textContent.trim().toLowerCase();
-        if (name === tabName) {
-          chip.classList.add('active');
-        } else {
-          chip.classList.remove('active');
+      // VTT App Logic
+      const socket = io();
+      socket.on('character-updated', (updated) => {
+        if (character && String(updated.id) === String(character.id)) {
+          character = updated;
+          render(character);
         }
       });
-    };
 
-    // VTT App Logic
-    const socket = io();
-    socket.on('character-updated', updated => {
-      if(character && String(updated.id) === String(character.id)) {
-        character = updated; render(character);
-      }
-    });
-    
-    let character = null;
-    const parts = location.pathname.split('/');
-    const username = parts[1];
-    const characterId = parts[4];
-    const keys = ['str','dex','con','int','wis','cha'];
-    const labels = {str:'STRENGTH',dex:'DEXTERITY',con:'CONSTITUTION',int:'INTELLIGENCE',wis:'WISDOM',cha:'CHARISMA'};
-    const skillMap = {Acrobatics:'dex','Animal Handling':'wis',Arcana:'int',Athletics:'str',Deception:'cha',History:'int',Insight:'wis',Intimidation:'cha',Investigation:'int',Medicine:'wis',Nature:'int',Perception:'wis',Performance:'cha',Persuasion:'cha',Religion:'int','Sleight of Hand':'dex',Stealth:'dex',Survival:'wis'};
-    
-    const signed = n => n >= 0 ? '+'+n : n;
-    
-    async function load() {
-      try{
-        // Endpoint: GET /api/v2/character/:id/sheet
-        let r = await fetch('/api/v2/character/'+encodeURIComponent(characterId)+'/sheet');
-        if(!r.ok) throw Error('Character not found or unavailable.');
-        character = await r.json();
-        render(character);
-      } catch(e) {
-        document.getElementById('loading').style.display='none';
-        const err = document.getElementById('error');
-        err.textContent = e.message; err.style.display='block';
-      }
-    }
-    
-    function sendRoll(formula, name) {
-      if(!character) return;
-      const parsed = parseFormula(formula);
-      if(!parsed) return;
-      socket.emit('send-roll', {
-        roomId: `character-${character.id}`,
-        characterId: String(character.id),
-        characterName: character.name,
-        characterAvatar: character.avatarUrl,
-        rollName: name,
-        formula: parsed.formula,
-        result: parsed.result,
-        rolls: parsed.rolls,
-        modifier: parsed.modifier
-      });
-      VTT.Notification?.info(`Rolled ${name}: ${parsed.result}`);
-    }
-    
-    function parseFormula(formula) {
-      const match = formula.replace(/\s+/g,'').match(/^(\d*)d(\d+)([\+\-]\d+)?$/);
-      if(!match) return null;
-      const count = match[1]?parseInt(match[1]):1;
-      const sides = parseInt(match[2]);
-      const mod = match[3]?parseInt(match[3]):0;
-      let total = mod;
-      let rolls = [];
-      for(let i=0;i<count;i++){
-        let r=Math.floor(Math.random()*sides)+1;
-        rolls.push(r); total+=r;
-      }
-      return { formula, result: total, rolls, modifier: mod };
-    }
-    
-    window.rollStat = function(name, stat) {
-       sendRoll(`1d20${signed(character.modifiers[stat])}`, `${name} Check`);
-    };
+      let character = null;
+      const parts = location.pathname.split('/');
+      const username = parts[1];
+      const characterId = parts[4];
+      const keys = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+      const labels = {
+        str: 'STRENGTH',
+        dex: 'DEXTERITY',
+        con: 'CONSTITUTION',
+        int: 'INTELLIGENCE',
+        wis: 'WISDOM',
+        cha: 'CHARISMA',
+      };
+      const skillMap = {
+        Acrobatics: 'dex',
+        'Animal Handling': 'wis',
+        Arcana: 'int',
+        Athletics: 'str',
+        Deception: 'cha',
+        History: 'int',
+        Insight: 'wis',
+        Intimidation: 'cha',
+        Investigation: 'int',
+        Medicine: 'wis',
+        Nature: 'int',
+        Perception: 'wis',
+        Performance: 'cha',
+        Persuasion: 'cha',
+        Religion: 'int',
+        'Sleight of Hand': 'dex',
+        Stealth: 'dex',
+        Survival: 'wis',
+      };
 
-    function render(c) {
-      document.getElementById('loading').style.display='none';
-      document.getElementById('content').style.display='flex';
-      
-      const profBonus = 2 + Math.floor((c.level-1)/4);
-      const canEdit = Boolean(localStorage.getItem('token'));
-      
-      // Manage button visibility
-      if(!canEdit) {
-        const manageBtn = document.getElementById('manageBtn');
-        if(manageBtn) manageBtn.style.display = 'none';
-      }
 
-      // Basic Info
-      document.getElementById('avatar').src = c.avatarUrl || '';
-      document.getElementById('name').textContent = c.name;
-      document.getElementById('meta').textContent = c.race+' · '+c.classes.map(x=>x.name).join(' / ');
-      document.getElementById('level').textContent = 'LEVEL '+c.level;
-      document.getElementById('alignment').textContent = c.alignment || 'True Neutral';
-      document.getElementById('xp').textContent = (c.xp || 0) + ' XP';
-      
-      // Inspiration toggle
-      const inspBtn = document.getElementById('inspirationBtn');
-      if(inspBtn) {
-        if(c.inspiration) {
-          inspBtn.classList.add('border-[#d4a544]', 'text-[#d4a544]');
-          inspBtn.classList.remove('border-[#26283b]', 'text-[#a1a7bc]');
-        } else {
-          inspBtn.classList.remove('border-[#d4a544]', 'text-[#d4a544]');
-          inspBtn.classList.add('border-[#26283b]', 'text-[#a1a7bc]');
+      async function load() {
+        try {
+          // Endpoint: GET /api/v2/character/:id/sheet
+          let r = await fetch('/api/v2/character/' + encodeURIComponent(characterId) + '/sheet');
+          if (!r.ok) throw Error('Character not found or unavailable.');
+          character = await r.json();
+          render(character);
+        } catch (e) {
+          document.getElementById('loading').style.display = 'none';
+          const err = document.getElementById('error');
+          err.textContent = e.message;
+          err.style.display = 'block';
         }
-        inspBtn.onclick = () => {
-          if(!canEdit) return;
-          updateSheet({inspiration: !c.inspiration});
-        };
       }
 
-      // HP & Temp HP
-      document.getElementById('hp-current').textContent = c.hp.current;
-      document.getElementById('hp-max').textContent = c.hp.max;
-      if(c.hp.temp > 0) document.getElementById('hp-temp').textContent = `+${c.hp.temp} TMP`;
-      else document.getElementById('hp-temp').textContent = '';
-      
-      let hpPct = Math.min(100, Math.max(0, (c.hp.current / c.hp.max) * 100));
-      const bar = document.getElementById('hp-bar');
-      bar.style.width = hpPct + '%';
-      
-      // Top Stats
-      document.getElementById('initiative').textContent = signed(c.modifiers.dex);
-       
-      // Death Saves UI
-      const dsEl = document.getElementById('deathSaves');
-      if (dsEl) {
-        const ds = c.deathSaves || { successes: 0, failures: 0 };
-        const suc = Array.from({length:3}).map((_,i) => {
-          const active = i < (ds.successes || 0);
-          if (canEdit) return `<button class="w-3 h-3 inline-block rounded-full ${active ? 'bg-green-500' : 'border border-[#6b7085] bg-transparent'} mx-1" onclick="toggleDeathSave('success', ${i})" title="Success ${i+1}"></button>`;
-          return `<span class="inline-block mx-1 ${active ? 'text-green-500' : 'text-[#6b7085]'}">${active ? '●' : '○'}</span>`;
-        }).join('');
-        const fail = Array.from({length:3}).map((_,i) => {
-          const active = i < (ds.failures || 0);
-          if (canEdit) return `<button class="w-3 h-3 inline-block rounded-full ${active ? 'bg-red-500' : 'border border-[#6b7085] bg-transparent'} mx-1" onclick="toggleDeathSave('failure', ${i})" title="Failure ${i+1}"></button>`;
-          return `<span class="inline-block mx-1 ${active ? 'text-red-500' : 'text-[#6b7085]'}">${active ? '●' : '○'}</span>`;
-        }).join('');
-        dsEl.innerHTML = `<div class="text-[9px] text-[#6b7085] font-bold mb-1">Death Saves</div><div class="flex items-center"> <div class="mr-3">Success: ${suc}</div> <div>Failure: ${fail}</div></div>`;
+      function sendRoll(formula, name) {
+        if (!character) return;
+        const parsed = parseFormula(formula);
+        if (!parsed) return;
+        socket.emit('send-roll', {
+          roomId: `character-${character.id}`,
+          characterId: String(character.id),
+          characterName: character.name,
+          characterAvatar: character.avatarUrl,
+          rollName: name,
+          formula: parsed.formula,
+          result: parsed.result,
+          rolls: parsed.rolls,
+          modifier: parsed.modifier,
+        });
+        VTT.Notification?.info(`Rolled ${name}: ${parsed.result}`);
       }
-       
-      // Armor Class logic (c.ac fallback)
-      let ac = c.ac;
-      if (ac === undefined || ac === null) {
-         const armorItem = (c.equipment || []).find(i => i.type === 'armor' && i.equipped);
-         const shieldItem = (c.equipment || []).find(i => i.type === 'shield' && i.equipped);
-         ac = (armorItem ? (armorItem.ac || 10) : 10) + c.modifiers.dex + (shieldItem ? 2 : 0);
-      }
-      document.getElementById('armor').textContent = ac;
-      document.getElementById('speed').textContent = (c.speed || 30) + ' ft.';
-      
-      const spellDC = 8 + profBonus + Math.max(c.modifiers.int, c.modifiers.wis, c.modifiers.cha);
-      const spellAtk = signed(profBonus + Math.max(c.modifiers.int, c.modifiers.wis, c.modifiers.cha));
-      document.getElementById('spell-attack-header').textContent = `ATK ${spellAtk} | DC ${spellDC}`;
 
-      // Wealth
-      if(c.currencies) {
-        document.querySelector('.cp').textContent = c.currencies.cp||0;
-        document.querySelector('.sp').textContent = c.currencies.sp||0;
-        document.querySelector('.ep').textContent = c.currencies.ep||0;
-        document.querySelector('.gp').textContent = c.currencies.gp||0;
-        document.querySelector('.pp').textContent = c.currencies.pp||0;
+      function parseFormula(formula) {
+        const match = formula.replace(/\s+/g, '').match(/^(\d*)d(\d+)([\+\-]\d+)?$/);
+        if (!match) return null;
+        const count = match[1] ? parseInt(match[1]) : 1;
+        const sides = parseInt(match[2]);
+        const mod = match[3] ? parseInt(match[3]) : 0;
+        let total = mod;
+        let rolls = [];
+        for (let i = 0; i < count; i++) {
+          let r = Math.floor(Math.random() * sides) + 1;
+          rolls.push(r);
+          total += r;
+        }
+        return { formula, result: total, rolls, modifier: mod };
       }
-      
-      if (canEdit) {
-        ['cp','sp','ep','gp','pp'].forEach(type => {
-          document.querySelector('.'+type).onclick = () => {
-            const content = `
+
+      window.rollStat = function (name, stat) {
+        sendRoll(`1d20${signed(character.modifiers[stat])}`, `${name} Check`);
+      };
+
+      function render(c) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'flex';
+
+        const profBonus = 2 + Math.floor((c.level - 1) / 4);
+        const canEdit = Boolean(localStorage.getItem('token'));
+
+        // Manage button visibility
+        if (!canEdit) {
+          const manageBtn = document.getElementById('manageBtn');
+          if (manageBtn) manageBtn.style.display = 'none';
+        }
+
+        // Basic Info
+        document.getElementById('avatar').src = c.avatarUrl || '';
+        document.getElementById('name').textContent = c.name;
+        document.getElementById('meta').textContent =
+          c.race + ' · ' + c.classes.map((x) => x.name).join(' / ');
+        document.getElementById('level').textContent = 'LEVEL ' + c.level;
+        document.getElementById('alignment').textContent = c.alignment || 'True Neutral';
+        document.getElementById('xp').textContent = (c.xp || 0) + ' XP';
+
+        // Inspiration toggle
+        const inspBtn = document.getElementById('inspirationBtn');
+        if (inspBtn) {
+          if (c.inspiration) {
+            inspBtn.classList.add('border-[#d4a544]', 'text-[#d4a544]');
+            inspBtn.classList.remove('border-[#26283b]', 'text-[#a1a7bc]');
+          } else {
+            inspBtn.classList.remove('border-[#d4a544]', 'text-[#d4a544]');
+            inspBtn.classList.add('border-[#26283b]', 'text-[#a1a7bc]');
+          }
+          inspBtn.onclick = () => {
+            if (!canEdit) return;
+            updateSheet({ inspiration: !c.inspiration });
+          };
+        }
+
+        // HP & Temp HP
+        document.getElementById('hp-current').textContent = c.hp.current;
+        document.getElementById('hp-max').textContent = c.hp.max;
+        if (c.hp.temp > 0) document.getElementById('hp-temp').textContent = `+${c.hp.temp} TMP`;
+        else document.getElementById('hp-temp').textContent = '';
+
+        let hpPct = Math.min(100, Math.max(0, (c.hp.current / c.hp.max) * 100));
+        const bar = document.getElementById('hp-bar');
+        bar.style.width = hpPct + '%';
+
+        // Top Stats
+        document.getElementById('initiative').textContent = signed(c.modifiers.dex);
+
+        // Death Saves UI
+        const dsEl = document.getElementById('deathSaves');
+        if (dsEl) {
+          const ds = c.deathSaves || { successes: 0, failures: 0 };
+          const suc = Array.from({ length: 3 })
+            .map((_, i) => {
+              const active = i < (ds.successes || 0);
+              if (canEdit)
+                return `<button class="w-3 h-3 inline-block rounded-full ${active ? 'bg-green-500' : 'border border-[#6b7085] bg-transparent'} mx-1" onclick="toggleDeathSave('success', ${i})" title="Success ${i + 1}"></button>`;
+              return `<span class="inline-block mx-1 ${active ? 'text-green-500' : 'text-[#6b7085]'}">${active ? '●' : '○'}</span>`;
+            })
+            .join('');
+          const fail = Array.from({ length: 3 })
+            .map((_, i) => {
+              const active = i < (ds.failures || 0);
+              if (canEdit)
+                return `<button class="w-3 h-3 inline-block rounded-full ${active ? 'bg-red-500' : 'border border-[#6b7085] bg-transparent'} mx-1" onclick="toggleDeathSave('failure', ${i})" title="Failure ${i + 1}"></button>`;
+              return `<span class="inline-block mx-1 ${active ? 'text-red-500' : 'text-[#6b7085]'}">${active ? '●' : '○'}</span>`;
+            })
+            .join('');
+          dsEl.innerHTML = `<div class="text-[9px] text-[#6b7085] font-bold mb-1">Death Saves</div><div class="flex items-center"> <div class="mr-3">Success: ${suc}</div> <div>Failure: ${fail}</div></div>`;
+        }
+
+        // Armor Class logic (c.ac fallback)
+        let ac = c.ac;
+        if (ac === undefined || ac === null) {
+          const armorItem = (c.equipment || []).find((i) => i.type === 'armor' && i.equipped);
+          const shieldItem = (c.equipment || []).find((i) => i.type === 'shield' && i.equipped);
+          ac = (armorItem ? armorItem.ac || 10 : 10) + c.modifiers.dex + (shieldItem ? 2 : 0);
+        }
+        document.getElementById('armor').textContent = ac;
+        document.getElementById('speed').textContent = (c.speed || 30) + ' ft.';
+
+        const spellDC = 8 + profBonus + Math.max(c.modifiers.int, c.modifiers.wis, c.modifiers.cha);
+        const spellAtk = signed(
+          profBonus + Math.max(c.modifiers.int, c.modifiers.wis, c.modifiers.cha),
+        );
+        document.getElementById('spell-attack-header').textContent =
+          `ATK ${spellAtk} | DC ${spellDC}`;
+
+        // Wealth
+        if (c.currencies) {
+          document.querySelector('.cp').textContent = c.currencies.cp || 0;
+          document.querySelector('.sp').textContent = c.currencies.sp || 0;
+          document.querySelector('.ep').textContent = c.currencies.ep || 0;
+          document.querySelector('.gp').textContent = c.currencies.gp || 0;
+          document.querySelector('.pp').textContent = c.currencies.pp || 0;
+        }
+
+        if (canEdit) {
+          ['cp', 'sp', 'ep', 'gp', 'pp'].forEach((type) => {
+            document.querySelector('.' + type).onclick = () => {
+              const content = `
               <div class="flex flex-col gap-3">
                 <label class="text-xs font-bold text-[#a1a7bc]">Amount (${type.toUpperCase()})</label>
-                <input type="number" id="currencyInput" class="w-full bg-[#0a0c11] border border-[#26283b] text-white text-center text-lg p-2 rounded outline-none focus:border-[#d4a544]" value="${character.currencies?.[type]||0}" min="0">
+                <input type="number" id="currencyInput" class="w-full bg-[#0a0c11] border border-[#26283b] text-white text-center text-lg p-2 rounded outline-none focus:border-[#d4a544]" value="${character.currencies?.[type] || 0}" min="0">
                 <button class="w-full rounded bg-[#d4a544] py-2 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183]" onclick="saveCurrency('${type}')">Save</button>
               </div>`;
-            new VTT.Modal({ title: `Edit ${type.toUpperCase()}`, content, buttons: [] }).open();
-          };
-        });
-      }
+              new VTT.Modal({ title: `Edit ${type.toUpperCase()}`, content, buttons: [] }).open();
+            };
+          });
+        }
 
-      // Class Resources
-      const sectionRes = document.getElementById('section-resources');
-      if (c.resources && c.resources.length > 0) {
-        sectionRes.style.display = 'block';
-        sectionRes.innerHTML = `
+        // Class Resources
+        const sectionRes = document.getElementById('section-resources');
+        if (c.resources && c.resources.length > 0) {
+          sectionRes.style.display = 'block';
+          sectionRes.innerHTML = `
           <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 left-1.5 border-t-2 border-l-2"></span>
           <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] top-1.5 right-1.5 border-t-2 border-r-2"></span>
           <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] bottom-1.5 left-1.5 border-b-2 border-l-2"></span>
           <span aria-hidden="true" class="absolute h-3 w-3 border-[#d4a544] right-1.5 bottom-1.5 border-r-2 border-b-2"></span>
           <h2 class="text-xs font-bold uppercase tracking-wider text-[#e4c183] border-b border-[#26283b] pb-2 mb-4">Resources</h2>
           <div class="space-y-3">
-            ${c.resources.map((r, i) => `
+            ${c.resources
+              .map(
+                (r, i) => `
               <div class="flex justify-between items-center bg-[#0a0c11] p-2.5 rounded border border-[#26283b] hover:bg-[#181c2c]/20 transition">
                  <div class="text-xs font-bold text-white">${r.name} <span class="text-[9px] text-[#6b7085] font-normal ml-1">(${r.resetOn || 'Rest'})</span></div>
                  <div class="flex gap-1 flex-wrap justify-end" style="max-width: 50%;">
-                   ${Array.from({length: Math.min(20, r.max || 0)}).map((_, j) => `
-                     <div class="w-2.5 h-2.5 rounded-full border cursor-pointer transition ${j < (r.current||0) ? 'border-[#d4a544] bg-[#d4a544]' : 'border-[#6b7085] bg-transparent'}" onclick="consumeResource(${i}, ${j})" style="margin-right:2px;"></div>
-                   `).join('')}
+                   ${Array.from({ length: Math.min(20, r.max || 0) })
+                     .map(
+                       (_, j) => `
+                     <div class="w-2.5 h-2.5 rounded-full border cursor-pointer transition ${j < (r.current || 0) ? 'border-[#d4a544] bg-[#d4a544]' : 'border-[#6b7085] bg-transparent'}" onclick="consumeResource(${i}, ${j})" style="margin-right:2px;"></div>
+                   `,
+                     )
+                     .join('')}
                  </div>
               </div>
-            `).join('')}
+            `,
+              )
+              .join('')}
           </div>`;
-      } else {
-        sectionRes.style.display = 'none';
-      }
+        } else {
+          sectionRes.style.display = 'none';
+        }
 
-      // Abilities
-      document.getElementById('abilities').innerHTML = keys.map(k =>
-        `<div class="rounded-md bg-[#0a0c11] p-3 text-center border border-[#26283b] hover:border-[#d4a544] transition cursor-pointer" onclick="rollStat('${labels[k]}','${k}')">
+        // Abilities
+        document.getElementById('abilities').innerHTML = keys
+          .map(
+            (k) =>
+              `<div class="rounded-md bg-[#0a0c11] p-3 text-center border border-[#26283b] hover:border-[#d4a544] transition cursor-pointer" onclick="rollStat('${labels[k]}','${k}')">
           <div class="text-[9px] text-[#6b7085] uppercase tracking-wider leading-none mb-1 text-center truncate">${labels[k]}</div>
           <div class="text-lg font-bold text-white my-0.5">${signed(c.modifiers[k])}</div>
           <div class="text-[9px] text-[#d4a544] font-bold mt-0.5">${c.stats[k]}</div>
-        </div>`
-      ).join('');
-      
-      // Saves
-      document.getElementById('saves').innerHTML = keys.map(k => {
-        let isProf = c.proficiencies?.saves?.includes(k);
-        let mod = c.modifiers[k] + (isProf ? profBonus : 0);
-        return `
+        </div>`,
+          )
+          .join('');
+
+        // Saves
+        document.getElementById('saves').innerHTML = keys
+          .map((k) => {
+            let isProf = c.proficiencies?.saves?.includes(k);
+            let mod = c.modifiers[k] + (isProf ? profBonus : 0);
+            return `
         <div class="flex items-center justify-between rounded bg-[#0a0c11] px-3 py-2 text-[10px] text-[#a1a7bc] border border-[#26283b]/50 hover:bg-[#181c2c]/30 transition cursor-pointer mb-2" onclick="sendRoll('1d20${signed(mod)}', '${labels[k]} Save')">
           <span class="text-xs text-white flex items-center w-full">
             <span class="w-2 h-2 rounded-full border mr-2 flex-shrink-0 ${isProf ? 'border-[#d4a544] bg-[#d4a544]' : 'border-[#6b7085] bg-transparent'}"></span>
@@ -650,13 +1080,15 @@
           </span>
           <span class="border border-[#26283b] bg-[#0a0c11] px-2 py-0.5 rounded text-xs font-bold text-[#d4a544]">${signed(mod)}</span>
         </div>`;
-      }).join('');
-      
-      // Skills
-      document.getElementById('skills').innerHTML = Object.entries(skillMap).map(([s,k]) => {
-        let isProf = c.proficiencies?.skills?.includes(s);
-        let mod = c.modifiers[k] + (isProf ? profBonus : 0);
-        return `
+          })
+          .join('');
+
+        // Skills
+        document.getElementById('skills').innerHTML = Object.entries(skillMap)
+          .map(([s, k]) => {
+            let isProf = c.proficiencies?.skills?.includes(s);
+            let mod = c.modifiers[k] + (isProf ? profBonus : 0);
+            return `
         <div class="flex items-center justify-between rounded bg-[#0a0c11] px-3 py-2 text-[10px] text-[#a1a7bc] border border-[#26283b]/50 hover:bg-[#181c2c]/30 transition cursor-pointer mb-2" onclick="sendRoll('1d20${signed(mod)}', '${s} Check')">
           <span class="text-xs text-white flex items-center w-full min-w-0">
             <span class="w-2 h-2 rounded-full border mr-2 flex-shrink-0 ${isProf ? 'border-[#d4a544] bg-[#d4a544]' : 'border-[#6b7085] bg-transparent'}"></span>
@@ -665,177 +1097,237 @@
           </span>
           <span class="border border-[#26283b] bg-[#0a0c11] px-2 py-0.5 rounded text-xs font-bold text-[#d4a544] flex-shrink-0">${signed(mod)}</span>
         </div>`;
-      }).join('');
-      
-      // Passive Senses
-      document.getElementById('senses').innerHTML = [
-        ['PERCEPTION', 10 + c.modifiers.wis + (c.proficiencies?.skills?.includes('Perception')?profBonus:0)],
-        ['INVESTIGATION', 10 + c.modifiers.int + (c.proficiencies?.skills?.includes('Investigation')?profBonus:0)],
-        ['INSIGHT', 10 + c.modifiers.wis + (c.proficiencies?.skills?.includes('Insight')?profBonus:0)]
-      ].map(x => `
+          })
+          .join('');
+
+        // Passive Senses
+        document.getElementById('senses').innerHTML = [
+          [
+            'PERCEPTION',
+            10 +
+              c.modifiers.wis +
+              (c.proficiencies?.skills?.includes('Perception') ? profBonus : 0),
+          ],
+          [
+            'INVESTIGATION',
+            10 +
+              c.modifiers.int +
+              (c.proficiencies?.skills?.includes('Investigation') ? profBonus : 0),
+          ],
+          [
+            'INSIGHT',
+            10 + c.modifiers.wis + (c.proficiencies?.skills?.includes('Insight') ? profBonus : 0),
+          ],
+        ]
+          .map(
+            (x) => `
         <div class="flex flex-col items-center flex-1">
           <div class="w-12 h-12 md:w-14 md:h-14 rounded-full border border-[#d4a544] bg-[#0a0c11] flex items-center justify-center text-sm font-bold text-white mb-1 shadow-md">${x[1]}</div>
           <div class="text-[9px] font-bold text-[#6b7085] uppercase text-center">${x[0]}</div>
         </div>
-      `).join('');
-      
-      // Actions
-      const weapons = c.equipment?.filter(item => item.isWeapon === true) || [];
-      const spells = c.spells?.filter(sp => sp.attackBonus !== undefined || sp.saveDC !== undefined) || [];
-      window._allAttacks = [...weapons, ...spells];
-      renderAttacks(window._allAttacks);
+      `,
+          )
+          .join('');
 
-      // Spell Slots UI
-      const slotsEl = document.getElementById('spellSlots');
-      if (slotsEl) {
-        const slots = c.spellSlots || {};
-        const numericKeys = Object.keys(slots).filter(k => !k.startsWith('pact-')).sort((a,b) => Number(a) - Number(b));
-        if (numericKeys.length === 0) {
-          slotsEl.innerHTML = '';
-        } else {
-          slotsEl.innerHTML = numericKeys.map(lv => {
-            const s = slots[lv];
-            const max = s.max || 0;
-            const current = s.current || 0; // remaining slots
-            const used = Math.max(0, max - current);
-            const ordinal = (n) => n===1?'1st':n===2?'2nd':n===3?'3rd':n+'th';
-            const dots = Array.from({length: Math.max(0, max)}, (_,i) => {
-              const available = i < current;
-              if (canEdit) {
-                return `<button class="w-3 h-3 inline-block rounded-full ${available ? 'bg-[#d4a544]' : 'border border-[#6b7085] bg-transparent'} mx-1" onclick="consumeSpellSlot(${lv})" title="${available ? 'Use slot' : 'Used'}"></button>`;
-              }
-              return `<span class="inline-block mx-1 ${available ? 'text-[#d4a544]' : 'text-[#6b7085]'}">${available ? '●' : '○'}</span>`;
-            }).join('');
-            return `<div class="text-xs text-[#a1a7bc] mb-1"><div class="font-bold text-white text-[10px]">${ordinal(Number(lv))} Level — ${max} Slots</div><div class="mt-1">${dots}</div></div>`;
-          }).join('');
+        // Actions
+        const weapons = c.equipment?.filter((item) => item.isWeapon === true) || [];
+        const spells =
+          c.spells?.filter((sp) => sp.attackBonus !== undefined || sp.saveDC !== undefined) || [];
+        window._allAttacks = [...weapons, ...spells];
+        renderAttacks(window._allAttacks);
+
+        // Spell Slots UI
+        const slotsEl = document.getElementById('spellSlots');
+        if (slotsEl) {
+          const slots = c.spellSlots || {};
+          const numericKeys = Object.keys(slots)
+            .filter((k) => !k.startsWith('pact-'))
+            .sort((a, b) => Number(a) - Number(b));
+          if (numericKeys.length === 0) {
+            slotsEl.innerHTML = '';
+          } else {
+            slotsEl.innerHTML = numericKeys
+              .map((lv) => {
+                const s = slots[lv];
+                const max = s.max || 0;
+                const current = s.current || 0; // remaining slots
+                const used = Math.max(0, max - current);
+                const ordinal = (n) =>
+                  n === 1 ? '1st' : n === 2 ? '2nd' : n === 3 ? '3rd' : n + 'th';
+                const dots = Array.from({ length: Math.max(0, max) }, (_, i) => {
+                  const available = i < current;
+                  if (canEdit) {
+                    return `<button class="w-3 h-3 inline-block rounded-full ${available ? 'bg-[#d4a544]' : 'border border-[#6b7085] bg-transparent'} mx-1" onclick="consumeSpellSlot(${lv})" title="${available ? 'Use slot' : 'Used'}"></button>`;
+                  }
+                  return `<span class="inline-block mx-1 ${available ? 'text-[#d4a544]' : 'text-[#6b7085]'}">${available ? '●' : '○'}</span>`;
+                }).join('');
+                return `<div class="text-xs text-[#a1a7bc] mb-1"><div class="font-bold text-white text-[10px]">${ordinal(Number(lv))} Level — ${max} Slots</div><div class="mt-1">${dots}</div></div>`;
+              })
+              .join('');
+          }
         }
-      }
 
-      // Inventory
-      window._allItems = c.equipment || [];
-      renderEquipment(window._allItems);
-      
-      // Features
-      window._allFeatures = c.features || c.traits || [];
-      renderFeatures(window._allFeatures);
+        // Inventory
+        window._allItems = c.equipment || [];
+        renderEquipment(window._allItems);
 
-      // Proficiencies
-      const profSection = document.getElementById('proficienciesContainer');
-      const prof = c.proficiencyDetails || {};
-      profSection.innerHTML = [
-        ['Armor', prof.armor],
-        ['Weapons', prof.weapons],
-        ['Tools', prof.tools],
-        ['Languages', prof.languages],
-      ].filter(([,v]) => v && v.length)
-       .map(([label, arr]) => `
+        // Features
+        window._allFeatures = c.features || c.traits || [];
+        renderFeatures(window._allFeatures);
+
+        // Proficiencies
+        const profSection = document.getElementById('proficienciesContainer');
+        const prof = c.proficiencyDetails || {};
+        profSection.innerHTML =
+          [
+            ['Armor', prof.armor],
+            ['Weapons', prof.weapons],
+            ['Tools', prof.tools],
+            ['Languages', prof.languages],
+          ]
+            .filter(([, v]) => v && v.length)
+            .map(
+              ([label, arr]) => `
         <div class="mb-2 last:mb-0">
           <span class="font-bold text-white">${label}:</span>
           <span class="text-[#a1a7bc]"> ${Array.isArray(arr) ? arr.join(', ') : arr}</span>
-        </div>`
-      ).join('') || '<div class="text-[#6b7085] italic text-xs">No proficiency data available.</div>';
+        </div>`,
+            )
+            .join('') ||
+          '<div class="text-[#6b7085] italic text-xs">No proficiency data available.</div>';
 
-      // Background
-      const bgSection = document.getElementById('backgroundContainer');
-      bgSection.innerHTML = `
+        // Background
+        const bgSection = document.getElementById('backgroundContainer');
+        bgSection.innerHTML = `
         <h2 class="text-xs font-bold uppercase tracking-wider text-[#e4c183] border-b border-[#26283b] pb-2 mb-4">Background</h2>
         <div class="space-y-4 text-xs">
           ${c.background?.name ? `<div class="font-bold text-white text-sm">${c.background.name}</div>` : ''}
           ${c.background?.description ? `<div class="text-[#a1a7bc] leading-relaxed">${c.background.description}</div>` : ''}
-          ${c.personalityTraits?.length ? `
+          ${
+            c.personalityTraits?.length
+              ? `
             <div>
               <div class="font-bold text-[#e4c183] text-[9px] uppercase tracking-wider mb-1">Personality Traits</div>
-              ${c.personalityTraits.map(t => `<div class="text-[#a1a7bc]">• ${t}</div>`).join('')}
-            </div>` : ''}
-          ${c.ideals?.length ? `
+              ${c.personalityTraits.map((t) => `<div class="text-[#a1a7bc]">• ${t}</div>`).join('')}
+            </div>`
+              : ''
+          }
+          ${
+            c.ideals?.length
+              ? `
             <div>
               <div class="font-bold text-[#e4c183] text-[9px] uppercase tracking-wider mb-1">Ideals</div>
-              ${c.ideals.map(t => `<div class="text-[#a1a7bc]">• ${t}</div>`).join('')}
-            </div>` : ''}
-          ${c.bonds?.length ? `
+              ${c.ideals.map((t) => `<div class="text-[#a1a7bc]">• ${t}</div>`).join('')}
+            </div>`
+              : ''
+          }
+          ${
+            c.bonds?.length
+              ? `
             <div>
               <div class="font-bold text-[#e4c183] text-[9px] uppercase tracking-wider mb-1">Bonds</div>
-              ${c.bonds.map(t => `<div class="text-[#a1a7bc]">• ${t}</div>`).join('')}
-            </div>` : ''}
-          ${c.flaws?.length ? `
+              ${c.bonds.map((t) => `<div class="text-[#a1a7bc]">• ${t}</div>`).join('')}
+            </div>`
+              : ''
+          }
+          ${
+            c.flaws?.length
+              ? `
             <div>
               <div class="font-bold text-[#e4c183] text-[9px] uppercase tracking-wider mb-1">Flaws</div>
-              ${c.flaws.map(t => `<div class="text-[#a1a7bc]">• ${t}</div>`).join('')}
-            </div>` : ''}
-          ${(!c.background && !c.personalityTraits) ? '<div class="text-[#6b7085] italic text-xs">Background details imported from D&amp;D Beyond will appear here.</div>' : ''}
+              ${c.flaws.map((t) => `<div class="text-[#a1a7bc]">• ${t}</div>`).join('')}
+            </div>`
+              : ''
+          }
+          ${!c.background && !c.personalityTraits ? '<div class="text-[#6b7085] italic text-xs">Background details imported from D&amp;D Beyond will appear here.</div>' : ''}
         </div>`;
 
-      // Notes
-      if(c.notes) document.getElementById('charNotes').value = c.notes;
-        
-      // Event Listeners for Edits (Notes)
-      if(!canEdit) {
-        document.getElementById('charNotes').setAttribute('readonly', true);
-        document.getElementById('saveNotesBtn').style.display = 'none';
-      } else {
-        document.getElementById('saveNotesBtn').onclick = () => {
-          updateSheet({notes: document.getElementById('charNotes').value});
-          VTT.Notification?.success('Notes saved.');
-        };
-        let notesTimer;
-        document.getElementById('charNotes').addEventListener('input', () => {
-          clearTimeout(notesTimer);
-          notesTimer = setTimeout(() => {
+        // Notes
+        if (c.notes) document.getElementById('charNotes').value = c.notes;
+
+        // Event Listeners for Edits (Notes)
+        if (!canEdit) {
+          document.getElementById('charNotes').setAttribute('readonly', true);
+          document.getElementById('saveNotesBtn').style.display = 'none';
+        } else {
+          document.getElementById('saveNotesBtn').onclick = () => {
             updateSheet({ notes: document.getElementById('charNotes').value });
-          }, 2000);
-        });
+            VTT.Notification?.success('Notes saved.');
+          };
+          let notesTimer;
+          document.getElementById('charNotes').addEventListener('input', () => {
+            clearTimeout(notesTimer);
+            notesTimer = setTimeout(() => {
+              updateSheet({ notes: document.getElementById('charNotes').value });
+            }, 2000);
+          });
+        }
       }
-    }
 
-    // Resources Renderer & Actions
-    window.consumeResource = function(resIndex, dotIndex) {
-      if (!character || !localStorage.getItem('token')) return;
-      const r = character.resources[resIndex];
-      const newCurrent = (r.current === dotIndex + 1) ? dotIndex : dotIndex + 1;
-      const newRes = [...character.resources];
-      newRes[resIndex] = { ...r, current: newCurrent };
-      updateSheet({ resources: newRes });
-    };
+      // Resources Renderer & Actions
+      window.consumeResource = function (resIndex, dotIndex) {
+        if (!character || !localStorage.getItem('token')) return;
+        const r = character.resources[resIndex];
+        const newCurrent = r.current === dotIndex + 1 ? dotIndex : dotIndex + 1;
+        const newRes = [...character.resources];
+        newRes[resIndex] = { ...r, current: newCurrent };
+        updateSheet({ resources: newRes });
+      };
 
-    window.consumeSpellSlot = function(level) {
-      if (!character || !localStorage.getItem('token')) return;
-      const slots = character.spellSlots || {};
-      const key = String(level);
-      const slot = slots[key];
-      if (!slot || slot.current <= 0) { VTT.Notification?.error('No slots available'); return; }
-      const newSlots = { ...slots, [key]: { current: Math.max(0, slot.current - 1), max: slot.max } };
-      updateSheet({ spellSlots: newSlots });
-    };
+      window.consumeSpellSlot = function (level) {
+        if (!character || !localStorage.getItem('token')) return;
+        const slots = character.spellSlots || {};
+        const key = String(level);
+        const slot = slots[key];
+        if (!slot || slot.current <= 0) {
+          VTT.Notification?.error('No slots available');
+          return;
+        }
+        const newSlots = {
+          ...slots,
+          [key]: { current: Math.max(0, slot.current - 1), max: slot.max },
+        };
+        updateSheet({ spellSlots: newSlots });
+      };
 
-    // Attacks Renderer
-    function renderAttacks(list) {
-      if (!list || list.length === 0) {
-        document.getElementById('attacksContainer').innerHTML = '<div class="text-[#6b7085] italic text-xs">No weapons or spells found.</div>';
-        return;
+      // Attacks Renderer
+      function renderAttacks(list) {
+        if (!list || list.length === 0) {
+          document.getElementById('attacksContainer').innerHTML =
+            '<div class="text-[#6b7085] italic text-xs">No weapons or spells found.</div>';
+          return;
+        }
+
+        const spells = list.filter((a) => a.level !== undefined);
+        const weapons = list.filter((a) => a.level === undefined);
+
+        let html = '';
+        if (weapons.length) html += weapons.map(renderAtkRow).join('');
+
+        if (spells.length) {
+          const levels = [...new Set(spells.map((s) => s.level))].sort((a, b) => a - b);
+          levels.forEach((lv) => {
+            html += `<div class="text-[9px] tracking-wider font-bold text-[#e4c183] uppercase mt-4 mb-2 border-b border-[#26283b] pb-1">${lv === 0 ? 'Cantrips' : 'Level ' + lv}</div>`;
+            html += spells
+              .filter((s) => s.level === lv)
+              .map(renderAtkRow)
+              .join('');
+          });
+        }
+        document.getElementById('attacksContainer').innerHTML = html;
       }
-      
-      const spells = list.filter(a => a.level !== undefined);
-      const weapons = list.filter(a => a.level === undefined);
-      
-      let html = '';
-      if(weapons.length) html += weapons.map(renderAtkRow).join('');
-      
-      if(spells.length) {
-         const levels = [...new Set(spells.map(s => s.level))].sort((a,b)=>a-b);
-         levels.forEach(lv => {
-           html += `<div class="text-[9px] tracking-wider font-bold text-[#e4c183] uppercase mt-4 mb-2 border-b border-[#26283b] pb-1">${lv===0?'Cantrips':'Level '+lv}</div>`;
-           html += spells.filter(s => s.level === lv).map(renderAtkRow).join('');
-         });
-      }
-      document.getElementById('attacksContainer').innerHTML = html;
-    }
 
-    function renderAtkRow(atk) {
+      function renderAtkRow(atk) {
         const atkBonus = signed(atk.attackBonus ?? 0);
         const dmg = atk.damage || '—';
         const range = atk.range || '5 ft.';
-        const prepIcon = atk.level !== undefined ? (atk.prepared ? '<span class="text-[#d4a544] mr-2" title="Prepared">★</span>' : '<span class="text-[#6b7085] mr-2" title="Not Prepared">☆</span>') : '';
-        const op = (atk.level !== undefined && !atk.prepared && atk.level > 0) ? 'opacity-50' : '';
+        const prepIcon =
+          atk.level !== undefined
+            ? atk.prepared
+              ? '<span class="text-[#d4a544] mr-2" title="Prepared">★</span>'
+              : '<span class="text-[#6b7085] mr-2" title="Not Prepared">☆</span>'
+            : '';
+        const op = atk.level !== undefined && !atk.prepared && atk.level > 0 ? 'opacity-50' : '';
         return `
           <div class="flex items-center justify-between py-2 border-b border-[#26283b] last:border-0 hover:bg-[#181c2c]/30 rounded px-1.5 transition ${op}" ${atk.level !== undefined ? `onclick="openSpellModal('${atk.name}')"` : ''}>
             <div class="flex-1 min-w-0 flex items-center">
@@ -850,24 +1342,28 @@
               <span class="border border-[#26283b] bg-[#0a0c11] px-2.5 py-1 rounded text-xs text-[#a1a7bc] cursor-pointer hover:border-[#d4a544] transition" onclick="event.stopPropagation(); rollDamage('${dmg}', '${atk.name}')">${dmg}</span>
             </div>
           </div>`;
-    }
+      }
 
-    window.rollDamage = function(dmg, name) {
-      const cleanDmg = dmg.split(' ')[0]; // e.g. "1d8+3 slashing" -> "1d8+3"
-      sendRoll(cleanDmg, name + ' Damage');
-    };
+      window.rollDamage = function (dmg, name) {
+        const cleanDmg = dmg.split(' ')[0]; // e.g. "1d8+3 slashing" -> "1d8+3"
+        sendRoll(cleanDmg, name + ' Damage');
+      };
 
-    window.toggleSpellPrep = function(name) {
-      if(!character || !localStorage.getItem('token')) return;
-      const newSpells = (character.spells || []).map(s => s.name === name ? {...s, prepared: !s.prepared} : s);
-      updateSheet({ spells: newSpells });
-    };
+      window.toggleSpellPrep = function (name) {
+        if (!character || !localStorage.getItem('token')) return;
+        const newSpells = (character.spells || []).map((s) =>
+          s.name === name ? { ...s, prepared: !s.prepared } : s,
+        );
+        updateSheet({ spells: newSpells });
+      };
 
-    window.openSpellModal = function(name) {
-      if(!character) return;
-      const spell = (window._allAttacks || []).find(s => s.name === name && s.level !== undefined);
-      if(!spell) return;
-      const content = `
+      window.openSpellModal = function (name) {
+        if (!character) return;
+        const spell = (window._allAttacks || []).find(
+          (s) => s.name === name && s.level !== undefined,
+        );
+        if (!spell) return;
+        const content = `
         <div class="text-xs text-[#a1a7bc] mb-2">
           <div class="mb-2"><strong>Level:</strong> ${spell.level}</div>
           ${spell.castingTime ? `<div class="mb-2"><strong>Casting Time:</strong> ${spell.castingTime}</div>` : ''}
@@ -877,106 +1373,130 @@
           ${spell.damage ? `<div class="mb-2"><strong>Damage:</strong> ${spell.damage}</div>` : ''}
           ${spell.source ? `<div class="mb-2"><strong>Source:</strong> ${spell.source}</div>` : ''}
         </div>`;
-      new VTT.Modal({ title: spell.name, content, buttons: [] }).open();
-    };
+        new VTT.Modal({ title: spell.name, content, buttons: [] }).open();
+      };
 
-    document.querySelectorAll('#actions-chips .filter-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('#actions-chips .filter-chip').forEach(c => {
-          c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
-          c.classList.add('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
+      document.querySelectorAll('#actions-chips .filter-chip').forEach((chip) => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('#actions-chips .filter-chip').forEach((c) => {
+            c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
+            c.classList.add('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
+          });
+          chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
+          chip.classList.remove('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
+
+          const filter = chip.textContent.trim().toLowerCase();
+          const filtered =
+            filter === 'all'
+              ? window._allAttacks
+              : window._allAttacks.filter(
+                  (item) => (item.actionType || '').toLowerCase() === filter,
+                );
+          renderAttacks(filtered);
         });
-        chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
-        chip.classList.remove('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
-        
-        const filter = chip.textContent.trim().toLowerCase();
-        const filtered = filter === 'all' ? window._allAttacks : window._allAttacks.filter(item => (item.actionType || '').toLowerCase() === filter);
-        renderAttacks(filtered);
       });
-    });
 
-    // Equipment Renderer
-    function renderEquipment(items) {
-      const allItemsWeight = window._allItems.reduce((sum,item)=>sum+Number(item.weight||0)*Number(item.quantity||1),0);
-      const capacity = Number(character?.stats?.str||10)*15;
-      
-      document.getElementById('weight-text').textContent = `TOTAL WEIGHT: ${allItemsWeight.toFixed(1)} / ${capacity} lb`;
-      const wPct = Math.min(100, (allItemsWeight/capacity)*100);
-      const wBar = document.getElementById('weight-bar');
-      wBar.style.width = wPct + '%';
-      if(wPct >= 100) wBar.style.background = '#8a1d1d';
-      else wBar.style.background = '#d4a544';
+      // Equipment Renderer
+      function renderEquipment(items) {
+        const allItemsWeight = window._allItems.reduce(
+          (sum, item) => sum + Number(item.weight || 0) * Number(item.quantity || 1),
+          0,
+        );
+        const capacity = Number(character?.stats?.str || 10) * 15;
 
-      document.getElementById('equipment').innerHTML = (items.length ?
-         `<div class="flex justify-between items-center pb-1 mb-1 border-b border-[#26283b] text-[9px] text-[#6b7085] uppercase font-bold mt-2">
+        document.getElementById('weight-text').textContent =
+          `TOTAL WEIGHT: ${allItemsWeight.toFixed(1)} / ${capacity} lb`;
+        const wPct = Math.min(100, (allItemsWeight / capacity) * 100);
+        const wBar = document.getElementById('weight-bar');
+        wBar.style.width = wPct + '%';
+        if (wPct >= 100) wBar.style.background = '#8a1d1d';
+        else wBar.style.background = '#d4a544';
+
+        document.getElementById('equipment').innerHTML = items.length
+          ? `<div class="flex justify-between items-center pb-1 mb-1 border-b border-[#26283b] text-[9px] text-[#6b7085] uppercase font-bold mt-2">
            <div style="flex:1;">Name</div>
            <div style="width:40px; text-align:center;">Qty</div>
            <div style="width:60px; text-align:right;">Weight</div>
          </div>` +
-        items.map((item,index) =>
-          `<div class="flex justify-between items-center py-2 border-b border-[#26283b] last:border-b-0 text-xs w-full cursor-pointer hover:bg-[#181c2c]/30 rounded transition px-1.5" onclick="openItemModal(${window._allItems.indexOf(item)})">
+            items
+              .map(
+                (item, index) =>
+                  `<div class="flex justify-between items-center py-2 border-b border-[#26283b] last:border-b-0 text-xs w-full cursor-pointer hover:bg-[#181c2c]/30 rounded transition px-1.5" onclick="openItemModal(${window._allItems.indexOf(item)})">
              <div style="flex:1; text-align:left; font-weight:bold; color:white; word-break:break-word; padding-right:8px;">${item.equipped ? '<span class="text-[#d4a544] font-bold mr-1">E</span> ' : ''}${item.name}</div>
              <div style="width:40px; text-align:center; color:#a1a7bc; font-size:0.75rem;">${item.quantity}</div>
-             <div style="width:60px; text-align:right; color:#6b7085; font-size:0.7rem;">${(Number(item.weight||0)*Number(item.quantity||1)).toFixed(1)} lb</div>
-           </div>`
-        ).join('') : '<div class="text-[#6b7085] italic text-xs mt-2">No equipment found.</div>');
-    }
+             <div style="width:60px; text-align:right; color:#6b7085; font-size:0.7rem;">${(Number(item.weight || 0) * Number(item.quantity || 1)).toFixed(1)} lb</div>
+           </div>`,
+              )
+              .join('')
+          : '<div class="text-[#6b7085] italic text-xs mt-2">No equipment found.</div>';
+      }
 
-    document.getElementById('inventorySearch')?.addEventListener('input', () => {
-      const term = document.getElementById('inventorySearch').value.toLowerCase();
-      const activeChip = document.querySelector('#inventory-chips .filter-chip.active')?.textContent.trim().toLowerCase() || 'all';
-      const filtered = window._allItems.filter(item => {
-        const matchName = item.name.toLowerCase().includes(term);
-        const matchChip = activeChip === 'all' || (item.category || '').toLowerCase() === activeChip;
-        return matchName && matchChip;
-      });
-      renderEquipment(filtered);
-    });
-
-    document.querySelectorAll('#inventory-chips .filter-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('#inventory-chips .filter-chip').forEach(c => {
-          c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
-          c.classList.add('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
+      document.getElementById('inventorySearch')?.addEventListener('input', () => {
+        const term = document.getElementById('inventorySearch').value.toLowerCase();
+        const activeChip =
+          document
+            .querySelector('#inventory-chips .filter-chip.active')
+            ?.textContent.trim()
+            .toLowerCase() || 'all';
+        const filtered = window._allItems.filter((item) => {
+          const matchName = item.name.toLowerCase().includes(term);
+          const matchChip =
+            activeChip === 'all' || (item.category || '').toLowerCase() === activeChip;
+          return matchName && matchChip;
         });
-        chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
-        chip.classList.remove('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
-        
-        const event = new Event('input');
-        document.getElementById('inventorySearch')?.dispatchEvent(event);
+        renderEquipment(filtered);
       });
-    });
 
-    window.openItemModal = function(index) {
-      if(!character) return;
-      const item = window._allItems[index];
-      const canEdit = Boolean(localStorage.getItem('token'));
-      const content = `
+      document.querySelectorAll('#inventory-chips .filter-chip').forEach((chip) => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('#inventory-chips .filter-chip').forEach((c) => {
+            c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
+            c.classList.add('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
+          });
+          chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
+          chip.classList.remove('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
+
+          const event = new Event('input');
+          document.getElementById('inventorySearch')?.dispatchEvent(event);
+        });
+      });
+
+      window.openItemModal = function (index) {
+        if (!character) return;
+        const item = window._allItems[index];
+        const canEdit = Boolean(localStorage.getItem('token'));
+        const content = `
         <div class="text-xs text-[#a1a7bc] mb-4 leading-relaxed">${item.description || 'No description available.'}</div>
         ${canEdit ? `<button class="w-full rounded border border-[#26283b] bg-[#11131f] text-white py-2 text-xs font-bold uppercase tracking-wider hover:bg-[#181c2c] transition" onclick="toggleEquip(${index})">${item.equipped ? 'Unequip Item' : 'Equip Item'}</button>` : ''}
       `;
-      new VTT.Modal({ title: item.name, content, buttons: [] }).open();
-    };
+        new VTT.Modal({ title: item.name, content, buttons: [] }).open();
+      };
 
-    window.toggleEquip = function(index) {
-      if(!character) return;
-      const newEq = [...character.equipment];
-      newEq[index] = { ...newEq[index], equipped: !newEq[index].equipped };
-      updateSheet({ equipment: newEq });
-      document.getElementById('modalClose')?.click();
-    };
+      window.toggleEquip = function (index) {
+        if (!character) return;
+        const newEq = [...character.equipment];
+        newEq[index] = { ...newEq[index], equipped: !newEq[index].equipped };
+        updateSheet({ equipment: newEq });
+        document.getElementById('modalClose')?.click();
+      };
 
-    // Features Renderer
-    function renderFeatures(list) {
-      const el = document.getElementById('featuresList');
-      if (!list || list.length === 0) {
-        el.innerHTML = '<div class="text-[#6b7085] italic text-xs">Features imported from D&D Beyond will appear here.</div>';
-        return;
-      }
-      el.innerHTML = list.map(f => {
-        const resource = f.usesResourceName ? character?.resources?.find(r => r.name === f.usesResourceName) : null;
-        const useBtn = resource ? `<button class="rounded border border-[#26283b] bg-[#11131f] text-[#a1a7bc] text-[10px] px-2 py-1 hover:bg-[#181c2c] transition ml-2 flex-shrink-0" onclick="useResourceByName('${resource.name.replace(/'/g, "\\'")}')">Use (${resource.current}/${resource.max})</button>` : '';
-        return `
+      // Features Renderer
+      function renderFeatures(list) {
+        const el = document.getElementById('featuresList');
+        if (!list || list.length === 0) {
+          el.innerHTML =
+            '<div class="text-[#6b7085] italic text-xs">Features imported from D&D Beyond will appear here.</div>';
+          return;
+        }
+        el.innerHTML = list
+          .map((f) => {
+            const resource = f.usesResourceName
+              ? character?.resources?.find((r) => r.name === f.usesResourceName)
+              : null;
+            const useBtn = resource
+              ? `<button class="rounded border border-[#26283b] bg-[#11131f] text-[#a1a7bc] text-[10px] px-2 py-1 hover:bg-[#181c2c] transition ml-2 flex-shrink-0" onclick="useResourceByName('${resource.name.replace(/'/g, "\\'")}')">Use (${resource.current}/${resource.max})</button>`
+              : '';
+            return `
         <div class="border-b border-[#26283b] pb-3 last:border-0">
           <div class="flex justify-between items-start">
              <div class="flex-1 min-w-0">
@@ -987,132 +1507,171 @@
           </div>
           <div class="text-xs text-[#a1a7bc] leading-relaxed mt-1">${f.description || ''}</div>
         </div>`;
-      }).join('');
-    }
-
-    window.useResourceByName = function(resourceName) {
-      if(!character || !localStorage.getItem('token')) return;
-      const resources = character.resources || [];
-      const foundIdx = resources.findIndex(r => r.name === resourceName);
-      if(foundIdx !== -1) {
-        const res = resources[foundIdx];
-        if(res.current <= 0) { VTT.Notification?.error('No uses left!'); return; }
-        const updatedArr = [...resources];
-        updatedArr[foundIdx] = { ...res, current: res.current - 1 };
-        updateSheet({ resources: updatedArr });
+          })
+          .join('');
       }
-    };
 
-    window.toggleDeathSave = function(type, index) {
-      if(!character || !localStorage.getItem('token')) return;
-      const ds = character.deathSaves || { successes: 0, failures: 0 };
-      if(type === 'success') {
-        const newVal = (ds.successes === index + 1) ? index : index + 1;
-        updateSheet({ deathSaves: { successes: newVal, failures: ds.failures } });
-      } else {
-        const newVal = (ds.failures === index + 1) ? index : index + 1;
-        updateSheet({ deathSaves: { successes: ds.successes, failures: newVal } });
-      }
-    };
+      window.useResourceByName = function (resourceName) {
+        if (!character || !localStorage.getItem('token')) return;
+        const resources = character.resources || [];
+        const foundIdx = resources.findIndex((r) => r.name === resourceName);
+        if (foundIdx !== -1) {
+          const res = resources[foundIdx];
+          if (res.current <= 0) {
+            VTT.Notification?.error('No uses left!');
+            return;
+          }
+          const updatedArr = [...resources];
+          updatedArr[foundIdx] = { ...res, current: res.current - 1 };
+          updateSheet({ resources: updatedArr });
+        }
+      };
 
-    document.querySelectorAll('#features-chips .filter-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('#features-chips .filter-chip').forEach(c => {
-          c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
-          c.classList.add('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
+      window.toggleDeathSave = function (type, index) {
+        if (!character || !localStorage.getItem('token')) return;
+        const ds = character.deathSaves || { successes: 0, failures: 0 };
+        if (type === 'success') {
+          const newVal = ds.successes === index + 1 ? index : index + 1;
+          updateSheet({ deathSaves: { successes: newVal, failures: ds.failures } });
+        } else {
+          const newVal = ds.failures === index + 1 ? index : index + 1;
+          updateSheet({ deathSaves: { successes: ds.successes, failures: newVal } });
+        }
+      };
+
+      document.querySelectorAll('#features-chips .filter-chip').forEach((chip) => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('#features-chips .filter-chip').forEach((c) => {
+            c.classList.remove('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
+            c.classList.add('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
+          });
+          chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
+          chip.classList.remove('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
+
+          const filter = chip.textContent.trim().toLowerCase();
+          const filtered =
+            filter === 'all'
+              ? window._allFeatures
+              : window._allFeatures.filter((f) =>
+                  (f.category || f.type || '').toLowerCase().includes(filter),
+                );
+          renderFeatures(filtered);
         });
-        chip.classList.add('active', 'bg-[#d4a544]', 'text-[#0a0a0f]', 'border-[#d4a544]');
-        chip.classList.remove('bg-[#0a0c11]', 'text-[#a1a7bc]', 'border-[#26283b]');
-        
-        const filter = chip.textContent.trim().toLowerCase();
-        const filtered = filter === 'all' ? window._allFeatures : window._allFeatures.filter(f => (f.category || f.type || '').toLowerCase().includes(filter));
-        renderFeatures(filtered);
       });
-    });
-    
-    async function updateSheet(changes) {
-      const token = localStorage.getItem('token');
-      if(!token) { VTT.Notification?.error('Login as owner to edit.'); return; }
-      try {
-        const res = await fetch('/api/v2/character/'+encodeURIComponent(character.id), {
-          method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-          body:JSON.stringify(changes)
-        });
-        if(!res.ok) throw Error();
-        character = await res.json(); render(character);
-      } catch {
-        VTT.Notification?.error('Failed to update sheet.');
-      }
-    }
-    
-    window.saveCurrency = function(type) {
-      const val = parseInt(document.getElementById('currencyInput').value) || 0;
-      updateSheet({ currencies: { ...character.currencies, [type]: val } });
-      document.getElementById('modalClose')?.click();
-    };
 
-    function openDefensesModal() {
-      if(!character) return;
-      const immunities = character.damageImmunities?.join(', ') || '—';
-      const resistances = character.damageResistances?.join(', ') || '—';
-      const vulnerabilities = character.damageVulnerabilities?.join(', ') || '—';
-      const content = `
+      async function updateSheet(changes) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          VTT.Notification?.error('Login as owner to edit.');
+          return;
+        }
+        try {
+          const res = await fetch('/api/v2/character/' + encodeURIComponent(character.id), {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            body: JSON.stringify(changes),
+          });
+          if (!res.ok) throw Error();
+          character = await res.json();
+          render(character);
+        } catch {
+          VTT.Notification?.error('Failed to update sheet.');
+        }
+      }
+
+      window.saveCurrency = function (type) {
+        const val = parseInt(document.getElementById('currencyInput').value) || 0;
+        updateSheet({ currencies: { ...character.currencies, [type]: val } });
+        document.getElementById('modalClose')?.click();
+      };
+
+      function openDefensesModal() {
+        if (!character) return;
+        const immunities = character.damageImmunities?.join(', ') || '—';
+        const resistances = character.damageResistances?.join(', ') || '—';
+        const vulnerabilities = character.damageVulnerabilities?.join(', ') || '—';
+        const content = `
         <div class="space-y-3 text-xs text-[#a1a7bc]">
           <div><span class="font-bold text-white">Immunities:</span><span class="ml-2">${immunities}</span></div>
           <div><span class="font-bold text-white">Resistances:</span><span class="ml-2">${resistances}</span></div>
           <div><span class="font-bold text-white">Vulnerabilities:</span><span class="ml-2">${vulnerabilities}</span></div>
         </div>`;
-      new VTT.Modal({ title: 'Defenses', content, buttons: [] }).open();
-    }
+        new VTT.Modal({ title: 'Defenses', content, buttons: [] }).open();
+      }
 
-    const dndConditions = ['Blinded','Charmed','Deafened','Exhaustion','Frightened','Grappled','Incapacitated','Invisible','Paralyzed','Petrified','Poisoned','Prone','Restrained','Stunned','Unconscious'];
-    function openConditionsModal() {
-      if(!character) return;
-      const activeConditions = character.conditions || [];
-      const content = `<div class="grid grid-cols-2 gap-2">` +
-        dndConditions.map(cond => `
+      const dndConditions = [
+        'Blinded',
+        'Charmed',
+        'Deafened',
+        'Exhaustion',
+        'Frightened',
+        'Grappled',
+        'Incapacitated',
+        'Invisible',
+        'Paralyzed',
+        'Petrified',
+        'Poisoned',
+        'Prone',
+        'Restrained',
+        'Stunned',
+        'Unconscious',
+      ];
+      function openConditionsModal() {
+        if (!character) return;
+        const activeConditions = character.conditions || [];
+        const content =
+          `<div class="grid grid-cols-2 gap-2">` +
+          dndConditions
+            .map(
+              (cond) => `
           <label class="flex items-center gap-2 cursor-pointer p-2 rounded border border-[#26283b] bg-[#0a0c11] hover:bg-[#181c2c]/40 text-xs transition">
-            <input type="checkbox" class="cond-checkbox accent-[#d4a544]" value="${cond}" ${activeConditions.includes(cond)?'checked':''}>
+            <input type="checkbox" class="cond-checkbox accent-[#d4a544]" value="${cond}" ${activeConditions.includes(cond) ? 'checked' : ''}>
             <span class="text-white">${cond}</span>
-          </label>`).join('') +
-        `</div>
+          </label>`,
+            )
+            .join('') +
+          `</div>
         <button class="w-full rounded bg-[#d4a544] py-2 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition mt-4"
           onclick="saveConditions()">Apply Conditions</button>`;
-      new VTT.Modal({ title: 'Conditions', content, buttons: [] }).open();
-    }
+        new VTT.Modal({ title: 'Conditions', content, buttons: [] }).open();
+      }
 
-    window.saveConditions = function() {
-      const checked = [...document.querySelectorAll('.cond-checkbox:checked')].map(c => c.value);
-      updateSheet({ conditions: checked });
-      document.getElementById('modalClose')?.click();
-    };
+      window.saveConditions = function () {
+        const checked = [...document.querySelectorAll('.cond-checkbox:checked')].map(
+          (c) => c.value,
+        );
+        updateSheet({ conditions: checked });
+        document.getElementById('modalClose')?.click();
+      };
 
-    window.openDiceModal = function() {
-      if(!character) return;
-      const diceTypes = ['d4','d6','d8','d10','d12','d20','d100'];
-      const content = `
+      window.openDiceModal = function () {
+        if (!character) return;
+        const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd20', 'd100'];
+        const content = `
         <div class="grid grid-cols-3 md:grid-cols-4 gap-2 mb-4">
-          ${diceTypes.map(d => `<button class="rounded border border-[#26283b] bg-[#0a0c11] hover:bg-[#181c2c] text-white py-2 font-bold font-serif text-sm transition" onclick="sendRoll('1${d}', '${d} Roll'); document.getElementById('modalClose')?.click();">${d}</button>`).join('')}
+          ${diceTypes.map((d) => `<button class="rounded border border-[#26283b] bg-[#0a0c11] hover:bg-[#181c2c] text-white py-2 font-bold font-serif text-sm transition" onclick="sendRoll('1${d}', '${d} Roll'); document.getElementById('modalClose')?.click();">${d}</button>`).join('')}
         </div>
         <div class="flex gap-2">
           <input type="text" id="customRollFormula" class="flex-1 rounded-md border border-[#26283b] bg-[#0a0c11] px-3 py-2 text-xs text-white outline-none placeholder:text-[#555b70]" placeholder="e.g. 2d6+4">
           <button class="rounded bg-[#d4a544] px-4 py-2 text-xs font-bold text-[#0a0a0f] hover:bg-[#e4c183] transition" onclick="const f=document.getElementById('customRollFormula').value; if(f) { sendRoll(f, 'Custom Roll'); document.getElementById('modalClose')?.click(); }">Roll</button>
         </div>`;
-      new VTT.Modal({ title: 'Dice Roller', content, buttons: [] }).open();
-    };
+        new VTT.Modal({ title: 'Dice Roller', content, buttons: [] }).open();
+      };
 
-    // HP Modal Logic & Rest
-    window.openHpModal = function() {
-      if(!character) return;
-      const hd = character.hitDice || { current: 1, max: 1, type: 'd10' };
-      const canEdit = Boolean(localStorage.getItem('token'));
-      const content = `
+      // HP Modal Logic & Rest
+      window.openHpModal = function () {
+        if (!character) return;
+        const hd = character.hitDice || { current: 1, max: 1, type: 'd10' };
+        const canEdit = Boolean(localStorage.getItem('token'));
+        const content = `
         <div class="flex flex-col gap-4">
           <div class="flex justify-between items-center bg-[#0a0c11] p-2.5 rounded border border-[#26283b]">
             <div class="text-xs font-bold text-white">Hit Dice: <span class="text-[#d4a544] ml-1">${hd.current}/${hd.max} ${hd.type}</span></div>
             ${canEdit ? `<button class="rounded border border-[#26283b] bg-[#11131f] px-3 py-1 text-[10px] font-bold text-white hover:bg-[#181c2c] transition" onclick="spendHitDie()">SPEND</button>` : ''}
           </div>
-          ${canEdit ? `
+          ${
+            canEdit
+              ? `
           <div class="flex gap-2">
             <button class="flex-1 rounded border border-[#26283b] bg-[#0a0c11] py-2 text-[10px] font-bold uppercase tracking-wider text-white hover:border-[#d4a544] transition" onclick="shortRest()">Short Rest</button>
             <button class="flex-1 rounded border border-[#26283b] bg-[#0a0c11] py-2 text-[10px] font-bold uppercase tracking-wider text-white hover:border-[#d4a544] transition" onclick="longRest()">Long Rest</button>
@@ -1129,73 +1688,97 @@
             <button class="flex-1 bg-green-600 text-white py-3 rounded text-xs font-bold uppercase tracking-wider hover:bg-green-500 transition" onclick="applyHp(1)">Heal</button>
             <button class="flex-1 bg-blue-600 text-white py-3 rounded text-xs font-bold uppercase tracking-wider hover:bg-blue-500 transition" onclick="applyTempHp()">Temp HP</button>
           </div>
-          ` : '<div class="text-[#6b7085] text-xs italic">You must be logged in as the owner to manage HP.</div>'}
+          `
+              : '<div class="text-[#6b7085] text-xs italic">You must be logged in as the owner to manage HP.</div>'
+          }
         </div>
       `;
-      window.hpModal = new VTT.Modal({ title: 'Manage HP & Resting', content: content, buttons: [] });
-      window.hpModal.open();
-    };
+        window.hpModal = new VTT.Modal({
+          title: 'Manage HP & Resting',
+          content: content,
+          buttons: [],
+        });
+        window.hpModal.open();
+      };
 
-    window.longRest = function() {
-      if(!character || !localStorage.getItem('token')) return;
-      const newRes = (character.resources || []).map(r => ({...r, current: r.max}));
-      const hd = character.hitDice || { current: 1, max: 1, type: 'd10' };
-      const newHd = { ...hd, current: Math.min(hd.max, hd.current + Math.max(1, Math.floor(hd.max / 2))) };
-      updateSheet({ hp: { current: character.hp.max, max: character.hp.max, temp: 0 }, resources: newRes, hitDice: newHd });
-      window.hpModal.close();
-      VTT.Notification?.success('Long rest completed.');
-    };
+      window.longRest = function () {
+        if (!character || !localStorage.getItem('token')) return;
+        const newRes = (character.resources || []).map((r) => ({ ...r, current: r.max }));
+        const hd = character.hitDice || { current: 1, max: 1, type: 'd10' };
+        const newHd = {
+          ...hd,
+          current: Math.min(hd.max, hd.current + Math.max(1, Math.floor(hd.max / 2))),
+        };
+        updateSheet({
+          hp: { current: character.hp.max, max: character.hp.max, temp: 0 },
+          resources: newRes,
+          hitDice: newHd,
+        });
+        window.hpModal.close();
+        VTT.Notification?.success('Long rest completed.');
+      };
 
-    window.shortRest = function() {
-      VTT.Notification?.info('For Short Rests, click "SPEND" to roll Hit Dice individually. Abilities resetting on Short Rest are not yet automated.');
-    };
+      window.shortRest = function () {
+        VTT.Notification?.info(
+          'For Short Rests, click "SPEND" to roll Hit Dice individually. Abilities resetting on Short Rest are not yet automated.',
+        );
+      };
 
-    window.spendHitDie = function() {
-      if(!character || !localStorage.getItem('token')) return;
-      const hd = character.hitDice || { current: 1, max: 1, type: 'd10' };
-      if(hd.current <= 0) { VTT.Notification?.error('No Hit Dice left!'); return; }
-      const roll = Math.floor(Math.random() * parseInt(hd.type.replace('d', ''))) + 1;
-      const heal = roll + character.modifiers.con;
-      const newHp = Math.min(character.hp.max, character.hp.current + heal);
-      updateSheet({ hitDice: { ...hd, current: hd.current - 1 }, hp: { ...character.hp, current: newHp } });
-      VTT.Notification?.success(`Spent 1 HD (${roll} + ${character.modifiers.con}): Healed ${heal} HP`);
-      window.hpModal.close();
-      setTimeout(openHpModal, 300); // re-open to reflect changes
-    };
-
-    window.applyHp = function(multiplier) {
-      if(!character) return;
-      const amount = parseInt(document.getElementById('hpAmount').value) || 0;
-      if(amount <= 0) return;
-      let newHp = character.hp.current;
-      let newTemp = character.hp.temp || 0;
-      
-      if(multiplier < 0) {
-        const dmg = amount;
-        if(newTemp >= dmg) { newTemp -= dmg; }
-        else {
-          const overflow = dmg - newTemp;
-          newTemp = 0;
-          newHp = Math.max(0, newHp - overflow);
+      window.spendHitDie = function () {
+        if (!character || !localStorage.getItem('token')) return;
+        const hd = character.hitDice || { current: 1, max: 1, type: 'd10' };
+        if (hd.current <= 0) {
+          VTT.Notification?.error('No Hit Dice left!');
+          return;
         }
-      } else {
-        newHp = Math.min(character.hp.max, newHp + amount);
-      }
-      
-      updateSheet({ hp: { current: newHp, max: character.hp.max, temp: newTemp } });
-      window.hpModal.close();
-    };
+        const roll = Math.floor(Math.random() * parseInt(hd.type.replace('d', ''))) + 1;
+        const heal = roll + character.modifiers.con;
+        const newHp = Math.min(character.hp.max, character.hp.current + heal);
+        updateSheet({
+          hitDice: { ...hd, current: hd.current - 1 },
+          hp: { ...character.hp, current: newHp },
+        });
+        VTT.Notification?.success(
+          `Spent 1 HD (${roll} + ${character.modifiers.con}): Healed ${heal} HP`,
+        );
+        window.hpModal.close();
+        setTimeout(openHpModal, 300); // re-open to reflect changes
+      };
 
-    window.applyTempHp = function() {
-      if(!character) return;
-      const amount = parseInt(document.getElementById('hpAmount').value) || 0;
-      if(amount <= 0) return;
-      const currentTemp = character.hp.temp || 0;
-      updateSheet({ hp: { ...character.hp, temp: Math.max(currentTemp, amount) } });
-      window.hpModal.close();
-    };
+      window.applyHp = function (multiplier) {
+        if (!character) return;
+        const amount = parseInt(document.getElementById('hpAmount').value) || 0;
+        if (amount <= 0) return;
+        let newHp = character.hp.current;
+        let newTemp = character.hp.temp || 0;
 
-    load();
-  </script>
-</body>
+        if (multiplier < 0) {
+          const dmg = amount;
+          if (newTemp >= dmg) {
+            newTemp -= dmg;
+          } else {
+            const overflow = dmg - newTemp;
+            newTemp = 0;
+            newHp = Math.max(0, newHp - overflow);
+          }
+        } else {
+          newHp = Math.min(character.hp.max, newHp + amount);
+        }
+
+        updateSheet({ hp: { current: newHp, max: character.hp.max, temp: newTemp } });
+        window.hpModal.close();
+      };
+
+      window.applyTempHp = function () {
+        if (!character) return;
+        const amount = parseInt(document.getElementById('hpAmount').value) || 0;
+        if (amount <= 0) return;
+        const currentTemp = character.hp.temp || 0;
+        updateSheet({ hp: { ...character.hp, temp: Math.max(currentTemp, amount) } });
+        window.hpModal.close();
+      };
+
+      load();
+    </script>
+  </body>
 </html>

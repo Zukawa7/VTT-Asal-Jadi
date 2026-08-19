@@ -7,6 +7,8 @@ declare module '../server-legacy.js' {
   export const app: Express;
   export const io: TypedIo;
   export const httpServer: HttpServer;
-  export function setRollPersistence(handler: (event: RollEvent & { characterId?: string }) => Promise<void>): void;
+  export function setRollPersistence(
+    handler: (event: RollEvent & { characterId?: string }) => Promise<void>,
+  ): void;
   export function setRealtimeManager(manager: unknown): void;
 }

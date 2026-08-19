@@ -13,7 +13,7 @@ describe('crypto utils', () => {
     const hash1 = hashPassword('password123', salt);
     const hash2 = hashPassword('password123', salt);
     const hash3 = hashPassword('different', salt);
-    
+
     expect(hash1).toEqual(hash2);
     expect(hash1).not.toEqual(hash3);
   });

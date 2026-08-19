@@ -5,12 +5,24 @@ import { describe, expect, it, vi } from 'vitest';
 import { createSessionsRouter } from './sessions.js';
 
 const secret = 'test-secret';
-function authToken() { return jwt.sign({ id: 7, username: 'tester' }, secret); }
+function authToken() {
+  return jwt.sign({ id: 7, username: 'tester' }, secret);
+}
 
 function createDb() {
-  const session = { id: 1, roomId: 'room-test', createdBy: 7, name: 'Test Game', description: 'Test', createdAt: '', updatedAt: '' };
+  const session = {
+    id: 1,
+    roomId: 'room-test',
+    createdBy: 7,
+    name: 'Test Game',
+    description: 'Test',
+    createdAt: '',
+    updatedAt: '',
+  };
   return {
-    get: vi.fn(async (sql: string): Promise<Record<string, unknown> | undefined> => sql.includes('FROM game_sessions') ? session : undefined),
+    get: vi.fn(async (sql: string): Promise<Record<string, unknown> | undefined> =>
+      sql.includes('FROM game_sessions') ? session : undefined,
+    ),
     all: vi.fn(async (): Promise<Record<string, unknown>[]> => []),
     run: vi.fn(async () => ({ lastID: 1, changes: 1 })),
   };
@@ -19,7 +31,15 @@ function createDb() {
 describe('typed session routes', () => {
   it('creates a session for an authenticated user', async () => {
     const db = createDb();
-    db.get.mockResolvedValueOnce(undefined).mockResolvedValueOnce({ id: 1, roomId: 'room-test', createdBy: 7, name: 'Test Game', description: 'Test', createdAt: '', updatedAt: '' });
+    db.get.mockResolvedValueOnce(undefined).mockResolvedValueOnce({
+      id: 1,
+      roomId: 'room-test',
+      createdBy: 7,
+      name: 'Test Game',
+      description: 'Test',
+      createdAt: '',
+      updatedAt: '',
+    });
     const app = express();
     app.use(express.json());
     app.use('/sessions', createSessionsRouter(db as never, secret));
@@ -50,8 +70,9 @@ describe('typed session routes', () => {
 
   it('returns analytics for a valid room', async () => {
     const db = createDb();
-    db.get.mockResolvedValueOnce({ id: 1, roomId: 'room-test' }) // session
-          .mockResolvedValueOnce({ totalRolls: 5, averageResult: 15.5, criticalCount: 1 }); // summary
+    db.get
+      .mockResolvedValueOnce({ id: 1, roomId: 'room-test' }) // session
+      .mockResolvedValueOnce({ totalRolls: 5, averageResult: 15.5, criticalCount: 1 }); // summary
     db.all.mockResolvedValueOnce([{ formula: '1d20', uses: 5 }]); // formulas
     const app = express();
     app.use(express.json());
@@ -60,7 +81,12 @@ describe('typed session routes', () => {
     const response = await request(app).get('/sessions/room-test/analytics');
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ totalRolls: 5, averageResult: 15.5, criticalCount: 1, formulas: [{ formula: '1d20', uses: 5 }] });
+    expect(response.body).toEqual({
+      totalRolls: 5,
+      averageResult: 15.5,
+      criticalCount: 1,
+      formulas: [{ formula: '1d20', uses: 5 }],
+    });
   });
 
   it('exports rolls as JSON', async () => {
@@ -80,7 +106,16 @@ describe('typed session routes', () => {
 
   it('exports rolls as CSV', async () => {
     const db = createDb();
-    db.all.mockResolvedValueOnce([{ characterId: '123', formula: '1d20', result: 15, isCritical: 0, rolls: '[15]', createdAt: '2023-01-01' }]);
+    db.all.mockResolvedValueOnce([
+      {
+        characterId: '123',
+        formula: '1d20',
+        result: 15,
+        isCritical: 0,
+        rolls: '[15]',
+        createdAt: '2023-01-01',
+      },
+    ]);
     const app = express();
     app.use(express.json());
     app.use('/sessions', createSessionsRouter(db as never, secret));
@@ -92,7 +127,6 @@ describe('typed session routes', () => {
     expect(response.text).toContain('characterId,formula,result,isCritical,rolls,createdAt');
     expect(response.text).toContain('"123","1d20","15","0","[15]","2023-01-01"');
   });
-
 
   it('rejects invalid room IDs before database access', async () => {
     const db = createDb();

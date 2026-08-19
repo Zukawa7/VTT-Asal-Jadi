@@ -12,7 +12,7 @@ class MobileNav {
     const navBtn = document.createElement('button');
     navBtn.className = 'mobile-nav-toggle hidden text-[#d4a544] hover:text-[#e4c183] text-xl p-2';
     navBtn.innerHTML = '☰';
-    
+
     // Quick CSS injection for mobile nav toggle
     const style = document.createElement('style');
     style.textContent = `
@@ -26,7 +26,8 @@ class MobileNav {
     header.prepend(navBtn);
 
     const menu = document.createElement('div');
-    menu.className = 'fixed top-0 left-0 bottom-0 w-[250px] bg-[#11131f] border-r border-[#26283b] z-[1001] transform -translate-x-full transition-transform duration-300 p-6 shadow-[0px_16px_40px_#000000a0]';
+    menu.className =
+      'fixed top-0 left-0 bottom-0 w-[250px] bg-[#11131f] border-r border-[#26283b] z-[1001] transform -translate-x-full transition-transform duration-300 p-6 shadow-[0px_16px_40px_#000000a0]';
     menu.id = 'mobileMenu';
     menu.innerHTML = `
       <div class="flex justify-between items-center mb-8">
@@ -43,10 +44,11 @@ class MobileNav {
 
     navBtn.addEventListener('click', () => {
       menu.classList.remove('-translate-x-full');
-      if(document.getElementById('mobileBackdrop')) return;
+      if (document.getElementById('mobileBackdrop')) return;
       const backdrop = document.createElement('div');
       backdrop.id = 'mobileBackdrop';
-      backdrop.className = 'fixed inset-0 bg-black/70 backdrop-blur-sm z-[1000] transition-opacity duration-300';
+      backdrop.className =
+        'fixed inset-0 bg-black/70 backdrop-blur-sm z-[1000] transition-opacity duration-300';
       document.body.appendChild(backdrop);
       backdrop.addEventListener('click', () => {
         menu.classList.add('-translate-x-full');

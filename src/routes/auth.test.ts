@@ -7,9 +7,15 @@ function createDb() {
   const users: Array<{ id: number; username: string; password_hash: string; salt: string }> = [];
   return {
     users,
-    get: async (_sql: string, params: unknown[] = []) => users.find((user) => user.username === params[0]),
+    get: async (_sql: string, params: unknown[] = []) =>
+      users.find((user) => user.username === params[0]),
     run: async (_sql: string, params: unknown[] = []) => {
-      users.push({ id: users.length + 1, username: String(params[0]), password_hash: String(params[1]), salt: String(params[2]) });
+      users.push({
+        id: users.length + 1,
+        username: String(params[0]),
+        password_hash: String(params[1]),
+        salt: String(params[2]),
+      });
       return { lastID: users.length, changes: 1 };
     },
   };
@@ -22,8 +28,12 @@ describe('typed auth routes', () => {
     app.use(express.json());
     app.use('/auth', createAuthRouter(db as never, 'test-secret'));
 
-    const register = await request(app).post('/auth/register').send({ username: 'tester', password: 'password123' });
-    const login = await request(app).post('/auth/login').send({ username: 'tester', password: 'password123' });
+    const register = await request(app)
+      .post('/auth/register')
+      .send({ username: 'tester', password: 'password123' });
+    const login = await request(app)
+      .post('/auth/login')
+      .send({ username: 'tester', password: 'password123' });
 
     expect(register.status).toBe(201);
     expect(register.body.success).toBe(true);
@@ -38,7 +48,9 @@ describe('typed auth routes', () => {
     app.use('/auth', createAuthRouter(db as never, 'test-secret'));
 
     await request(app).post('/auth/register').send({ username: 'tester', password: 'password123' });
-    const login = await request(app).post('/auth/login').send({ username: 'tester', password: 'password123' });
+    const login = await request(app)
+      .post('/auth/login')
+      .send({ username: 'tester', password: 'password123' });
     const token = login.body.token;
 
     const me = await request(app).get('/auth/me').set('Authorization', `Bearer ${token}`);
@@ -53,7 +65,9 @@ describe('typed auth routes', () => {
     app.use('/auth', createAuthRouter(db as never, 'test-secret'));
 
     await request(app).post('/auth/register').send({ username: 'tester', password: 'password123' });
-    const duplicate = await request(app).post('/auth/register').send({ username: 'tester', password: 'password123' });
+    const duplicate = await request(app)
+      .post('/auth/register')
+      .send({ username: 'tester', password: 'password123' });
     expect(duplicate.status).toBe(409);
     expect(duplicate.body.error).toBe('Username is already taken');
   });
@@ -64,17 +78,20 @@ describe('typed auth routes', () => {
     app.use(express.json());
     app.use('/auth', createAuthRouter(db as never, 'test-secret'));
 
-    const invalid = await request(app).post('/auth/register').send({ username: 'a', password: '123' });
+    const invalid = await request(app)
+      .post('/auth/register')
+      .send({ username: 'a', password: '123' });
     expect(invalid.status).toBe(400);
   });
-
 
   it('rejects invalid credentials', async () => {
     const app = express();
     app.use(express.json());
     app.use('/auth', createAuthRouter(createDb() as never, 'test-secret'));
 
-    const response = await request(app).post('/auth/login').send({ username: 'unknown', password: 'wrong-password' });
+    const response = await request(app)
+      .post('/auth/login')
+      .send({ username: 'unknown', password: 'wrong-password' });
 
     expect(response.status).toBe(401);
     expect(response.body).toEqual({ error: 'Invalid username or password' });
