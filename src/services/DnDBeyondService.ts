@@ -154,7 +154,6 @@ export class DnDBeyondService {
     if (pactMagic.length > 0) {
       pactMagic.forEach((p) => {
         const lvl = number(p.level);
-        const used = number(p.used ?? 0);
         const key = `pact-${lvl}`;
         // D&D Beyond does not provide a direct max for pact slots here; store used/max=0 so UI can show used if present
         spellSlots[key] = { current: 0, max: 0 };
@@ -222,7 +221,7 @@ export class DnDBeyondService {
       }
       // Casting time / activation
       const activation = dict(definition.activation ?? dict(definition).activation ?? dict(dict(definition).spellData).activation);
-      let casting = text(definition.castingTimeDescription || activation.activationTime || definition.castingTime || '');
+      const casting = text(definition.castingTimeDescription || activation.activationTime || definition.castingTime || '');
 
       return { name: text(definition.name, 'Unknown Spell'), level: number(definition.level), prepared: bool(item.prepared ?? item.alwaysPrepared), attackBonus: ability + proficiencyBonus, saveDC: 8 + ability + proficiencyBonus, damage: text(definition.damage) || undefined, castingTime: casting || undefined, range: rangeStr || undefined, components: compStr || undefined, duration: durationStr || undefined, source: text(definition.source) || undefined };
     });
